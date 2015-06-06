@@ -88,9 +88,9 @@ beginDocumentation()
 	--twists of the structure sheaf--
 	and cyclic skyscraper sheaves represented by modules of the form
 	k[x,y]/(l^m)
-	where l is an klirreducible homogeneous polynomial and
+	where l is an irreducible homogeneous polynomial and
 	m is a non-negative integer.
-	This package computes the twissts and the annihilators l^m
+	This package computes the twists and the annihilators l^m
 	that appear in the decomposition, starting from a
 	graded module over k[x,y].
        Example
@@ -100,10 +100,6 @@ beginDocumentation()
     	L = analyze M;
 	twists = L_0
 	anns = L_1
-       Caveat
-        The script uses a linear nonzerodivisor, which would not exist over a finite
-	field in the case where every point of P1 is the support of one of the
-	skyscraper components.
      ///
 
 
@@ -156,6 +152,10 @@ beginDocumentation()
 	L
         analyze M1;	
         analyze M;
+     Caveat
+        The script uses a linear nonzerodivisor, which would not exist over a finite
+	field in the case where every point of P1 is the support of one of the
+	skyscraper components.
      SeeAlso
       doubleDualMap
      ///
