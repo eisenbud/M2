@@ -171,7 +171,11 @@ processStrategy := (v) -> (
 warnexp := () -> stderr << "--warning: gb algorithm requested is experimental" << endl
 
 processAlgorithm := (a,f) -> (
+     R := ring f;
+     k := ultimate(coefficientRing, R);
      if (a === Homogeneous or a === Homogeneous2) and not isHomogeneous f then error "gb: homogeneous algorithm specified with inhomogeneous matrrix";
+     if k === ZZ and a =!= Inhomogeneous then error "gb: only the algorithm 'Inhomogeneous' may be used with base ring ZZ";
+     if R.?FlatMonoid and not R.FlatMonoid.Options.Global and a =!= Inhomogeneous then error "gb: only the algorithm 'Inhomogeneous' may be used with a non-global monomial ordering";
      if a === Homogeneous then 1
      else if a === Inhomogeneous then 2
 --     else if a === F4 then error "the F4 algorithm option has been replaced by LinearAlgebra"
@@ -187,7 +191,12 @@ gb Ideal := GroebnerBasis => opts -> (I) -> gb ( module I, opts )
 
 gb Module := GroebnerBasis => opts -> (M) -> (
      if M.?relations 
-     then gb(generators M|relations M, opts, SyzygyRows => numgens source generators M)
+     then (
+	  f := (
+	       if M.cache#?"full gens" 
+	       then M.cache#"full gens"
+	       else M.cache#"full gens" = generators M|relations M);
+	  gb(f, opts, SyzygyRows => numgens source generators M))
      else gb(generators M, opts))
 
 	  -- handle the Hilbert numerator later, which might be here:
