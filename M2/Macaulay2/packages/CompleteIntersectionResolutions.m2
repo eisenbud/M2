@@ -275,7 +275,44 @@ assert(ring b === R');
 	      map(MR',M'++B0, (alpha|beta))*map(M'++ B0, box_0, aug'++id_(B0))));
     (L, aug)
     )
-
+BRanks = method()
+BRanks(Matrix,Module) := (ff,N) ->(
+    --computes all the B-ranks that occur in the Layered resolution. 
+    --Here ff is a matrix whose entries are a maximal regular sequence in 
+    --the annihilator of the Cohen-Macaulay module N.
+    --There is NO assumption
+    --on the generality of ff. Also, N need not be an MF module; this
+    --is more general, but slower, then BRanks matrixFactorization(ff,N).
+    --The code is written so that N can be given either as an S-module or
+    --as an R = (S/ideal ff)-module.
+    S := ring ff;
+    if ring N === S then M := N else (
+    p := map(ring N, ring ff);
+    M =  pushForward(p,N));
+    c := numcols ff;
+    N' := BRanks1(ff,M);
+    Llast := {N'_1,N'_2};
+    L := reverse apply(c-1, j->(
+    N' = BRanks1(ff_{0..c-2-j},N'_0);
+    {N'_1,N'_2}));
+    L|{Llast}
+    )
+--used in BRanks(Matrix,Module)
+BRanks1 = (ff,M) ->(
+    --computes the last B-ranks that occur in the Layered resolution. Assumes M is an
+    --S-module that is  MCM over R = S/(ideal ff)
+    S := ring M;
+    f := numcols ff;
+    R' := S/ideal(ff_{0..f-2});
+--    p1 := map(R, R');
+    M1' := R'** M;          
+   (phi,psi) := approximation M1';
+    M1 := pushForward(map(R',S),source phi);
+   --note that in our situation both source psi and ker (phi|psi) will be free; thus
+   --their ranks should be quick to compute.
+   r:= rank ker (phi|psi);
+   {M1, rank source psi, r}
+    )
 
 dualWithComponents = method()
 dualWithComponents Module := M -> (
@@ -699,7 +736,7 @@ h = map(htar, directSum (Hlist1/source), h);
 {d,h}
 )
 
-BRanks = method()
+
 BRanks List := MF -> (
       B0 := (target MF_0).cache.components;
       B1 := (source MF_0).cache.components;
@@ -3543,17 +3580,37 @@ doc ///
         Key 
 	 BRanks
 	 (BRanks, List)
+	 (BRanks, Matrix, Module)	 
         Headline 
-	 ranks of the modules B_i(d) in a matrixFactorization
+	 ranks of the modules B_i(d) in a matrixFactorization or a Layered resolution
         Usage 
 	 br = BRanks MF
+	 br = BRanks(f,N)
         Inputs 
 	 MF:List
 	  output of a matrixFactorization computation
+    	 f:Matrix 
+	  containing maximal regular sequence in ann N
+	 N:Module
+	  Cohen-Macaulay module over ring f or MCM module over (ring f)/(ideal f)
         Outputs
 	 br: List
 	  list of pairs {rank B_1(d), rank B_0(d)}
         Description
+	 Text
+	  Let N be a Cohen-Macaulay S-module of codimension c. For j = 1,..,c:
+	  Let M(j) be the essential MCM approximation of N over R(j-1) := S/(f_0..f_{j-2}),
+	  and let B_1(j) \to B_0(j) ++ M(j-1) \to M(j) be the MCM approximation sequence
+	  over R(j-1), so that B_0(j) and B_1(j) are free R(j-1)-modules; suppose their ranks
+	  are b_0(j) and b_1(j) respectively.
+	 
+	  The command BRanks(f,N) returns the list:
+	 
+	  \{\{b_0(1), b_1(1)\}, \dots\ ,\{b_0(c), b_1(c)\}\}.
+	 
+	  The command BRanks matrixFactorization(f,N) returns the same list, but only
+	  in the case where N is a matrix factorization module for f. In such cases
+	  the matrix factorization code seems to be faster.
          Example
 	  c = 2
 	  S = ZZ/32003[x_0..x_(c-1),a_(0,0)..a_(c-1,c-1)];
@@ -3563,6 +3620,7 @@ doc ///
 	  kR = R^1/ideal(x_0..x_(c-1))
 	  MF = matrixFactorization(f,highSyzygy kR)
 	  netList BRanks MF
+	  netList BRanks(f,highSyzygy kR)
 	  netList dMaps MF
 	  netList bMaps MF
 	  netList psiMaps MF

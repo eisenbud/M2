@@ -219,20 +219,19 @@ Description
    
    1) There is a unique
    maximal Cohen-Macaulay R-module M' and a short exact sequence  
-   0\to N' \to M' \to  M \to 0
-   such that N has finite projective dimension; 
-   the module M, together with the surjection,
+   0\to N \to M' \to  M \to 0
+   such that N has finite projective dimension and the free summand of M' has minimal rank; 
+   the module M', together with the surjection,
    is the MCM approximation of M.
    
    2) Dually, there is a unique short exact sequence
    0\to M \to N'' \to M'' \to 0
    such that N'' has finite projective dimension and M'' is a
-   monomormphism M -> N to a module N of finite projective dimension, with
-   cokernel a maximal Cohen-Macaulay module, the MCM co-approximation.
+   a maximal Cohen-Macaulay module without free summands, the MCM co-approximation.
    
    These sequences are easy to compute.Let
-   d = 1+ depth R - depth M. Write M'_0 for the d-th cosyzygy of the 
-   d-th syzygy module of M, and \alpha: M'\to M. The module M' is called the 
+   d = 1+ depth R - depth M. Write M_0 for the d-th cosyzygy of the 
+   d-th syzygy module of M, and \alpha: M'_0\to M. The module M' is called the 
    essential MCM approximation of M. Note that M' has no free summand 
    Let B_0 be a minimal free module mapping
    onto M/(image M'_0), and lift the surjection ac to a map
