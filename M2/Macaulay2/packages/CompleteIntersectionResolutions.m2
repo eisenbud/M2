@@ -3480,8 +3480,8 @@ Description
  Text
   Similarly with the odd part
  Example
-  phi1 = bgg(1,dual T'', ops)
-  phi2 = bgg(0,dual T'', ops)
+  phi1 = bgg(1,dual T'', ops);
+  phi2 = bgg(0,dual T'', ops);
   F'' = chainComplex{phi1, phi2}**ops^{-2}
   assert (0==prune HH_2 F'' and 0 == HH_1 F'')
   betti (G'' = res oddExtModule N_m)
