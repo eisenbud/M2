@@ -3408,7 +3408,8 @@ Description
   to compute a (non-minimal) presentation of this module.
   
   From the description by matrix factorizations and the paper
-  *** of Eisenbud, Peeva and Schreyer it follows that
+  "Tor as a Module over an Exterior Algebra" of Eisenbud, Peeva and Schreyer
+  (Journal of the European Mathematical Society, to appear) it follows that
   when M is a high syzygy and F is its resolution,
   then the presentation of Tor(M,S^1/mm) always has generators
   in degrees 0,1, corresponding to the targets and sources of the
@@ -3434,6 +3435,58 @@ Description
   betti res prune PT0
   betti res prune PT1
   betti res prune PT
+ Text
+  The following code produces the example in the introduction of
+  "Tor as a Module over an Exterior Algebra"
+ Example
+  S = ZZ/101[x_0..x_2]
+  ff = matrix{{x_0^3,x_1^3,x_2^3}}
+  R = S/ideal ff
+  N = apply(4,i-> syzygyModule(i, coker vars R));
+  p = map(R,S);
+  netList apply(4,i-> (
+  	T = prune exteriorTorModule(ff,prune pushForward(p,N_i));
+  	(betti res(T,LengthLimit => 5),betti res prune pushForward(p,N_i))
+  	))
+ Text  
+  We now demonstrate that the resolutions of
+  the even and odd ext modules are the BGG duals F',F'' of the dual
+  modules to T' := E*Tor^S_0(M,k) and T'' = Tor^S(M,k)/T'. As in the paper,
+  this is done for N_3, but it works for N_2 as well, even though the latter
+  is not a matrix factorization module.
+ Example
+  needsPackage"BGG"
+  m = 3
+  T = prune exteriorTorModule(ff,prune pushForward(p,N_m));
+  E = ring T
+  ops = ring evenExtModule(N_m)
+  
+  T'gens = submatrixByDegrees(gens T, (0,1),(0,0)); -- the deg 0 generators
+  T' = image (map(T,,T'gens));
+  T'' = T/T';
+
+  psi2 = bgg(1,dual T', ops)
+  psi1 = bgg(2,dual T', ops)
+  F' = chainComplex{psi1,psi2}**ops^{-3}
+  assert (0==prune HH_2 F' and 0 == HH_1 F')
+  betti (G' = res evenExtModule N_m)
+ Text
+  F' and G' are the same up to a change of variables:
+ Example
+  G'.dd_2
+  F'.dd_2
+  eq = map(ring F', ring G', {ops_2,-ops_1,ops_0})
+  eq G' == F'
+ Text
+  Similarly with the odd part
+ Example
+  phi1 = bgg(1,dual T'', ops)
+  phi2 = bgg(0,dual T'', ops)
+  F'' = chainComplex{phi1, phi2}**ops^{-2}
+  assert (0==prune HH_2 F'' and 0 == HH_1 F'')
+  betti (G'' = res oddExtModule N_m)
+  eq = map(ring F', ring G'', {ops_2,-ops_1,ops_0})
+  eq G'' == F''
 SeeAlso
   makeModule
 ///
