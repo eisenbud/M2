@@ -1,12 +1,12 @@
 newPackage(
 	"InverseSystems",
-    	Version => "0.1", 
+    	Version => "1.0", 
     	Date => "May 7, 2017",
     	Authors => {{Name => "David Eisenbud", 
 		  Email => "de@msri.org"
 		  }},
     	Headline => "equivariant Macaulay Inverse Systems",
-    	DebuggingMode => true
+    	DebuggingMode => false
     	)
 
 export {"inverseSystem",
@@ -894,8 +894,9 @@ TEST ///
 
 -- tests moved from EngineTests:
 
-TEST ///
+{*TEST*} ///
   -- this is a small-ish example used to get the logic of matrix building right
+  --disabled here because it has little to do with the routines in this package
   setRandomSeed 0
   kk = ZZ/101
   R = kk[vars(0..3)]
@@ -914,7 +915,8 @@ TEST ///
   assert(betti(C,Minimize=>true) == betti(C1,Minimize=>true))
 ///
 
-TEST ///  
+{*TEST*} ///  
+--disabled since it didn't test anything!
   kk = ZZ/101
   nvars = 9
   R = kk[vars(0..nvars-1)]
@@ -926,7 +928,7 @@ TEST ///
   betti C
 ///
 
-TEST ///
+{*TEST*} ///
   -- disabled since it takes too long
   kk = ZZ/101
   nvars = 13
@@ -962,7 +964,8 @@ TEST ///
   assert(betti C == betti'ans)
 ///
 
-TEST ///
+{*TEST*}///
+-- disabled, since it has little to do with the routines in this package.
   n = 6
   d = 3
   S = ZZ/101[x_1..x_n]

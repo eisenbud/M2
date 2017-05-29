@@ -20,7 +20,7 @@ rm -rf tmp
 mkdir tmp
 cd tmp
 ../configure --enable-download --enable-build-libraries="readline" CC=/usr/bin/gcc CXX=/usr/bin/g++
-make IgnoreExampleErrors=false
+make IgnoreExampleErrors=true
 
 # Local Variables:
 # compile-command: "sh -x ./INSTALL.mac "
