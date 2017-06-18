@@ -5,7 +5,11 @@ newPackage(
     	Authors => {{Name => "David Eisenbud", 
 		  Email => "de@msri.org"
 		  }},
+<<<<<<< HEAD
     	Headline => "equivariant Macaulay Inverse Systems",
+=======
+    	Headline => "equivariant Macaulay inverse systems",
+>>>>>>> b93b2bc2a7a878d398e4b0a488387fcfbe020497
     	DebuggingMode => false
     	)
 
@@ -892,6 +896,7 @@ TEST ///
     assert(f - toDual(4, fdual) == 0)
 ///
 
+<<<<<<< HEAD
 -- tests moved from EngineTests:
 
 {*TEST*} ///
@@ -1000,6 +1005,8 @@ TEST ///
   assert(C0 == res I)
 ///
 
+=======
+>>>>>>> b93b2bc2a7a878d398e4b0a488387fcfbe020497
 end--
 restart
 loadPackage("InverseSystems", Reload =>true)
