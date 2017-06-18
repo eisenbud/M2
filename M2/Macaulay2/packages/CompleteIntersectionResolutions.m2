@@ -6,7 +6,7 @@ newPackage(
                         Email => "de@msri.org", 
                         HomePage => "http://www.msri.org/~de"}},
               Headline => "Analyzing Resolutions over a Complete Intersection",
-              DebuggingMode => false, --should be false when submitted
+              DebuggingMode => true, --should be false when submitted
 	      PackageExports => {"MCMApproximations","BGG"} 
 	      )
 	  export{
@@ -158,9 +158,11 @@ Shamash(Ring, ChainComplex,ZZ) := (Rbar, F, len) ->(
     P FF
 )    
 
+
 layeredResolution = method(Options =>{Verbose=>false})
+
 --version that produces the finite layered resolution
-layeredResolution(Matrix, Module) := opts ->(ff, M) ->(
+{*layeredResolution(Matrix, Module) := opts ->(ff, M) ->(
     --ff is a 1 x c matrix over a Gorenstein ring S
     --M is an S-module annihilated by I = ideal ff.
     --returns a pair (L,aug), where aug: L_0 \to M is the augmentation.
@@ -170,6 +172,7 @@ layeredResolution(Matrix, Module) := opts ->(ff, M) ->(
     cod := numcols ff;
     if cod <=1 then (
 	L = res M;
+	if opts.Verbose == true then
     	<<{rank L_0, rank L_1} << " in codimension "<< cod<<endl;	
         return (L, map(M,L_0,id_(L_0))));
     S := ring ff;
@@ -196,9 +199,11 @@ layeredResolution(Matrix, Module) := opts ->(ff, M) ->(
 --    assert(source psi == B1 and source b == B1);
 --    assert(target psi == M' and target b == B0);
     M'S := pushForward(q,M');
-    bS := substitute(b,S);
-    B0S := target bS;
-    B1S := source bS;    
+    --replacement
+    B0S := S**target b;
+    B1S := S**source b;
+    bS := map(B0S,B1S,(map(S,ring b))matrix b);
+    
     if opts.Verbose === true then << {rank B1S, rank B0S} << " in codimension " << cod<<endl;
     KK := koszul(ff');
     B := chainComplex{bS};
@@ -218,9 +223,134 @@ layeredResolution(Matrix, Module) := opts ->(ff, M) ->(
 --    scan(length L -1, s->assert( HH_(s+1) L == 0));
     (L,aug)
     )
+*}
 
+--version that produces the finite resolution
 
+--version that produces the finite layered resolution
+layeredResolution(Matrix, Module) := opts ->(ff, M) ->(
+    --ff is a 1 x c matrix over a Gorenstein ring S
+    --M is an S-module annihilated by I = ideal ff.
+    --returns a pair (L,aug), where aug: L_0 \to M is the augmentation.
+    --Here L_0 = L'_0 ++ B_0, and L' is the resolution of M', the 
+    --MCM approximation of M over R' = S/(ideal ff'), and ff' = ff_{0..(c-2)}.
+    L := null;
+    cod := numcols ff;
+    if cod <=1 then (
+	L = res M;
+	if opts.Verbose == true then
+    	<<{rank L_0, rank L_1} << " in codimension "<< cod<<endl;	
+        return (L, map(M,L_0,id_(L_0))));
+    S := ring ff;
+    R := S/(ideal ff);
+    ff' := ff_{0..cod-2};
+    R' := S/(ideal ff');
+    p:= map(R,R');
+    q := map(R',S);
+        
+    MR := prune R**M;
+    MR' := prune(R'**M);
+    (alpha, beta) := approximation MR';
+    B0 := source beta;
+    M' := source alpha;
+--    assert(M' == prune M');
 
+    gamma := map(MR', M'++B0, (alpha)|beta);
+    BB1 := ker gamma;
+    B1 := minimalPresentation BB1;
+--    assert(isFreeModule B1);
+    psib :=  inducedMap(M' ++ B0, BB1)*(B1.cache.pruningMap);
+    psi := psib^[0];
+    b := psib^[1];
+--    assert(source psi == B1 and source b == B1);
+--    assert(target psi == M' and target b == B0);
+    M'S := pushForward(q,M');
+  {*
+    bS := substitute(b,S);
+    B0S := target bS;
+    B1S := source bS;    
+    *}
+    --replacement
+    B0S := S**target b;
+    B1S := S**source b;
+    bS := map(B0S,B1S,(map(S,ring b))matrix b);
+    
+    if opts.Verbose === true then << {rank B1S, rank B0S} << " in codimension " << cod<<endl;
+    KK := koszul(ff');
+    B := chainComplex{bS};
+    
+    (L',aug') := layeredResolution(ff', M'S, Verbose => opts.Verbose);
+--    assert(target aug' == M'S);
+    psiS0 := map(M'S, B1S, sub(matrix psi,S));
+    psiS := psiS0//aug';
+    Psi1 := extend(L',B[1],matrix psiS);
+    Psi2 := Psi1**KK;
+    Psi := extend(L',L'**KK, id_(L'_0))*Psi2;
+    L = cone Psi; -- L', the target of Psi, is the first summand, so this is L_0==L'_0++B_0
+--    assert(L_0 == L'_0 ++ B_0);
+
+    --at this point L_0  has just two components; we want to replace it with 
+    --something with c components, and do something corresponding for L_1
+    lL := length L;
+    Ld := apply(toList(1..lL+1), i-> L.dd_i);
+    L0a := directSum(components (components L_0)_0 | (components L_0)_{1});
+    L1a := directSum(components (components L_1)_0 | (components L_1)_{1});
+    d1a := map(L0a,L1a,Ld_0);
+    Lda := {d1a}|Ld_{1..lL};
+    L = chainComplex Lda;
+    
+    m := (sub((matrix alpha),S)*matrix aug') |sub(matrix beta,S);
+    aug := map(M,L'_0++B_0,m);
+--Check exactness
+--    scan(length L -1, s->assert( HH_(s+1) L == 0));
+    (L,aug)
+    )
+
+///
+uninstallPackage "CompleteIntersectionResolutions"
+restart
+installPackage"CompleteIntersectionResolutions"
+
+     S = ZZ/101[a,b,c]
+     ff = matrix"a3, b3, c3" 
+     R = S/ideal ff
+     M = syzygyModule(2,coker vars R)
+     MS = pushForward(map(R,S), M);
+     (GG, aug) = layeredResolution(ff,MS, Verbose =>true)
+C0 = components GG_0
+C1 = components GG_1
+C1/components
+d = GG.dd_1
+td = target d
+sd = directSum flatten ((components source d)/components)
+
+b1 = td^[0]*d*sd_[0]
+b2 = td^[1]*d*sd_[2]
+b2 = td^[2]*d*sd_[4]
+psi1 =td^[0]*d*sd_[2]
+psi2 =td^[0,1]*d*sd_[4]
+
+td^[]
+entries {0,1}
+MF1 = (ff,MS) ->(
+    (G,aug) := layeredResolution(ff,MS);
+    c := numcols ff;
+    d := G.dd_1;
+    td = target d;
+    sd = directSum flatten ((components source d)/components);
+    b := apply(c+1, i-> if i==0 then null else
+	      td^[i-1]*d*sd_[2*(i-1)]);
+    psi := apply(c, i-> if i==0 then null else
+                   td^(new Array from (0..i-1))*d*sd_[2*i]);
+    --now inductively make the presentation matrices of M(i) modulo f_0..f_(i-2)
+--    pres = apply(c, i
+    (b,psi)
+    )
+(b,psi) = MF1(ff,MS);
+b
+psi
+///
+  
 layeredResolution(Matrix, Module, ZZ) := opts -> (ff, M, len) ->(
     --ff is a 1 x c matrix over a Gorenstein ring S and ff' = ff_{0..(c-2)}, ff'' = ff_{c-1}.
     --R = S/ideal ff
@@ -4513,4 +4643,18 @@ installPackage "CompleteIntersectionResolutions"
 check "CompleteIntersectionResolutions"
 
 viewHelp CompleteIntersectionResolutions
+
+
+restart
+needsPackage "CompleteIntersectionResolutions"
+n = 2;d=3;
+S = ZZ/101[x_1..x_n]
+ff = matrix{apply(gens S, z->z^d)}
+(GG,aug) = layeredResolution(ff, coker vars S, Verbose => true);
+betti res coker vars S
+betti GG
+
+
+
+
 
