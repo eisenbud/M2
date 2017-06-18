@@ -5,11 +5,7 @@ newPackage(
     	Authors => {{Name => "David Eisenbud", 
 		  Email => "de@msri.org"
 		  }},
-<<<<<<< HEAD
     	Headline => "equivariant Macaulay Inverse Systems",
-=======
-    	Headline => "equivariant Macaulay inverse systems",
->>>>>>> b93b2bc2a7a878d398e4b0a488387fcfbe020497
     	DebuggingMode => false
     	)
 
@@ -1005,8 +1001,6 @@ TEST ///
   assert(C0 == res I)
 ///
 
-=======
->>>>>>> b93b2bc2a7a878d398e4b0a488387fcfbe020497
 end--
 restart
 loadPackage("InverseSystems", Reload =>true)
@@ -1014,15 +1008,3 @@ uninstallPackage("InverseSystems")
 installPackage("InverseSystems")
 check "InverseSystems"
 viewHelp InverseSystems
-
-cubic = (g,r) -> (
-    --make the sum of r cubes in g-2 variables
-    x := symbol x;
-    S := ZZ/101[x_0..x_(g-3)];
-    sum(r, i-> if i<=g-3 then x_i^3 else ((random(S^1,S^{-1}))_0_0)^3)
-    )
-cubic(6,3)
-betti res inverseSystem cubic(6,5)
-
-g= 9
-netList apply(toList(g-2..2*g-4), j-> betti res inverseSystem cubic(g,j))
