@@ -343,7 +343,7 @@ MF1 = (ff,MS) ->(
     psi := apply(c, i-> if i==0 then null else
                    td^(new Array from (0..i-1))*d*sd_[2*i]);
     --now inductively make the presentation matrices of M(i) modulo f_0..f_(i-2)
---    pres = apply(c, i
+    apply(c, i
     (b,psi)
     )
 (b,psi) = MF1(ff,MS);
