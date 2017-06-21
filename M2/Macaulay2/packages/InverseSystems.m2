@@ -6,7 +6,7 @@ newPackage(
 		  Email => "de@msri.org"
 		  }},
     	Headline => "equivariant Macaulay Inverse Systems",
-    	DebuggingMode => false
+    	DebuggingMode => true
     	)
 
 export {"inverseSystem",
