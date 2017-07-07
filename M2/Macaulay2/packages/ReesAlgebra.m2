@@ -316,7 +316,9 @@ specialFiber(Module,RingElement):= o->(i,a)->(
      S := ring Reesi;
      --is the coefficient ring of Reesi automatically flattened? NO
      kk := ultimate(coefficientRing, S);
-     T := kk[gens S];
+     gS := gens S;
+     
+     T := kk[gS, Degrees => {#gS:1}];
      minimalpres := map(T,S);
      T/(minimalpres Reesi)
      )
@@ -907,7 +909,7 @@ doc ///
     M:Module
       or @ofClass Ideal@ of a quotient polynomial ring $R$
     f:RingElement
-      any non-zero divisor modulo the ideal or module.  Optional
+      any non-zero divisor on ring M such that inverting makes the modulo or ideal free.  Optional
   Outputs
     :Ideal
       defining the Rees algebra of M
@@ -1039,7 +1041,7 @@ doc ///
     M:Module
       or @ofClass Ideal@ of a quotient polynomial ring $R$
     f:RingElement
-      any non-zero divisor modulo the ideal or module.  Optional
+      any non-zero divisor on ring M such that inverting makes the modulo or ideal free.  Optional
   Outputs
     :Ring
       defining the Rees algebra of M
