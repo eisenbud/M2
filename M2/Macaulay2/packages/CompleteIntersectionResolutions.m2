@@ -10,7 +10,7 @@ newPackage(
 	      PackageExports => {"MCMApproximations","BGG"},
 --note: this package requires  MCMApproximations.m2
 --in the version of August 21,2018	      
-	      DebuggingMode => false
+	      DebuggingMode => true
 	      )
     	    export{	  
 	--things related to Ext over a complete intersection
@@ -39,6 +39,7 @@ newPackage(
 	   "Shamash",
 	   "EisenbudShamash",
 	   "EisenbudShamashTotal",
+	   "EisenbudShamashTotal2",	   
 	   "layeredResolution",
 	   "makeFiniteResolution",	   
 	   "makeFiniteResolutionCodim2",	   	   
@@ -1953,14 +1954,147 @@ d1 := map(F0,F1,sum flatten oddToEven);
 (d0,d1)
 )
 
+-*
+
+--restart
+--uninstallPackage"CompleteIntersectionResolutions"
+--installPackage"CompleteIntersectionResolutions"
+
+restart
+loadPackage ("CompleteIntersectionResolutions", Reload=>true)
+n = 2
+c = 1
+kk = ZZ/101
+R = kk[x_0..x_(n-1)]
+I = ideal R_0^3
+I = ideal apply numgens (R, i->R_i^2)
+Rbar = R/I
+Mbar = coker vars Rbar
+
+(d0,d1)= EisenbudShamashTotal2 (Mbar, Check=>true)
+
+oo/isHomogeneous
+d0*d1
+d1*d0
+*-
+--make the Eisenbud-Shamash resolution as a Z/2 x Z graded differential
+--module over the polynomial ring.
+-*
+    assumes Mbar is defined over a ring of the form
+    Rbar = R/(f1..fc), a complete intersection, and that
+    M has a finite free resolution over R.
+    Returns a pair of maps d0 = evenToOdd and d1 = oddToEven of free modules over
+    a larger ring S =  R[s_0..s_(c-1]], where the degrees of the s_i are {-2,-deg fi)
+    
+    The maps d0,d1 form a graded matrix factorization 
+    of sum(s_i f_i) and have the property that for any Rbar module N, 
+    HH_1 chainComplex d0**N, d1**N} = Ext^even_Rbar(M,N)
+    HH_1 chainComplex d1**N(-1,0), d0**N} = Ext^odd_Rbar(M,N)    
+*-
+EisenbudShamashTotal2 = method(Options => {Check =>false})
+EisenbudShamashTotal2 Module := o -> Mbar -> (
+--setup
+Rbar := ring Mbar;
+ff := presentation Rbar;
+c := numcols ff;
+if o.Check == true then (
+assert(codim ideal ff == c)
+);
+
+R := ring ff;
+kk := coefficientRing R;
+n := numgens R;
+bar := map(Rbar,R);
+RM := pushForward(bar, Mbar); -- M as R-module
+RF := res RM;
+if o.Check == true then (
+    assert(isHomogeneous RM and (RF)_(n+1) == 0)
+    );
+H := makeHomotopies(ff, RF);
+--H#{J,i}: F_i(-degs_J) -> F_(i+2|J|-1), 
+--where J is a list of c pos ints and
+--degs_J is the sum of the degrees of f_j, j\in J
+--assert(source H#{{0,1},1} == F_1** R^{-2})
+
+--define the structure on the resolution of RM that is necessary for defining the Rbar resolution
+--of M
+s := symbol s;t := symbol t;
+S := kk[gens R, s_0..s_(c-1), t,  Degrees => apply(n,  
+	i->{0, (degree R_i)_0})|apply(c, i->{-1, -(degree ff_i)_0})|{{1,0}}];
+RtoS := map(S,R,DegreeMap => i->{0,i_0});
+SF := chainComplex apply(length RF, i->
+    map (
+	S^{{-i,0}}**RtoS (RF_i), 
+	S^{{-i-1,0}}**RtoS RF_(i+1),
+	t*RtoS (RF.dd_(i+1))
+    )
+);
+
+if o.Check == true then (
+assert(isHomogeneous SF)
+);
+
+--a helper function:
+monomialFromExponent := L -> if sum L == 0 then S_(n+c) else
+                         product apply(#L,i->S_(n+i)^(L_i)) ;
+
+SH := hashTable apply(pairs H, u->(
+	      u_0, (monomialFromExponent u_0_0)**(S^{{u_0_1,0}}**RtoS u_1)
+	      )
+);
+if o.Check == true then (
+assert all(values SH, phi-> isHomogeneous phi)
+);
+
+--Separate the homotopies into subsets:
+--ke_i are keys {J,j} in H
+--corresponding to possible homotopies whose *target* is F_i.
+ke := apply(length SF + 1, i->select(keys SH, k -> (
+	    k_1 === i - 2*sum k_0 + 1 and 
+	      0 <= min (i, k_1) and 
+	      length SF >= max (i,k_1))));
+
+--dualize and separate the free modules of SF into even and odd parts:
+SF0 := directSum apply (select(0..length SF, i->i%2==0), i-> dual SF_i);
+SF1 := directSum apply (select(0..length SF, i->i%2==1), i-> dual SF_i);
+
+p := null;
+--make the  maps 
+evenToOdd := apply((length SF+2)//2, -- 2 in the first example
+    (i-> apply(ke_(2*i), u -> ( -- when i = 1, u = ke_2_0 = {{1},0} = SF_0.
+    p = dual map(SF_(2*i), SF_(u_1), SH#{u_0,u_1});
+   SF1_[(u_1-1)//2]*p*SF0^[i]
+    ))));
+
+if o.Check == true then (
+assert all(flatten evenToOdd, phi -> isHomogeneous phi)
+);
+
+------------------------------------------
+
+oddToEven := apply((length SF+1)//2,
+    (i-> apply(ke_(2*i+1), u -> ( -- when i = 0, first u is {{1}, 0}, second is {{0}, 2}
+    p = dual map(SF_(2*i+1), SF_(u_1), SH#{u_0,u_1});
+   SF0_[u_1//2]*p*SF1^[i]
+    ))));
+
+if o.Check == true then assert(
+    all (flatten evenToOdd |flatten oddToEven, phi -> isHomogeneous phi == true)
+    );
+
+d0 := map(SF1,SF0,sum flatten evenToOdd);
+d1 := map(SF0,SF1,sum flatten oddToEven);
+(d0,d1)
+)
+
 ///
 restart
 loadPackage "CompleteIntersectionResolutions"
 debug CompleteIntersectionResolutions
 setRandomSeed 0
 
-n = 5
-c = 2
+n = 2
+c = 1
 kk = ZZ/101
 R = kk[x_0..x_(n-1)]
 I = ideal apply(c, i->x_i^2)
@@ -1969,6 +2103,7 @@ ff = gens I
 Rbar = R/I
 bar = map(Rbar, R)
 Mbar = prune coker random(Rbar^1, Rbar^{-2})
+M = pushForward(bar,Mbar)
 --Mbar = coker vars Rbar
 (d0,d1) = EisenbudShamashTotal(Mbar, Check => true);
 d0*d1
