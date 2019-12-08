@@ -1877,14 +1877,16 @@ extIsOnePolynomial Module := M ->(
 
 --make the Eisenbud-Shamash resolution as a Z/2 graded differential
 --module over the polynomial ring.
-EisenbudShamashTotal = method(Options => {Check =>false})
+EisenbudShamashTotal = method(Options => {Check =>false,
+		                          Variables=>getSymbol "s"})
 EisenbudShamashTotal Module := o -> M -> (
 -*
     assumes M is defined over a ring of the form
     Rbar = R/(f1..fc), a complete intersection, and that
     M has a finite free resolution over R.
     Returns a pair of maps d0 = evenToOdd and d1 = oddToEven of free modules over
-    a larger ring S =  R[s_0..s_(c-1]], where the degrees of the s_i are
+    a (singly graded) 
+    larger ring S =  R[s_0..s_(c-1]], where the degrees of the s_i are
     the negatives of the degrees of the f_i.
     
     The maps d0,d1 form a matrix factorization 
@@ -1906,7 +1908,7 @@ if o.Check == true then assert(isHomogeneous RM and ((res RM)_(n+1) == 0));
 
 --define the structure on the resolution of RM that is necessary for defining the Rbar resolution
 --of M
-s := symbol s;
+s := o.Variables; -- symbol s;
 S := kk[s_0..s_(c-1),gens R, Degrees => apply(c, i->-degree ff_i)|apply(n, i->degree R_i)];
 RtoS := map(S,R);
 SM := coker RtoS presentation RM; -- M as S-module.
@@ -1961,7 +1963,6 @@ d1 := map(F0,F1,sum flatten oddToEven);
 
 restart
 loadPackage ("CompleteIntersectionResolutions", Reload=>true)
-debug CompleteIntersectionResolutions
 --example with a longer homotopy
 --dimen= 4
 --codim =2
@@ -1993,18 +1994,18 @@ degrees prune HH_1 chainComplex{kS**d0,kS**d1} -- numbers ok, degrees somehow al
     Rbar = R/(f1..fc), a complete intersection, and that
     M has a finite free resolution over R.
     Returns a pair of maps d0 = evenToOdd and d1 = oddToEven of free modules over
-    a larger ring S =  R[s_0..s_(c-1),t], where the degrees of the s_i are {-1,-deg fi)
-    and the degree of t is {1,0}
+    a larger (bigraded) ring S =  R[s_0..s_(c-1),t], 
+    where the degrees of the s_i are {-2,-deg fi}.
     
     The maps d0,d1 form a graded matrix factorization 
-    of t*sum(s_i f_i) and don't quite have the property that for any Rbar module N, 
-
---the following isn't correct
+    of sum(s_i f_i) and should have the property that for any Rbar module N, 
+--the following isn't correct yet.
     HH_1 chainComplex d0**N, d1**N} = Ext^even_Rbar(M,N)
     HH_1 chainComplex d1**N(-2,0), d0**N} = Ext^odd_Rbar(M,N)    
-though maybe this works after setting t=1??-- which makes 
 *-
-EisenbudShamashTotal2 = method(Options => {Check =>false})
+EisenbudShamashTotal2 = method(Options => {Check =>false,
+	                                   Variables=>getSymbol "s"}
+	       )
 EisenbudShamashTotal2 Module := o -> Mbar -> (
 --setup
 Rbar := ring Mbar;
@@ -2031,7 +2032,7 @@ H := makeHomotopies(ff, RF);
 
 --define the structure on the resolution of RM that is necessary for defining the Rbar resolution
 --of M
-s := symbol s;
+s := o.Variables;
 S := kk[gens R, s_0..s_(c-1), Degrees => apply(n,  
 	i->{0, (degree R_i)_0})|apply(c, i->{-2, -(degree ff_i)_0})];
 RtoS := map(S,R,DegreeMap => i->{0,i_0});
@@ -2090,8 +2091,6 @@ if o.Check == true then (
 assert all(flatten evenToOdd, phi -> isHomogeneous phi)
 );
 
-------------------------------------------
-
 oddToEven := apply((length SF+1)//2,
     (i-> apply(ke_(2*i+1), u -> ( --the interesting key is {{1,1},1}
     p = dual map(SF_(2*i+1), SF_(u_1), SH#{u_0,u_1});
@@ -2101,140 +2100,102 @@ oddToEven := apply((length SF+1)//2,
 if o.Check == true then assert(
     all (flatten evenToOdd |flatten oddToEven, phi -> isHomogeneous phi == true)
     );
+--the following maps have degree {-1,0}
+--d0 := map(SF1,SF0,sum flatten evenToOdd);
+--d1 := map(SF0,SF1,sum flatten oddToEven);
 
-d0 := map(SF1,SF0,sum flatten evenToOdd);
-d1 := map(SF0,SF1,sum flatten oddToEven);
+--fix the degrees to make them {0,0}:
+d0 := map(S^{{-1,0}}**SF1,SF0,sum flatten evenToOdd, Degree =>{0,0});
+d1 := map(SF0,SF1**S^{{1,0}},sum flatten oddToEven, Degree=>{0,0});
+
+if o.Check == true then(
+    assert (target d1 == source d0);
+    -- and homology(d0**N,d1**N) is the even part of Ext(Mbar,N)
+    assert (target d0 == S^{{-2,0}}**source d1); 
+    -- and S^{{1,0}}**homology(S^{{-2,0}}**d1**N,d0**N) is the odd part.
+    );
 --error();
 (d0,d1)
 )
 
-
------------------------------------------------ version 3 v3
 -*
 restart
-loadPackage"CompleteIntersectionResolutions"
-debug CompleteIntersectionResolutions
-n = 1;
-c=1;
+loadPackage ("CompleteIntersectionResolutions", Reload=>true)
+
+--simple example to get the degrees of Ext right
 kk = ZZ/101
-R = kk[x_0..x_(n-1)]
-ff = matrix{{R_0^3, R_1^3}}
-ff = matrix{{R_0^3}}
-I = ideal ff
---I = ideal sum apply( numgens R, i->R_i^2)
-Rbar = R/ideal ff
---Mbar = Rbar^1/(ideal sum (numgens R, i->R_i^3)+ideal(x_0*x_1, x_1*x_2))
-Mbar = coker vars Rbar
-(d0,d1) = EisenbudShamashTotal3 (Mbar, Check =>true)
+U = kk[a]
+gg = matrix"a3"
+Ubar = U/ideal gg
+Mbar =  coker vars Ubar
+
+--- example with a higher homotopy (key {{1,1},1})
+-- we don't get a matrix factorization here!
+kk = ZZ/101
+U = kk[a,b,c,d]
+gg = matrix"a4,b4"
+Ubar = U/ideal gg
+Mbar =  coker matrix"ab,b2,bc,bd,cd,"--has a 1,1 homotopy
+
+---simplest matrix factorization example in 2 vars
+kk = ZZ/101
+U = kk[a,b]
+gg = matrix"a2+2ab+3b2"
+Ubar = U/ideal gg
+Mbar =  image matrix"a,b"
+
+---complete intersection of two quadrics in PP^3 
+-- we don't get a matrix factorization here!
+kk = ZZ/101
+U = kk[a,b,c,d]
+gg = matrix"a2,b2"
+Ubar = U/ideal gg
+Mbar =  coker matrix"ab,bc,bd,cd"
+--
+
+(d0,d1)= EisenbudShamashTotal2 (Mbar, Check=>true, Variables => getSymbol "X")
+d0*d1
+isHomogeneous d0
+isHomogeneous d1
+degree d0
+degree d1
+target d1 == source d0
 S = ring d0
-Sbar = S/sub(I,S)
-prune HH_1 chainComplex{Sbar**d0, Sbar**d1}
-source presentation oo
-Ext(Mbar,Rbar^1)
-source presentation oo
+target d0 == S^{{-2,0}}**source d1
+
+
+UtoS = map(S,U,DegreeMap => d->prepend(0,d))
+Sbar= S/ideal UtoS gg
+UbartoSbar= map(Sbar,Ubar,DegreeMap => d->prepend(0,d))
+bar = map(Sbar,S)
+kS = coker UbartoSbar(vars Ubar)
+isHomogeneous kS
+
+d1bar = bar d1
+d0bar = bar d0
+
+
+isHomogeneous(Heven = homology(d0bar**kS,d1bar**kS))
+isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar**kS,d0bar**kS))
+isHomogeneous (A = chainComplex {d0bar, d1bar})
+isHomogeneous (B = chainComplex {S^{{-2,0}}**d1bar, d0bar})
+
+E1 = Sbar^{{1,0}}**prune Hodd
+E0 = prune Heven
+Ext(Mbar,coker vars Ubar)
+
+--------------
+--to turn this into the single graded example:
+S = ring d0
+S1 = kk[gens S, Degrees => gens U/degree | apply(numcols gg, i->-degree gg_i)]
+red = map(S1,S,DegreeMap => d->{d_1})
+isHomogeneous red d0
+isHomogeneous red d1
+target red d0 == source red d1
+(red d0)*(red d1)
+(red d1)*red d0
+d0*d1
 *-
-EisenbudShamashTotal3 = method(Options => {Check =>false})
-EisenbudShamashTotal3 Module := o -> Mbar -> (
---setup
-Rbar := ring Mbar;
-ff := presentation Rbar;
-c := numcols ff;
-if o.Check == true then (
-assert(codim ideal ff == c)
-);
-
-R := ring ff;
-kk := coefficientRing R;
-n := numgens R;
-bar := map(Rbar,R);
-RM := pushForward(bar, Mbar); -- M as R-module
-RF := res RM;
-if o.Check == true then (
-    assert(isHomogeneous RM and (RF)_(n+1) == 0)
-    );
-H := makeHomotopies(ff, RF);
---H#{J,i}: F_i(-degs_J) -> F_(i+2|J|-1), 
---where J is a list of c pos ints and
---degs_J is the sum of the degrees of f_j, j\in J
---assert(source H#{{0,1},1} == F_1** R^{-2})
-
---define the structure on the resolution of RM that is necessary for defining the Rbar resolution
---of M
-s := symbol s;t := symbol t;
-S := kk[gens R, s_0..s_(c-1), t,  Degrees => apply(n,  
-	i->{0, (degree R_i)_0})|apply(c, i->{-2, -(degree ff_i)_0})|{{1,0}}];
-RtoS := map(S,R,DegreeMap => i->{0,i_0});
-SF := chainComplex apply(length RF, i->
-    map (
-	S^{{-i,0}}**RtoS (RF_i), 
-	S^{{-i-1,0}}**RtoS RF_(i+1),
-	t*RtoS (RF.dd_(i+1)) --t*RtoS (RF.dd_(i+1))
-    )
-);
-
-if o.Check == true then (
-assert(isHomogeneous SF)
-);
-
---a helper function:
-monomialFromExponent := L -> if sum L == 0 then S_(n+c) else
-                         t*product apply(#L,i->S_(n+i)^(L_i)) ;
-
-
-SH := hashTable apply(pairs H, u->(
-	      u_0, (monomialFromExponent u_0_0)**(S^{{u_0_1,0}}**RtoS u_1)
-	      )
-);
---Shouldn't we make the s_i have homol degree -2, and make the monomial multiplier
---above a product of s's times one t? This might also require a change of the twist
-
-if o.Check == true then (
-assert all(values SH, phi-> isHomogeneous phi)
-);
-
---Separate the homotopies into subsets:
---ke_i are keys {J,j} in H
---corresponding to possible homotopies whose *target* is F_i.
-ke := apply(length SF + 1, i->select(keys SH, k -> (
-	    k_1 === i - 2*sum k_0 + 1 and 
-	      0 <= min (i, k_1) and 
-	      length SF >= max (i,k_1))));
-
---dualize and separate the free modules of SF into even and odd parts:
-SF0 := directSum apply (select(0..length SF, i->i%2==0), i-> dual SF_i);
-SF1 := directSum apply (select(0..length SF, i->i%2==1), i-> dual SF_i);
-
-p := null;
---make the  maps 
-evenToOdd := apply((length SF+2)//2, -- 2 in the first example
-    (i-> apply(ke_(2*i), u -> ( -- when i = 1, u = ke_2_0 = {{1},0} = SF_0.
-    p = dual map(SF_(2*i), SF_(u_1), SH#{u_0,u_1});
-    if o.Check == true then (print degrees p;p;assert isHomogeneous p);
-   SF1_[(u_1-1)//2]*p*SF0^[i]
-    ))));
-
-if o.Check == true then (
-assert all(flatten evenToOdd, phi -> isHomogeneous phi)
-);
-
-------------------------------------------
---I would have though oddToEven should have target the components of S^{{-2,0}}**SF0.
-oddToEven := apply((length SF+1)//2,
-    (i-> apply(ke_(2*i+1), u -> ( -- when i = 0, first u is {{1}, 0}, second is {{0}, 2}
-    p = dual map(SF_(2*i+1), SF_(u_1), SH#{u_0,u_1});
-   SF0_[u_1//2]*p*SF1^[i]
-    ))));
-
-if o.Check == true then assert(
-    all (flatten evenToOdd |flatten oddToEven, phi -> isHomogeneous phi == true)
-    );
-
-d0 := map(SF1,SF0,sum flatten evenToOdd);
-d1 := map(SF0,SF1,sum flatten oddToEven);
---error();
-(d0,d1)
-)
-
 
 
 ///
@@ -5668,93 +5629,3 @@ loadPackage("CompleteIntersectionResolutions", Reload =>true)
 
 viewHelp CompleteIntersectionResolutions
 
---test of homological grading:
-restart
-loadPackage "CompleteIntersectionResolutions"
-kk = ZZ/101
-R = kk[x]
-F = res coker vars R
-ff = matrix{{x^5}}
-h = makeHomotopies(ff,F)
-S1 = kk[s,x, Degrees=> {{-5},{1}}]
-S = kk[s,x, Degrees =>{{-2,-5},{0,1}}]
-isHomogeneous (map(prom1 F_1, prom1 F_0, s*(prom1 h#{{1},0})))
-
-prom = map(S,R,DegreeMap => i->{0,i_0})
-prom1 = map(S1,R,DegreeMap => i->i)
-
-C = chainComplex{map(prom F_0, S^{{1,0}}**prom F_1, prom F.dd_1, Degree=>{1,0})}
-assert isHomogeneous C
-hS = makeHomotopies (prom ff,C)
-
-
-H = map(S^{{-2,0}}**C_1, C_0, S_0*(prom h#{{1},0}), Degree =>{-1,0});
-isHomogeneous H
-degree H == degree dual H
-degrees H
-
-degrees dual H
-degree H
-isHomogeneous dual H
-for a from -5 to 5 do(
-H' = map(dual C_1, dual C_0, S_0*(dual prom h#{{1},0}), Degree=>{a,0});
-print isHomogeneous H')
-
----example with a higher htopy
-restart
-loadPackage "CompleteIntersectionResolutions"
-kk = ZZ/101
-R = kk[a,b,c,d]
-ff = matrix"a4,b4"
-Rbar = R/ideal ff
-RtoRbar = map(Rbar,R)
-Mbar =  coker matrix"ab,b2,bc,bd,cd,"--has a 1,1 homotopy
-M = pushForward(RtoRbar, Mbar)
-F = res M
-S = kk[s,t,a,b,c,d, Degrees=> {{-2,-4},{-2,-4},4:{0,1}}]
-prom=map(S,R,DegreeMap => u->prepend (0,u))
-SF = chainComplex apply(length F + 1, i -> 
-      map(S^{{-i,0}}**prom F_i, 
-	  S^{{-i-1,0}}**prom F_(i+1),
-	  prom F.dd_(i+1),
-	  Degree => {-1,0})
-      )
-isHomogeneous SF
-isHomogeneous (map(prom F_1, prom F_0, s*(prom h#{{1,0},0})))
-
-prom = map(S,R,DegreeMap => i->{0,i_0})
-prom1 = map(S1,R,DegreeMap => i->i)
-
-C = chainComplex{map(prom F_0, S^{{1,0}}**prom F_1, prom F.dd_1, Degree=>{1,0})}
-assert isHomogeneous C
-hS = makeHomotopies (prom ff,C)
-
---experiment with degrees:
-restart
-kk = ZZ/101
-R = kk[x]
-F = chainComplex {map(R^{-3}, R^{-8},matrix{{x^5}})}
-ff = matrix{{x^6}}
-
-isHomogeneous F
-h = map(F_1, R^{-1}**F_0, matrix{{R_0}})
-
-S = kk[s,x, Degrees => {{-2,-6},{0,1}}]
-RtoS = map(S,R, DegreeMap => i->prepend(0,i))
-SF = chainComplex apply(length F, 
-    i-> map(S^{{-i,0}}**RtoS F_i, 
-	S^{{-i-1,0}}**RtoS F_(i+1),
-	RtoS F.dd_(i+1),
-	Degree => {-1,0})
-    )
-isHomogeneous SF
-
-
---h is going to go from F_0 to F_1, 1= 2*1-1
-hS = map(SF_1,SF_0, s*RtoS h, Degree => {-1,0})
-isHomogeneous hS
-
-degree(s^2*x^6)
-phi = map (S^{{0,0}}, S^{{-1,-6}}, matrix{{x^6}}, Degree => {-1,0})
-isHomogeneous phi
-degree phi
