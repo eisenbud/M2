@@ -1108,10 +1108,6 @@ expo(ZZ,ZZ) := (n,d) ->(
      flatten((flatten entries basis(d, T^1))/exponents)
      )
 
-TEST///
-assert (expo(2,4) == {{4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}})
-expo(3,0)
-///
 lessThan = (L1,L2) -> (
      --returns true if L1<L2 in the termwise partial order
      for i from 0 to #L1-1 do if L1#i>L2#i then return false;
@@ -1965,17 +1961,15 @@ if o.Check == true then (
     assert(isHomogeneous RM and (RF)_(n+1) == 0)
     );
 H := makeHomotopies(ff, RF);
---recall: 
+H' := hashTable select(pairs H, p-> p_1 !=0);--recall: 
+H = H';
 --H#{J,i}: F_i(-degs_J) -> F_(i+2|J|-1), 
 --where J is a list of c pos ints and
 --degs_J is the sum of the degrees of f_j, j\in J
 --assert(source H#{{0,1},1} == F_1** R^{-2})
 
-H' := hashTable select(pairs H, p-> p_1 !=0);
-H = H';
-
---define the structure on the resolution of RM that is necessary for defining the Rbar resolution
---of M
+--move to a bigraded ring with variables corresponding to the
+--CI operators
 s := o.Variables;
 S := kk[gens R, s_0..s_(c-1), Degrees => apply(n,  
 	i->{0, (degree R_i)_0})|apply(c, i->{-2, -(degree ff_i)_0})];
@@ -1988,23 +1982,19 @@ SF := chainComplex apply(length RF, i->
 	Degree => {-1,0}
     )
 );
-
 if o.Check == true then (
 assert(isHomogeneous SF)
 );
 
---a helper function:
+--a subroutine
 monomialFromExponent := L -> product apply(#L,i->S_(n+i)^(L_i)) ;
 
 SH := hashTable apply(pairs H, u->(
 	u_0,map(SF_(u_0_1+2*sum(u_0_0)-1),
 	        SF_(u_0_1),
-		-1^(sum u_0_0-1)*(monomialFromExponent u_0_0)*RtoS H#(u_0),
---		(monomialFromExponent u_0_0)*RtoS H#(u_0),		
+--		-1^(sum u_0_0-1)*(monomialFromExponent u_0_0)*RtoS H#(u_0),
+		(monomialFromExponent u_0_0)*RtoS H#(u_0),		
 		Degree => {-1,0})));
---sign trouble! But the two versions above don't seem to make a difference -- hard
---to understand.
-		
 if o.Check == true then (
 assert all(values SH, phi-> isHomogeneous phi)
 );
@@ -2028,7 +2018,6 @@ evenToOdd := apply((length SF+2)//2, -- 3 in the  example
     p = dual map(SF_(2*i), SF_(u_1), SH#{u_0,u_1});
    SF1_[(u_1-1)//2]*p*SF0^[i]
     ))));
-
 if o.Check == true then (
 assert all(flatten evenToOdd, phi -> isHomogeneous phi)
 );
@@ -2038,15 +2027,14 @@ oddToEven := apply((length SF+1)//2,
     p = dual map(SF_(2*i+1), SF_(u_1), SH#{u_0,u_1});
    SF0_[u_1//2]*p*SF1^[i]
     ))));
-
 if o.Check == true then assert(
     all (flatten evenToOdd |flatten oddToEven, phi -> isHomogeneous phi == true)
     );
---the following maps have degree {-1,0}
+--the following maps would have degree {-1,0}
 --d0 := map(SF1,SF0,sum flatten evenToOdd);
 --d1 := map(SF0,SF1,sum flatten oddToEven);
 
---fix the degrees to make them {0,0}:
+--fix the degrees to make them {0,0}, keeping SF0 in degree 0:
 d0 := map(S^{{-1,0}}**SF1,SF0,sum flatten evenToOdd, Degree =>{0,0});
 d1 := map(SF0,SF1**S^{{1,0}},sum flatten oddToEven, Degree=>{0,0});
 
@@ -2057,7 +2045,8 @@ if o.Check == true then(
     -- and S^{{1,0}}**homology(S^{{-2,0}}**d1**N,d0**N) is the odd part.
     );
 if o.Grading == 2 then return (d0,d1); --Grading => 2 is the default.
---if not, make it singly graded
+
+--if o.Grading !=2, reduce to singly graded maps
 S1 := kk[gens S, Degrees => gens R/degree | apply(numcols ff, i->-degree ff_i)];
 red := map(S1,S,DegreeMap => d->{d_1});
 (red d0, red d1)
@@ -2066,86 +2055,87 @@ red := map(S1,S,DegreeMap => d->{d_1});
 -*
 restart
 loadPackage ("CompleteIntersectionResolutions", Reload=>true)
+kk = ZZ/101
 
 --simple example to get the degrees of Ext right
-kk = ZZ/101
+
 U = kk[a]
 gg = matrix"a3"
 Ubar = U/ideal gg
-Mbar =  coker vars Ubar
-
---- example with a higher homotopy (key {{1,1},1})
--- we don't get a matrix factorization here!
-kk = ZZ/101
-U = kk[a,b,c,d]
-gg = matrix"a4,b4"
-Ubar = U/ideal gg
-Mbar =  coker matrix"ab,b2,bc,bd,cd,"--has a 1,1 homotopy
+Mbar1 =  coker vars Ubar
 
 ---simplest matrix factorization example in 2 vars
-kk = ZZ/101
 U = kk[a,b]
 gg = matrix"a2+2ab+3b2"
 Ubar = U/ideal gg
-Mbar =  image matrix"a,b"
+Mbar =  image vars Ubar
+
+--- simplest example with a higher homotopy (key {{1,1},1})
+U = kk[a,b,c,d]
+gg = matrix"a4,b4"
+Ubar = U/ideal gg
+use Ubar
+Mbar =  coker matrix"ab,b2,bc,bd,cd,"--has a 1,1 homotopy
 
 ---complete intersection of two quadrics in PP^3 
--- we don't get a matrix factorization here!
-kk = ZZ/101
 U = kk[a,b,c,d]
 gg = matrix"a2,b2"
 Ubar = U/ideal gg
+use Ubar
 Mbar =  coker matrix"ab,bc,bd,cd"
---is this because there's a higher homotopy?
-M = pushForward((map(Ubar,U)), Mbar)
-F = res M
-select(pairs makeHomotopies(gg,F), p->sum p_0_0 >1 and p_1!=0)
+
+--troublesome example; seems that the odd Ext comes out even.
+setRandomSeed 0
+U = kk[x_0..x_2]
+I = ideal apply(2, i->x_i^2)
+gg = gens I
+Ubar = U/I
+bar = map(Ubar, U)
+Mbar = prune coker random(Ubar^2, Ubar^{-2,-3})
+
 --
-(d0,d1)= EisenbudShamashTotal (Mbar, Check=>false, Variables => getSymbol "X")
-(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X")
 (d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X", Grading => 1)
-d0*d1
-d1*d0
-isHomogeneous d0
-isHomogeneous d1
-degree d0
-degree d1
-target d1 == source d0
+(d0,d1)= EisenbudShamashTotal Mbar
+
 S = ring d0
-target d0 == S^{{-2,0}}**source d1
+UtoS = map(S,U,DegreeMap => d ->{0,d_0})
 
+assert(target d1 == source d0)
+assert(target d0 == S^{{-2,0}}**source d1)
+sg = sum(numcols gg, i->S_(numgens U+i)*UtoS gg_i_0)
+assert (0==d1*d0-diagonalMatrix toList(numrows d1:sg) )
 
-UtoS = map(S,U,DegreeMap => d->prepend(0,d))
 Sbar= S/ideal UtoS gg
 UbartoSbar= map(Sbar,Ubar,DegreeMap => d->prepend(0,d))
+kSbar = coker UbartoSbar(vars Ubar)
 bar = map(Sbar,S)
-kS = coker UbartoSbar(vars Ubar)
-isHomogeneous kS
-
 d1bar = bar d1
 d0bar = bar d0
 
-
-isHomogeneous(Heven = homology(d0bar**kS,d1bar**kS))
-isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar**kS,d0bar**kS))
-isHomogeneous (A = chainComplex {d0bar, d1bar})
-isHomogeneous (B = chainComplex {S^{{-2,0}}**d1bar, d0bar})
-
+isHomogeneous(Heven = homology(d0bar**kSbar,d1bar**kSbar))
+isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar**kSbar,d0bar**kSbar))
 E1 = Sbar^{{1,0}}**prune Hodd
 E0 = prune Heven
-Ext(Mbar,coker vars Ubar)
+E = Ext(Mbar,coker vars Ubar)
+assert (sort(degrees E0 |degrees E1)==sort degrees E)
 
---------------
---to turn this into the single graded example:
-S = ring d0
-S1 = kk[gens S, Degrees => gens U/degree | apply(numcols gg, i->-degree gg_i)]
-red = map(S1,S,DegreeMap => d->{d_1})
-isHomogeneous red d0
-isHomogeneous red d1
-target red d0 == source red d1
-(red d0)*(red d1)
-(red d1)*red d0
-d0*d1
+isHomogeneous(Heven = homology(d0bar,d1bar))
+isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar,d0bar))
+E1 = Sbar^{{1,0}}**prune Hodd
+E0 = prune Heven
+E = prune Ext(Mbar,Ubar^1)
+assert (sort(degrees E0 |degrees E1)==sort degrees E)
+
+UbartoSbar = map(Sbar, Ubar, DegreeMap=>d->prepend(0,d))
+SMbar = coker UbartoSbar presentation Mbar
+isHomogeneous(Heven = homology(d0bar**SMbar,d1bar**SMbar))
+isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar**SMbar,d0bar**SMbar))
+E1 = Sbar^{{1,0}}**prune Hodd
+E0 = prune Heven
+E = prune Ext(Mbar,Mbar)
+assert (sort(degrees E0 |degrees E1)==sort degrees E)
+
+
 *-
 
 
@@ -2205,11 +2195,11 @@ bar = map(Rbar, R)
 Mbar = prune coker random(Rbar^2, Rbar^{-2,-3})
 time (d0,d1) = EisenbudShamashTotal(Mbar, Check => false);
 S = ring d0
-RtoS = map(S,R)
+RtoS = map(S,R, DegreeMap => d->prepend(0,d))
 SI = RtoS I
 Sbar = S/SI
 N = coker (map(Sbar,Rbar)) presentation Mbar
-
+isHomogeneous N --FALSE -- fix this
 time E = prune (
     HH_1 chainComplex {d0**N, d1**N}++
     HH_1 chainComplex {d1**N, d0**N});
@@ -5043,7 +5033,9 @@ doc ///
 
 ------TESTs------
 --the following two tests should be fixed and made back into tests!
-///
+TEST///
+--restart
+--loadPackage "CompleteIntersectionResolutions"
 setRandomSeed 0
 n = 3
 c = 2
@@ -5054,52 +5046,80 @@ ff = gens I
 Rbar = R/I
 bar = map(Rbar, R)
 Mbar = prune coker random(Rbar^2, Rbar^{-2,-3})
-(d0,d1) = EisenbudShamashTotal(Mbar, Check => true,Grading =>1)
+(d0,d1) = EisenbudShamashTotal(Mbar, Check => true)
 S = ring d0
 RtoS = map(S,R)
 SI = RtoS I
 Sbar = S/SI
-N = coker (map(Sbar,Rbar)) presentation Mbar -- shouldn't this be the pushforward??
-N = pushForward(map(Sbar,Rbar), Mbar) --but this fails for a reason I don't understand
-
+RbartoSbar = map(Sbar,Rbar,DegreeMap => d->prepend(0,d)) 
+N = prune coker RbartoSbar presentation Mbar;
 E = prune (
     HH_1 chainComplex {d0**N, d1**N}++
-    HH_1 chainComplex {d1**N, d0**N});
+    Sbar^{{1,0}}**HH_1 chainComplex {Sbar^{{-2,0}}**d1**N, d0**N}
+    );
 EE = Ext(Mbar,Mbar);
-simp = map(Sbar, ring EE, vars Sbar, DegreeMap => d-> {d_1})
-E' = coker simp presentation EE;
+gens ring E
+EEtoE = map (Sbar, ring EE, 
+    {Sbar_3, Sbar_4, Sbar_0, Sbar_1, Sbar_2})
+isHomogeneous EEtoE 
+E' = coker EEtoE presentation EE;
+sort degrees E
+sort degrees E'
 H = Hom(E,E');
-Q = positions(degrees target presentation H, i-> i_0 == 0)
+Q = positions(degrees target presentation H, i-> i == {0,0})
 f = sum(Q, p-> random (Sbar^1, Sbar^1)**homomorphism H_{p})
+prune coker f
 assert (prune coker f == 0)
 ///
 
-///
-     n = 3
-     c = 2
-     kk = ZZ/101
-     R = kk[x_0..x_(n-1)]
-     I = ideal(x_0^2, x_2^3)
-     ff = gens I
-     Rbar = R/I
-     bar = map(Rbar, R)
-     Mbar = prune coker random(Rbar^1, Rbar^{-2})
-     (d0,d1) = EisenbudShamashTotal(Mbar, Grading=>1)
-     d0*d1
-     S = ring d0
-     phi = map(S,R)
-     IS = phi I
-     Sbar = S/IS
-     SMbar = Sbar**Mbar
-     q  = S_3*IS_0+S_4*IS_1
-     Mbar' = Sbar^1/(Sbar_0, Sbar_1)**SMbar
-     q*id_(target d0) -d0*d1 
-     assert (q*id_(target d0) == d0*d1 )
-     assert (q*id_(target d1) == d1*d0 )
-     assert(prune HH_1 chainComplex{dual (Sbar**d0), dual(Sbar**d1)} == 0)
---the following stil fails
-     assert(ideal presentation prune HH_1 chainComplex{dual (Sbar**d1), dual(Sbar**d0)} ==
-     ideal presentation Mbar')
+
+TEST///
+--- simplest example with a higher homotopy (key {{1,1},1})
+U = kk[a,b,c,d]
+gg = matrix"a4,b4"
+Ubar = U/ideal gg
+use Ubar
+Mbar =  coker matrix"ab,b2,bc,bd,cd,"--has a 1,1 homotopy
+
+---complete intersection of two quadrics in PP^3 
+U = kk[a,b,c,d]
+gg = matrix"a2,b2"
+Ubar = U/ideal gg
+use Ubar
+Mbar =  coker matrix"ab,bc,bd,cd"
+--
+
+(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X", Grading => 1)
+(d0,d1)= EisenbudShamashTotal Mbar
+
+S = ring d0
+UtoS = map(S,U,DegreeMap => d ->{0,d_0})
+
+assert(target d1 == source d0)
+assert(target d0 == S^{{-2,0}}**source d1)
+sg = sum(numcols gg, i->S_(numgens U+i)*UtoS gg_i_0)
+assert (0==d1*d0-diagonalMatrix toList(numrows d1:sg) )
+
+Sbar= S/ideal UtoS gg
+UbartoSbar= map(Sbar,Ubar,DegreeMap => d->prepend(0,d))
+kSbar = coker UbartoSbar(vars Ubar)
+bar = map(Sbar,S)
+d1bar = bar d1
+d0bar = bar d0
+
+isHomogeneous(Heven = homology(d0bar**kSbar,d1bar**kSbar))
+isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar**kSbar,d0bar**kSbar))
+E1 = Sbar^{{1,0}}**prune Hodd
+E0 = prune Heven
+E = Ext(Mbar,coker vars Ubar)
+assert (sort(degrees E0 |degrees E1)==sort degrees E)
+
+isHomogeneous(Heven = homology(d0bar,d1bar))
+isHomogeneous(Hodd = homology(S^{{-2,0}}**d1bar,d0bar))
+E1 = Sbar^{{1,0}}**prune Hodd
+E0 = prune Heven
+E = prune Ext(Mbar,Ubar^1)
+assert (sort(degrees E0 |degrees E1)==sort degrees E)
 ///
 
 TEST/// -- tests of the "with components" functions
@@ -5127,6 +5147,7 @@ M= S^0
 M'=S^0++S^0
 assert(M**M == tensorWithComponents (M',M'))
 ///
+
 TEST///
 setRandomSeed 0
 R1=ZZ/101[a,b,c]/ideal(a^2,b^2,c^5)
@@ -5141,6 +5162,11 @@ assert(p ===(1/2)*z^2-(1/2)*z+3)
 z = (ring p)_0
 assert(t === false)
 assert(p ===(3*z - 2))
+///
+
+TEST///
+assert (expo(2,4) == {{4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}})
+expo(3,0)
 ///
 
 TEST///
@@ -5611,4 +5637,11 @@ loadPackage("CompleteIntersectionResolutions", Reload =>true)
 
 
 viewHelp CompleteIntersectionResolutions
+
+
+
+
+
+
+
 
