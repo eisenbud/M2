@@ -1971,8 +1971,8 @@ H = H';
 --move to a bigraded ring with variables corresponding to the
 --CI operators
 s := o.Variables;
-S := kk[gens R, s_0..s_(c-1), Degrees => apply(n,  
-	i->{0, (degree R_i)_0})|apply(c, i->{-2, -(degree ff_i)_0})];
+S := kk[s_0..s_(c-1),gens R, Degrees => 
+	apply(c, i->{-2, -(degree ff_i)_0})|apply(n, i->{0, (degree R_i)_0})];
 RtoS := map(S,R,DegreeMap => i->{0,i_0});
 SF := chainComplex apply(length RF, i->
     map (
@@ -1987,7 +1987,7 @@ assert(isHomogeneous SF)
 );
 
 --a subroutine
-monomialFromExponent := L -> product apply(#L,i->S_(n+i)^(L_i)) ;
+monomialFromExponent := L -> product apply(#L,i->S_(i)^(L_i)) ;
 
 SH := hashTable apply(pairs H, u->(
 	u_0,map(SF_(u_0_1+2*sum(u_0_0)-1),
@@ -2062,7 +2062,7 @@ kk = ZZ/101
 U = kk[a]
 gg = matrix"a3"
 Ubar = U/ideal gg
-Mbar1 =  coker vars Ubar
+Mbar =  coker vars Ubar
 
 ---simplest matrix factorization example in 2 vars
 U = kk[a,b]
@@ -2094,15 +2094,16 @@ bar = map(Ubar, U)
 Mbar = prune coker random(Ubar^2, Ubar^{-2,-3})
 
 --
-(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X", Grading => 1)
-(d0,d1)= EisenbudShamashTotal Mbar
+(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X", Grading => 2)
+(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Grading => 2)
+--(d0,d1)= EisenbudShamashTotal Mbar
 
 S = ring d0
-UtoS = map(S,U,DegreeMap => d ->{0,d_0})
+UtoS = map(S,U,DegreeMap => d ->prepend(0,d))
 
 assert(target d1 == source d0)
 assert(target d0 == S^{{-2,0}}**source d1)
-sg = sum(numcols gg, i->S_(numgens U+i)*UtoS gg_i_0)
+sg = sum(numcols gg, i->S_i*UtoS gg_i_0)
 assert (0==d1*d0-diagonalMatrix toList(numrows d1:sg) )
 
 Sbar= S/ideal UtoS gg
@@ -2135,9 +2136,14 @@ E0 = prune Heven
 E = prune Ext(Mbar,Mbar)
 assert (sort(degrees E0 |degrees E1)==sort degrees E)
 
-
 *-
 
+///
+uninstallPackage"CompleteIntersectionResolutions"
+restart
+installPackage "CompleteIntersectionResolutions"
+check "CompleteIntersectionResolutions"
+///
 
 ///
 restart
@@ -3710,8 +3716,8 @@ Description
   kk=ZZ/101
   S = kk[a,b,c,d]
   M = truncate(3,S^1)
-  betti S2(0,M)
-  betti S2(1,M)
+  betti matrix S2(0,M)
+  betti matrix S2(1,M)
   M = S^1/intersect(ideal"a,b,c", ideal"b,c,d",ideal"c,d,a",ideal"d,a,b")
   prune source S2(0,M)
   prune target S2(0,M)
@@ -3723,7 +3729,6 @@ Description
   N were a sufficiently negative syzygy of M, then the first local cohomology module
   of Ext_R(M,k) would be zero. This is false, as shown by the following example:
  Example
-  needsPackage "CompleteIntersectionResolutions"
   S = ZZ/101[x_0..x_2];
   ff = apply(3, i->x_i^2);
   R = S/ideal ff;
@@ -4963,6 +4968,8 @@ doc ///
     EisenbudShamashTotal
     (EisenbudShamashTotal, Module)
     [EisenbudShamashTotal,Check]    
+    [EisenbudShamashTotal,Variables]    
+    [EisenbudShamashTotal,Grading]    
    Headline
     Precursor complex of total Ext
    Usage
@@ -4979,10 +4986,12 @@ doc ///
     Text
      Assume that M is defined over a ring of the form
      Rbar = R/(f_0..f_{c-1}), a complete intersection, and that
-     M has a finite free resolution G over R. In this case M has a free resolution F over Rbar
-     whose dual, F^* is a finitely generated, Z/2-graded free module over a ring Sbar\cong Rbar[s_0..s_{c-1}], 
-     where the degrees of the s_i are
-     the negatives of the degrees of the f_i. This resolution is is constructed from the
+     M has a finite free resolution G over R. In this case M has a 
+     free resolution F over Rbar
+     whose dual, F^* is a finitely generated, Z-graded free module 
+     over a ring Sbar\cong kk[s_0..s_{c-1},gens Rbar], 
+     where the degrees of the s_i are {-2, -degree f_i}.
+     This resolution is is constructed from the
      dual of G,
      together with the duals of the higher homotopies on G defined by Eisenbud.
      
@@ -4994,7 +5003,15 @@ doc ///
      
      HH_1 chainComplex \{d0**N, d1**N\} = Ext^{even}_{Rbar}(M,N)
      
-     HH_1 chainComplex \{d1**N, d0**N\} = Ext^{odd}_{Rbar}(M,N)    
+     S^{{1,0}}**HH_1 chainComplex \{d1**N, d0**N\} = Ext^{odd}_{Rbar}(M,N)    
+
+     Option defaults:
+     Check=>false
+     Variables=>getSymbol "s",
+     Grading =>2}
+     
+     If Grading =>1, then a singly graded result is returned (just forgetting the
+     honological grading.
 
     Example
      n = 3
@@ -5024,7 +5041,7 @@ doc ///
     Text
      As a second example we compute Ext(Mbar, Rbar):
     Example     
-     prune HH_1 chainComplex {Sbar**d0,Sbar**d1}
+     prune HH_1 chainComplex {S
      prune HH_1 chainComplex {Sbar**d1,Sbar**d0}     
      prune Ext(Mbar, Rbar^1)
    SeeAlso
@@ -5059,28 +5076,17 @@ E = prune (
     );
 EE = Ext(Mbar,Mbar);
 gens ring E
-EEtoE = map (Sbar, ring EE, 
-    {Sbar_3, Sbar_4, Sbar_0, Sbar_1, Sbar_2})
-isHomogeneous EEtoE 
+EEtoE = map (Sbar, ring EE, gens Sbar)
+assert isHomogeneous EEtoE 
 E' = coker EEtoE presentation EE;
-sort degrees E
-sort degrees E'
 H = Hom(E,E');
 Q = positions(degrees target presentation H, i-> i == {0,0})
 f = sum(Q, p-> random (Sbar^1, Sbar^1)**homomorphism H_{p})
-prune coker f
 assert (prune coker f == 0)
 ///
 
 
 TEST///
---- simplest example with a higher homotopy (key {{1,1},1})
-U = kk[a,b,c,d]
-gg = matrix"a4,b4"
-Ubar = U/ideal gg
-use Ubar
-Mbar =  coker matrix"ab,b2,bc,bd,cd,"--has a 1,1 homotopy
-
 ---complete intersection of two quadrics in PP^3 
 U = kk[a,b,c,d]
 gg = matrix"a2,b2"
@@ -5097,7 +5103,7 @@ UtoS = map(S,U,DegreeMap => d ->{0,d_0})
 
 assert(target d1 == source d0)
 assert(target d0 == S^{{-2,0}}**source d1)
-sg = sum(numcols gg, i->S_(numgens U+i)*UtoS gg_i_0)
+sg = sum(numcols gg, i->S_i*UtoS gg_i_0)
 assert (0==d1*d0-diagonalMatrix toList(numrows d1:sg) )
 
 Sbar= S/ideal UtoS gg
@@ -5461,7 +5467,7 @@ TEST ///--of S2
 S = ZZ/101[a,b,c];
 M = S^1/intersect(ideal"a,b", ideal"b,c",ideal"c,a");
 --assert( (hf(-7..1,coker S2(-5,M))) === (0, 3, 3, 3, 3, 3, 3, 2, 0))
-assert( (betti prune S2(-5,M)) === new BettiTally from {(0,{-6},-6) => 3, (1,{0},0) => 1} )
+assert( (betti prune matrix S2(-5,M)) === new BettiTally from {(0,{-6},-6) => 3, (1,{0},0) => 1} )
 ///
 
 
