@@ -19,6 +19,8 @@ newPackage(
 	   "OutRing",
 	   "oddExtModule",
 	   "ExtModuleData",
+	   "newExt", -- replacement for global Ext
+	   "Lift", -- option for newExt
 	--tools used to construct the "higher matrix factorization"
 	--of a high syzygy or more generally a Maximal Cohen-Macaulay module
 	   "matrixFactorization",
@@ -2047,12 +2049,13 @@ if o.Check == true then(
 if o.Grading == 2 then return (d0,d1); --Grading => 2 is the default.
 
 --if o.Grading !=2, reduce to singly graded maps
-S1 := kk[gens S, Degrees => gens R/degree | apply(numcols ff, i->-degree ff_i)];
+S1 := kk[gens S, Degrees =>  apply(numcols ff, i->-degree ff_i)|gens R/degree];
 red := map(S1,S,DegreeMap => d->{d_1});
 (red d0, red d1)
 )
 
--*
+///
+--a series of examples we used to test EisenbudShamashTotal
 restart
 loadPackage ("CompleteIntersectionResolutions", Reload=>true)
 kk = ZZ/101
@@ -2084,7 +2087,7 @@ Ubar = U/ideal gg
 use Ubar
 Mbar =  coker matrix"ab,bc,bd,cd"
 
---troublesome example; seems that the odd Ext comes out even.
+--more complicated module
 setRandomSeed 0
 U = kk[x_0..x_2]
 I = ideal apply(2, i->x_i^2)
@@ -2092,13 +2095,15 @@ gg = gens I
 Ubar = U/I
 bar = map(Ubar, U)
 Mbar = prune coker random(Ubar^2, Ubar^{-2,-3})
-
+newExt(Mbar, coker vars Ubar, Check=>true, Lift =>true)
 --
-(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X", Grading => 2)
+(d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Variables => getSymbol "X", Grading => 1)
 (d0,d1)= EisenbudShamashTotal (Mbar, Check=>true, Grading => 2)
 --(d0,d1)= EisenbudShamashTotal Mbar
 
 S = ring d0
+gens S
+(gens S)/degree
 UtoS = map(S,U,DegreeMap => d ->prepend(0,d))
 
 assert(target d1 == source d0)
@@ -2136,7 +2141,7 @@ E0 = prune Heven
 E = prune Ext(Mbar,Mbar)
 assert (sort(degrees E0 |degrees E1)==sort degrees E)
 
-*-
+///
 
 ///
 uninstallPackage"CompleteIntersectionResolutions"
@@ -2145,89 +2150,55 @@ installPackage "CompleteIntersectionResolutions"
 check "CompleteIntersectionResolutions"
 ///
 
-///
-restart
-loadPackage "CompleteIntersectionResolutions"
-debug CompleteIntersectionResolutions
-setRandomSeed 0
 
-n = 2
-c = 1
-kk = ZZ/101
-R = kk[x_0..x_(n-1)]
-I = ideal apply(c, i->x_i^2)
---I = ideal(x_0^2+x_1^2, x_2^3)
-ff = gens I
-Rbar = R/I
-bar = map(Rbar, R)
-Mbar = prune coker random(Rbar^1, Rbar^{-2})
-M = pushForward(bar,Mbar)
---Mbar = coker vars Rbar
-(d0,d1) = EisenbudShamashTotal(Mbar, Check => true);
-d0*d1
-d1*d0
-S = ring d0
-RtoS = map(S,R)
-SI = RtoS I
-Sbar = S/SI
-N = coker (map(Sbar,Rbar)) presentation Mbar
 
-time E = prune (
-    HH_1 chainComplex {d0**N, d1**N}++
-    HH_1 chainComplex {d1**N, d0**N});
+newExt = method(Options => 
+       {Lift => false, 
+	Check => false, 
+	Grading => 2, 
+	Variables=>getSymbol "s"}
+    )
+newExt(Module,Module) :=o -> (Mbar,Nbar)  -> (
+    --check that the circumstances are ok:
+    if not ring Mbar === ring Nbar then error"Expected modules over the same ring";
+    if not (isHomogeneous Mbar and isHomogeneous Nbar) then error"expected homogeneous modules";
+    p := presentation ring Mbar;
+    if not numcols p == codim ideal p then error"Expected modules over a complete intersection";
 
-time EE = Ext(Mbar,Mbar)
-simp = map(Sbar, ring EE, vars Sbar, DegreeMap => d-> {d_1})
-E' = coker simp presentation EE;
-H = Hom(E,E');
-Q = positions(degrees target presentation H, i-> i_0 == 0)
-f = sum(Q, p-> random (Sbar^1, Sbar^1)**homomorphism H_{p})
-assert (prune coker f == 0)
+(d0,d1) := EisenbudShamashTotal (Mbar, 
+    Grading => o.Grading, 
+    Variables =>o.Variables,
+    Check=>o.Check);
+Rbar := ring Mbar;
+R := ring presentation Rbar;
+I := ideal presentation Rbar;
+--now do Ext(Mbar,K) our way:
+S := ring d0;
+RtoS := map(S,R, DegreeMap => d->prepend(0,d));
+Sbar := S/(RtoS I);
+RbartoSbar := map(Sbar,Rbar, DegreeMap => d->prepend(0,d));
+SbarNbar := coker RbartoSbar presentation Nbar;
+E := prune (
+    HH_1 chainComplex {d0**SbarNbar, d1**SbarNbar}++
+    Sbar^{{1,0}}**HH_1 chainComplex {Sbar^{{-2,0}}**d1**SbarNbar, d0**SbarNbar}
+    );
+if o.Check == true then(
+    EE := Ext(Mbar,Nbar);
+    S' := ring EE; -- note that S' is the polynomial ring
+    StoSbar := map(Sbar,S);
+    ES := prune pushForward(StoSbar, E);
+    A := res ES;
+    B := res EE;
+    assert all(length A+1, i-> sort degrees A_i == sort degrees B_i)
+    );
+--and optionally move it back to the polynomial ring
+if o.Lift == true then(
+    StoSbar = map(Sbar,S);
+    ES = prune pushForward(StoSbar, E);
+    return ES;
+    );
+E)
 
----
-restart
-loadPackage "CompleteIntersectionResolutions"
-debug CompleteIntersectionResolutions
-
-n = 4
-c = 3
-kk = ZZ/101
-R = kk[x_0..x_(n-1)]
-I = ideal random(R^1, R^(apply(c, i->-i-1)))
-I = ideal random(R^1, R^(apply(c, i->-2)))
-ff = gens I
-Rbar = R/I
-bar = map(Rbar, R)
-Mbar = prune coker random(Rbar^2, Rbar^{-2,-3})
-time (d0,d1) = EisenbudShamashTotal(Mbar, Check => false);
-S = ring d0
-RtoS = map(S,R, DegreeMap => d->prepend(0,d))
-SI = RtoS I
-Sbar = S/SI
-N = coker (map(Sbar,Rbar)) presentation Mbar
-isHomogeneous N --FALSE -- fix this
-time E = prune (
-    HH_1 chainComplex {d0**N, d1**N}++
-    HH_1 chainComplex {d1**N, d0**N});
-
-time EE = Ext(N,N);
-
----
-
-d0*d1
-S = ring d0
-phi = map(S,R)
-phi I
-Sbar = S/phi I
-bar = map(Sbar,S)
-prune HH_1 chainComplex {bar d0,bar d1}
-annihilator prune HH_1 chainComplex {bar d1,bar d0}
-d1*d0
-d0*d1
-
-needsPackage "Clifford"
-viewHelp Clifford
-///
 
 -----------------------------
 --------Documentation-----------documentation--DOCUMENT
@@ -2245,6 +2216,8 @@ check "CompleteIntersectionResolutions"
 *-
 
 beginDocumentation()
+
+
 
 doc///
 Key
@@ -2294,7 +2267,8 @@ Description
   {TO "evenExtModule"},
   {TO "oddExtModule"},
   {TO "ExtModuleData"},
-  {TO "complexity"}
+  {TO "complexity"},
+  {TO "newExt"}
   }@
  Text
   @SUBSECTION "Representing a module as Ext_R(M,k)"@
@@ -2473,6 +2447,111 @@ Caveat
   even when the ideal of the complete intersection is homogeneous, so our examples
   in the routines for are primarily using complete intersections of equal degree.
   The theory takes place in the local case, however, where this is not a problem.
+///
+
+doc ///
+   Key
+    newExt
+    (newExt,Module,Module)
+    [newExt, Check]
+    [newExt, Lift]
+    [newExt,Grading]
+    [newExt,Variables]
+   Headline
+    Global Ext for modules over a complete Intersection
+   Usage
+    E = newExt(M,N)
+   Inputs
+    M:Module
+     over a complete intersection Rbar
+    N:Module
+     over Rbar
+   Outputs
+    E:Module
+     over a ring S made from ring presentation Rbar with codim Rbar new variables
+   Description
+    Text
+     Let Rbar = R/(f1..fc), a complete intersection of codimension c, and let M,N
+     be Rbar-modules. We assume that the pushForward of M to R has finite free resolution.
+     The script then computes the total Ext(M,N) as a module over
+     S = kk(s_1..s_c,gens R), using EisenbudShamashTotal.
+     
+     If Check => true, then the result is compared with the built-in global Ext written
+     by Avramov and Grayson (but note the difference, explained below).
+     
+     If Lift => false the result is returned over and extension of Rbar; if Lift => true
+     the result is returned over and extension of R.
+     
+     If Grading => 2, the default, then the result is bigraded (this is necessary when
+     Check=>true
+     
+     The default Variables => symbol "s" gives the new variables the name s_i, i=0..c-1.
+     (note that the builtin Ext uses X_1..X_c.
+	 
+     A simple example: if R = k[x_1..x_n] and I is contained in the cube
+     of the maximal ideal, then Ext(k,k) is a free 
+     S/(x_1..x_n) = k[s_0..s_(c-1)]- module with binomial(n,i) generators in degree i
+    Example
+     n = 3;c=2;
+     R = ZZ/101[x_0..x_(n-1)]
+     Rbar = R/(ideal apply(c, i-> R_i^3))
+     Mbar = Nbar = coker vars Rbar
+     E = newExt(Mbar,Nbar)
+     tally degrees E
+     annihilator E
+    Text
+     An example where the built-n global Ext is hard to compare directly
+     with our method of computation: I *guess* that the sign choices in the built-in
+     amount essentially to a change of variable
+     in the new variables, and spoil an easy comparison. 
+     But for example the bi-graded betti numbers are equal.
+     this seems to start with c=3.
+    Example
+     setRandomSeed 0
+     n = 3
+     c = 3
+     kk = ZZ/101
+     R = kk[x_0..x_(n-1)]
+     I = ideal apply(c, i->R_i^2)
+     ff = gens I
+     Rbar = R/I
+     bar = map(Rbar, R)
+     K = coker vars Rbar
+     Mbar = prune coker random(Rbar^2, Rbar^{-2,-2})
+    
+     ES = newExt(Mbar,K,Lift => true)
+     S = ring ES
+    Text
+     compare with the built-in Ext
+    Example
+     EE = Ext(Mbar,K);
+     S' = ring EE -- note that S' is the polynomial ring
+    
+    Text
+     The two verstions of Ext appear to be the same up to change of variables:
+    Example
+     A = res ES
+     B = res EE
+     all(length A+1, i-> sort degrees A_i == sort degrees B_i)
+    Text
+     but they have apparently different annihilators
+    Example
+     ann EE
+     ann ES
+    Text
+     and in fact they are not isomorphic:
+    Example
+     EEtoES = map(ring ES,ring EE, gens ring ES)
+     EE' = coker EEtoES presentation EE
+     H = Hom(EE',ES);
+     Q = positions(degrees target presentation H, i-> i == {0,0})
+     f = sum(Q, p-> random (S^1, S^1)**homomorphism H_{p})
+    Text
+     If EE and ES were isomorphic, we would expect coker f to be 0, and it's not.
+     prune coker f
+   SeeAlso
+    Ext
+    EisenbudShamashTotal
 ///
 
 
@@ -3093,6 +3172,40 @@ doc ///
    SeeAlso
     matrixFactorization
  ///
+doc ///
+   Key 
+    Lift
+   Headline
+    Option for newExt
+   Usage
+    newExt(M,N,Check =>true)
+   Inputs
+    Check:Boolean
+   Description
+    Text
+     Makes newExt perform various checks as it computes.
+   SeeAlso
+    newExt
+ ///
+
+doc ///
+   Key 
+    Grading
+   Headline
+    Option for EisenbudShamashTotal, newExt
+   Usage
+    EisenbudShamashTotal(Mbar,Grading => 2)
+   Inputs
+    Check:ZZ
+   Description
+    Text
+     if Grading =>1, then the output is converted to single-grading, useful in 
+     the package Clifford
+   SeeAlso
+    EisenbudShamashTotal
+    newExt
+ ///
+
 doc ///
    Key 
     Augmentation
@@ -5003,15 +5116,17 @@ doc ///
      
      HH_1 chainComplex \{d0**N, d1**N\} = Ext^{even}_{Rbar}(M,N)
      
-     S^{{1,0}}**HH_1 chainComplex \{d1**N, d0**N\} = Ext^{odd}_{Rbar}(M,N)    
+     S^{{1,0}}**HH_1 chainComplex \{S^{{-2,0}}**d1**N, d0**N\} = Ext^{odd}_{Rbar}(M,N)    
 
+     This is encoded in the script newExt
+     
      Option defaults:
      Check=>false
      Variables=>getSymbol "s",
      Grading =>2}
      
      If Grading =>1, then a singly graded result is returned (just forgetting the
-     honological grading.
+     honological grading.)
 
     Example
      n = 3
@@ -5038,18 +5153,61 @@ doc ///
      prune HH_1 chainComplex{dual (Sbar**d0), dual(Sbar**d1)} == 0
      Mbar' = Sbar^1/(Sbar_0, Sbar_1)**SMbar
      ideal presentation prune HH_1 chainComplex{dual (Sbar**d1), dual(Sbar**d0)} == ideal presentation Mbar'
-    Text
-     As a second example we compute Ext(Mbar, Rbar):
-    Example     
-     prune HH_1 chainComplex {S
-     prune HH_1 chainComplex {Sbar**d1,Sbar**d0}     
-     prune Ext(Mbar, Rbar^1)
    SeeAlso
     Ext
+    newExt
+    makeHomotopies
 ///
 
 ------TESTs------
---the following two tests should be fixed and made back into tests!
+TEST///
+--An example where the built-n global Ext is hard to compare directly
+--with our method of computation: I *guess* that the sign choices in the built-in
+--amount essentiall to a change of variable
+--in the new variables, an spoil an easy comparison. 
+--But for example the bi-graded betti numbers are equal.
+--this seems to start with c=3.
+
+restart
+loadPackage "CompleteIntersectionResolutions"
+setRandomSeed 0
+n = 3
+c = 3
+kk = ZZ/101
+R = kk[x_0..x_(n-1)]
+I = ideal apply(c, i->R_i^2)
+ff = gens I
+Rbar = R/I
+bar = map(Rbar, R)
+K = coker vars Rbar
+Mbar = prune coker random(Rbar^2, Rbar^{-2,-2})
+
+--now do Ext(Mbar,K) our way:
+ES = newExt(Mbar,K,Lift => true)
+S = ring ES
+
+--compare with the built-in:
+EE = Ext(Mbar,K);
+S' = ring EE -- note that S' is the polynomial ring
+
+--The two verstions of Ext appear to be the same up to change of variables:
+A = res ES
+B = res EE
+assert all(length A+1, i-> sort degrees A_i == sort degrees B_i)
+--but they have apparently different annihilators
+ann EE
+ann ES
+
+--and in fact they are not isomorphic:
+EEtoES = map(ring ES,ring EE, gens ring ES)
+EE' = coker EEtoES presentation EE
+H = Hom(EE',ES);
+Q = positions(degrees target presentation H, i-> i == {0,0})
+f = sum(Q, p-> random (S^1, S^1)**homomorphism H_{p})
+assert (prune coker f != 0)
+Mbar = prune coker random(Rbar^2, Rbar^{-2,-2}) -- this gives trouble
+///
+
 TEST///
 --restart
 --loadPackage "CompleteIntersectionResolutions"
