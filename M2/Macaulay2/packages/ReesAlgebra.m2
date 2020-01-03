@@ -80,7 +80,8 @@ export{
   "PlaneCurveSingularities",
   --synonyms
   "associatedGradedRing" => "normalCone",
-  "reesAlgebraIdeal" => "reesIdeal"
+  "reesAlgebraIdeal" => "reesIdeal",
+  "Trim" -- option in reesIdeal
   }
 
 
@@ -121,36 +122,40 @@ reesIdeal = method(
 	  PairLimit => infinity,
 	  MinimalGenerators => true,
 	  Strategy => null,
-	  Variable => "w"
+	  Variable => "w",
+	  Trim => true
 	  }
       )
 
 --the following uses a versal embedding
 reesIdeal(Module) := Ideal => o -> M -> (
-     P := presentation minimalPresentation M;
+     if o.Trim == true then P := presentation minimalPresentation M else P = presentation M;
      UE := transpose syz transpose P;
      symmetricKernel(UE,Variable => fixupw o.Variable)
      )
 
 --in the case of ideals we don't need a versal embedding; any embedding in the ring will do.
 reesIdeal(Ideal) := Ideal => o-> (J) -> (
-     symmetricKernel(mingens J, Variable => fixupw o.Variable)
+    if o.Trim == true then J' := mingens J else J' = gens J;
+     symmetricKernel(J', Variable => fixupw o.Variable)
      )
 
 -- the following method, usually faster,
 -- needs a user-provided non-zerodivisor a such that M[a^{-1}] is of linear type.
 
 reesIdeal(Module,RingElement) := Ideal => o-> (I,I0) ->(
-    I' := trim I;
+    if o.Trim == true then I' := trim I else I' = I;
     K' := if o.Jacobian == true then expectedReesIdeal I' else(
     K' = symmetricAlgebraIdeal I';
     R := ring K';
     IR := substitute(I0, R);
-    trim saturate(K',IR))
+    trim saturate(K',IR)
+    )
     )
 
 reesIdeal(Ideal, RingElement) := Ideal => o -> (I,a) -> (
-     reesIdeal(module trim I, a)
+     if o.Trim == true then I' := trim I else I' = I;
+     reesIdeal(module I', a, Trim => o.Trim)
      )
 
 reesAlgebra = method (TypicalValue=>Ring,
@@ -265,7 +270,8 @@ specialFiberIdeal=method(TypicalValue=>Ideal,
 	  MinimalGenerators => true,
 	  Strategy => null,
 	  Variable => "w",
-	  Jacobian =>false
+	  Jacobian =>false,
+	  Trim => true
 	  }
       )
 specialFiberIdeal(Ideal):= o-> I ->(
@@ -313,7 +319,8 @@ specialFiber=method(TypicalValue=>Ring,
 	  MinimalGenerators => true,
 	  Strategy => null,
 	  Variable => "w",
-	  Jacobian => false
+	  Jacobian => false,
+	  Trim => true
 	  }
       )
 
@@ -830,11 +837,29 @@ doc ///
 doc ///
   Key
     Jacobian  
-    [reesAlgebra, Jacobian]    
   Headline
     Choose whether to use the Jacobian dual in the computation
   Usage
     reesIdeal(..., Jacobian => true)
+  SeeAlso
+   reesIdeal
+   reesAlgebra
+   specialFiberIdeal
+   specialFiber
+   expectedReesIdeal
+///
+
+doc ///
+  Key
+    Trim  
+  Headline
+    Choose whether to trim (or find minimal generators) for the ideal or module.
+  Usage
+    reesIdeal(..., Trim => true)
+  Description
+   Text
+    Note that when Trim=>true, the generators used will be the ones (and in the order) M2 likes,
+    possibly not the original ones.
   SeeAlso
    reesIdeal
    reesAlgebra
@@ -1016,10 +1041,11 @@ doc ///
   Key
     reesIdeal
     (reesIdeal,Ideal)
-    (reesIdeal, Module)
+    (reesIdeal,Module)
     (reesIdeal,Ideal, RingElement)
     (reesIdeal,Module, RingElement)
     [reesIdeal,Jacobian]
+    [reesIdeal,Trim]    
   Headline
     Compute the defining ideal of the Rees Algebra
   Usage
@@ -1109,7 +1135,6 @@ doc ///
     (reesAlgebra, Module)
     (reesAlgebra,Ideal, RingElement)
     (reesAlgebra,Module, RingElement)
-    
   Headline
     Compute the defining ideal of the Rees Algebra
   Usage
@@ -1319,6 +1344,8 @@ doc ///
     (specialFiberIdeal, Ideal)
     (specialFiberIdeal, Module, RingElement)
     (specialFiberIdeal, Ideal, RingElement)
+    [specialFiberIdeal, Jacobian]
+    [specialFiberIdeal, Trim]
   Headline
      Special fiber of a blowup     
   Usage
@@ -1342,6 +1369,9 @@ doc ///
 
      The name derives from the fact that $Proj(T/mm*T)$ is the special fiber of
      the blowup of $Spec R$ along the subscheme defined by $I$.
+     
+     With the default Trim => true, the computation begins by computing minimal generators,
+     which may result in a change of generators of M
    Example
      R=QQ[a..h]
      M=matrix{{a,b,c,d},{e,f,g,h}}
@@ -1378,6 +1408,7 @@ doc ///
     (specialFiber, Module, RingElement)
     (specialFiber, Ideal, RingElement)
     [specialFiber, Jacobian]
+    [specialFiber, Trim]    
   Headline
      Special fiber of a blowup     
   Usage
@@ -1405,6 +1436,9 @@ doc ///
      
      The name derives from the fact that $Proj(T/mm*T)$ is the special fiber of
      the blowup of $Spec R$ along the subscheme defined by $I$.
+
+     With the default Trim => true, the computation begins by computing minimal generators,
+     which may result in a change of generators of M
    Example
      R=QQ[a..h]
      M=matrix{{a,b,c,d},{e,f,g,h}}
