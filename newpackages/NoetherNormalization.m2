@@ -2556,6 +2556,9 @@ TEST ///
   kk = ZZ/32003
   R1 = kk[b,x,y,z,s,t,u,v,w];
   I = ideal"su+bv, tu+bw,tv+sw,sx+by,tx+bz,ty+sz,vx+uy,wx+uz,wy+vz";
+  codim I
+  decompose I
+  --here
   R = R1/I
   noetherNormalization R -- really bad and slow
   homogeneousLinearParameters R
@@ -2589,12 +2592,64 @@ TEST ///
 -*
   restart
   debug needsPackage "NoetherNormalization"
+  errorDepth = 0
 *-
-  kk = QQ
+  kk = ZZ/32003
   R1 = kk[t,a,b,c,d,e,f,g,h];
   I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
   R = R1/I
+   noetherNormalization R
+  --try making it homogeneous:
+  kk = ZZ/32003
+  R1 = kk[t,a,b,c,d,e,f,g,h,z];
+  I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
+  I' = homogenize(I,z)
+  R' = R1/I'
+  dim R'
+  homogeneousLinearParameters R
+
+  R = R1/I
+  
+  noetherRing(R,{t, - c - d + e + h, b, d + f,c+g})
+  R2 = kk[t,a,b,c,d,e,f,g,h,m_1..m_4,MonomialOrder => {9,4}];
   --  noetherNormalization R
+  I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
+  use R2    
+  J = ideal(m_1-t-c-g, m_2+c+d-e-h-2*(c+g), m_3-b-5*(c+g), m_4-d-f-7*(c+g))
+  netList flatten entries leadTerm gens gb(I+J)
+  I
+
+-*
+  restart
+  debug needsPackage "NoetherNormalization"
+  errorDepth = 0
+*-
+  kk = ZZ/32003
+  R1 = kk[t,a,b,c,d,e,f,g,h];
+  I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
+
+isFiniteNew = method()
+isFiniteNew(Ring, List) := Boolean => (R,L) ->(
+    w := symbol w;
+    I := ideal R;
+    S := coefficientRing R[gens ring I, w_0..w_(#L-1), MonomialOrder => {numgens ring I, #L}];
+    I1 := sub(I, S);
+    L1 := ideal apply(#L, i-> w_i - sub(L_i, S));
+    lT := leadTerm gens gb (I1+L1);
+    fL := flatten entries lT;
+    oldvars := drop (gens S, - #L);
+    if oldvars === 
+      rsort for f in fL list(
+      s := support f;
+      if #s >1 then continue else s#0)
+      then true else false
+    )
+R = R1/I
+  J = {-t-c-g, c+d-e-h-2*(c+g), -b-5*(c+g), -d-f-7*(c+g)}
+--  isFiniteNew(R,{t, - c - d + e + h, b, d + f,c+g})  
+  isFiniteNew(R,J)    
+       
+  select(fL, f-> #support f === 1)
 ///
 --------------------------------------------------------------
 TEST ///
