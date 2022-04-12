@@ -12,19 +12,37 @@ newPackage(
     Headline => "Probabalistic tests of isomorphism",
     Authors => {{Name => "David Eisenbud", 
                   Email => "de@msri.org", 
-                  HomePage => "http://www.msri.org/~de"},
-                  }},
+                  HomePage => "http://www.msri.org/~de"}
+                  },
     DebuggingMode => true
     )
 
 export {
     "isHomogeneouslyIsomorphic",
     "isLocallyIsomorphic",
-    "surjectiveMap"
+    "surjectiveMap",
+    "checkDegrees",
+    "correctDegrees"
     }
     
 
 -* Code section *-
+checkDegrees = method()
+checkDegrees(Module, Module) := (A,B) ->(
+    if not isHomogeneous A and isHomogeneous B then error"Input modules not homogeneous";
+    degdiff := degrees A - degrees B
+    <<"To make the degrees equal"<<endl;
+    <<"tensor the first argument with its ring to the power " << degdiff;
+    )
+///
+debug needsPackage "Isomorphism"
+S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
+A = S^{{2,1}}
+B = S^{{1,1}}
+checkDegrees(A,B)
+checkDegrees(S^d**A, B)
+///
+
 surjectiveMap = method()
 surjectiveMap(Module,Module) := Boolean => (A,B)->(
     S := ring A;
