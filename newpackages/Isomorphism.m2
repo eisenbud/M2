@@ -28,53 +28,74 @@ export {
 
 -* Code section *-
 
+isDegreeListZero = L -> 
+-- test whether a list of lists has all entries of entries 0
+   all(L, s -> 
+           all(s,  e-> e === 0)); 
+
 checkDegrees = method()
 checkDegrees(Module, Module) := (A,B) ->(
-    
-    degList0 = L -> all(L, s -> all(s,  e-> e === 0)); -- test whether a list of lists has all entries of entries 0
-    
     if not isHomogeneous A and isHomogeneous B then error"Input modules not homogeneous";
     dA := sort degrees A;
     dB := sort degrees B;
-    if #dA !=#dB then return"number of generators is different";
-    degdiff := dA_0 - dB_0;
-    degdiffs := for i from 1 to #dA-1 list dA_i-dB_i;
-error();
-    if all(degdiffs, s-> s == degdiff) then(
-	if degList0 degdiff  then return "degrees match";
-    <<"To make the degree seequences equal, tensor "<<A<<"with ring <<A<<to"<<endl;
-    <<degdiff<<endl) else
+    if #dA != #dB then (
+	<<"numbers of generators are different"<<endl;
+	return()
+	);
+    degdiffs := for i from 0 to #dA-1 list dA_i-dB_i;
+--error();
+    if all(degdiffs, s-> s == degdiffs_0) then(
+	if isDegreeListZero degdiffs  then (
+	    << "degree sequences are equal"<<endl;
+            return {dA_0-dB_0};
+	    );
+    <<"To make the degree sequences equal, tensor "<<A<<"with ring " << A << "to " << {dA_0-dB_0} <<endl;
+    return {dA_0-dB_0}
+    ) else
     <<"degree sequences don't match"<<endl;
     )
 
 ///
+restart
 errorDepth = 0
-debug needsPackage "Isomorphism"
+debug loadPackage "Isomorphism"
 S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
 A = S^{{2,1}}
 B1 = S^{{1,1}}
 B = S^{{1,1}, {2,3}}
-sort degrees B
---not working yet
 checkDegrees(A,B)
-checkDegrees(A,B1)
-degdiffs
-sort degrees B
+d = checkDegrees(A,B1)
+checkDegrees(B,B)
 checkDegrees(S^d**A, B1)
-L = {{1,0},{0,0}}
-degList0 degrees B1
-all(L, s -> true)
 ///
 
-surjectiveMap = method()
-surjectiveMap(Module,Module) := Boolean => (A,B)->(
+surjectiveMap = method({Homogeneous => true})
+surjectiveMap(Module,Module) := Sequence => o -> (A,B)->(
     S := ring A;
     H := Hom(A,B);
     Hp := prune H;
     pmap := Hp.cache.pruningMap;
-    f := homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^1)));
-    t := if prune coker f == 0 then true else false;
+    if o.Homogeneous then (
+	d := min degrees Hp;
+	f := homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^{-d})))) else
+        f := homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^1)));
+    	t := if o.Homogeneous and prune coker f == 0 or coker f == 0 then true else false;
     (t,f))
+///
+restart
+errorDepth = 0
+debug loadPackage "Isomorphism"
+S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
+A = S^{{2,1}}
+B1 = S^{{1,1}}
+B = S^{{1,1}, {2,3}}
+checkDegrees(A,B)
+d = checkDegrees(A,B1)
+checkDegrees(B,B)
+checkDegrees(S^d**A, B1)
+///
+
+
 isHomogeneouslyIsomorphic = method()
 isHomogeneouslyIsomorphic(Module, Module) := Boolean => (A,B)->(
         if not isHomogeneous A and isHomogeneous B then error"inputs not homogeneous";
@@ -153,6 +174,42 @@ SeeAlso
  isHomogeneouslyIsomorphic
  isLocallyIsomorphic
  surjectiveMap
+///
+doc ///
+Key
+ checkDegrees
+ (checkDegrees,Module,Module)
+Headline
+ compares the degrees of generators of two modules
+Usage
+ d = checkDegrees(A,B)
+Inputs
+ A:Module
+ B:Module
+Outputs
+ d:List
+  a degree in the ring of A and B
+Description
+  Text
+   This is to be used with isHomogeneouslyIsomorphic.
+   
+   The routine compares the sorted lists of degrees of generators of the two modules;
+   the degreeLength (can be anything).
+   If the numbers of generators of A,B are different, the modules are not isomorphic
+   If the numbers are the same, and all the corresponding degrees pairs differ
+   by the same amount (so that the modules might become isomorphic after a shift, 
+   the output tells how to adjust the modules to make the degrees equal.
+  Example
+   S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
+   A = S^{{2,1}}
+   B = S^{{1,1}}
+   C = S^{{1,1}, {2,3}}
+   d = checkDegrees(A,B)
+   checkDegrees(S^d**A, B1)
+   checkDegrees(A,B1)
+   checkDegrees(B,B)
+  SeeAlso
+   isHomogeneouslyIsomorphic
 ///
 
 doc ///
