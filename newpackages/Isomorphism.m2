@@ -27,20 +27,43 @@ export {
     
 
 -* Code section *-
+
 checkDegrees = method()
 checkDegrees(Module, Module) := (A,B) ->(
+    
+    degList0 = L -> all(L, s -> all(s,  e-> e === 0)); -- test whether a list of lists has all entries of entries 0
+    
     if not isHomogeneous A and isHomogeneous B then error"Input modules not homogeneous";
-    degdiff := degrees A - degrees B
-    <<"To make the degrees equal"<<endl;
-    <<"tensor the first argument with its ring to the power " << degdiff;
+    dA := sort degrees A;
+    dB := sort degrees B;
+    if #dA !=#dB then return"number of generators is different";
+    degdiff := dA_0 - dB_0;
+    degdiffs := for i from 1 to #dA-1 list dA_i-dB_i;
+error();
+    if all(degdiffs, s-> s == degdiff) then(
+	if degList0 degdiff  then return "degrees match";
+    <<"To make the degree seequences equal, tensor "<<A<<"with ring <<A<<to"<<endl;
+    <<degdiff<<endl) else
+    <<"degree sequences don't match"<<endl;
     )
+
 ///
+errorDepth = 0
 debug needsPackage "Isomorphism"
 S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
 A = S^{{2,1}}
-B = S^{{1,1}}
+B1 = S^{{1,1}}
+B = S^{{1,1}, {2,3}}
+sort degrees B
+--not working yet
 checkDegrees(A,B)
-checkDegrees(S^d**A, B)
+checkDegrees(A,B1)
+degdiffs
+sort degrees B
+checkDegrees(S^d**A, B1)
+L = {{1,0},{0,0}}
+degList0 degrees B1
+all(L, s -> true)
 ///
 
 surjectiveMap = method()
