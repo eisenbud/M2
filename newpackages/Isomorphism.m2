@@ -33,31 +33,31 @@ isDegreeListZero = L ->
    all(L, s -> 
            all(s,  e-> e === 0)); 
 
-checkDegrees = method()
-checkDegrees(Module, Module) := (A,B) ->(
+checkDegrees = method(Options =>{Verbose =>false})
+checkDegrees(Module, Module) := o -> (A,B) -> (
+    v := o.Verbose;
     if not isHomogeneous A and isHomogeneous B then error"Input modules not homogeneous";
     dA := sort degrees A;
     dB := sort degrees B;
     if #dA != #dB then (
-	<<"numbers of generators are different"<<endl;
+	if v then <<"numbers of generators are different"<<endl;
 	return()
 	);
     degdiffs := for i from 0 to #dA-1 list dA_i-dB_i;
 --error();
     if all(degdiffs, s-> s == degdiffs_0) then(
 	if isDegreeListZero degdiffs  then (
-	    << "degree sequences are equal"<<endl;
+	    if v then << "degree sequences are equal"<<endl;
             return {dA_0-dB_0};
 	    );
-    <<"To make the degree sequences equal, tensor "<<A<<"with ring " << A << "to " << {dA_0-dB_0} <<endl;
+    if v then <<"To make the degree sequences equal, tensor "<<A<<"with ring " << A << "to " << {dA_0-dB_0} <<endl;
     return {dA_0-dB_0}
     ) else
-    <<"degree sequences don't match"<<endl;
+    if v then <<"degree sequences don't match"<<endl;
     )
 
 ///
 restart
-errorDepth = 0
 debug loadPackage "Isomorphism"
 S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
 A = S^{{2,1}}
@@ -69,7 +69,7 @@ checkDegrees(B,B)
 checkDegrees(S^d**A, B1)
 ///
 
-surjectiveMap = method({Homogeneous => true})
+surjectiveMap = method(Options => {Homogeneous => true})
 surjectiveMap(Module,Module) := Sequence => o -> (A,B)->(
     S := ring A;
     H := Hom(A,B);
@@ -78,7 +78,7 @@ surjectiveMap(Module,Module) := Sequence => o -> (A,B)->(
     if o.Homogeneous then (
 	d := min degrees Hp;
 	f := homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^{-d})))) else
-        f := homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^1)));
+        f = homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^1)));
     	t := if o.Homogeneous and prune coker f == 0 or coker f == 0 then true else false;
     (t,f))
 ///
@@ -175,6 +175,7 @@ SeeAlso
  isLocallyIsomorphic
  surjectiveMap
 ///
+
 doc ///
 Key
  checkDegrees
@@ -205,11 +206,11 @@ Description
    B = S^{{1,1}}
    C = S^{{1,1}, {2,3}}
    d = checkDegrees(A,B)
-   checkDegrees(S^d**A, B1)
-   checkDegrees(A,B1)
+   checkDegrees(S^d**A, C)
+   checkDegrees(A,C)
    checkDegrees(B,B)
-  SeeAlso
-   isHomogeneouslyIsomorphic
+SeeAlso
+ isHomogeneouslyIsomorphic
 ///
 
 doc ///
