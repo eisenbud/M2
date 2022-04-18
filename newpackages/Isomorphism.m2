@@ -143,9 +143,12 @@ isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
 	kmodule := coker vars S;
 	gbar := kmodule ** g;
 	if gbar==0  then return false;
+	
 	t1 := elapsedTime (prune coker gbar) == 0 ;
+	if t1 == false then return (false, null);
+	
 	t2 := elapsedTime prune ker g == 0;
-	if t1 and t2 then (true, g) else (false, null)
+	if t2 then (true, g) else (false, null)
 	)
 isIso = isIsomorphic
 -*
