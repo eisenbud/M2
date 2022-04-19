@@ -67,9 +67,9 @@ isFiniteNew = method()
 isFiniteNew(Ring, List) := Boolean => (R, L) -> (
     w := symbol w;
     I := ideal R;
-    S := coefficientRing R[gens ring I, w_0..w_(#L-1), MonomialOrder => {numgens ring I, #L}];
+    S := (coefficientRing R)(monoid[gens ring I, w_0..w_(#L-1), MonomialOrder => {numgens ring I, #L}]);
     I1 := sub(I, S);
-    L1 := ideal apply(#L, i-> w_i - sub(L_i, S));
+    L1 := ideal apply(#L, i-> S_(numgens R + i) - sub(L_i, S));
     lT := leadTerm gens gb (I1+L1);
     fL := flatten entries lT;
     oldvars := drop (gens S, - #L);
