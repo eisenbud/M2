@@ -24,6 +24,8 @@ newPackage(
 
 export {
 --    "checkNoetherNormalization", -- TODO: get this to work?
+    "isFiniteNew", -- TODO: change name to isFinite?
+    "finiteVariablesOver",
     "inNoetherForm", -- remove?
     "isNoetherRing",
     "hasNoetherRing",
@@ -55,6 +57,49 @@ noetherNormalization = method(Options => {
         Variable => getSymbol "t", 
         CheckDomain => false
         })
+
+-- XXX not complete yet.
+-- Fixes to make: 
+--  1. if R is homogeneous, and so are the elements of I, can we just do a dimension check?
+--  2. isFiniteNew R:  use the variables in the coefficient ring.
+--  3. isFiniteNew f:  use the image polynomials in the ring map.
+isFiniteNew = method()
+isFiniteNew(Ring, List) := Boolean => (R, L) -> (
+    w := symbol w;
+    I := ideal R;
+    S := coefficientRing R[gens ring I, w_0..w_(#L-1), MonomialOrder => {numgens ring I, #L}];
+    I1 := sub(I, S);
+    L1 := ideal apply(#L, i-> w_i - sub(L_i, S));
+    lT := leadTerm gens gb (I1+L1);
+    fL := flatten entries lT;
+    oldvars := drop (gens S, - #L);
+    finitevars := rsort for f in fL list (
+        s := support f;
+        if #s > 1 then continue else s#0
+        );
+    oldvars == finitevars
+    )
+isFiniteNew RingMap := Boolean => f -> isFiniteNew(target f, flatten entries matrix f)
+isFiniteNew Ring := Boolean => R -> isFiniteNew map(R,coefficientRing R) -- TODO: check that R is of right type?
+
+finiteVariablesOver = method()
+finiteVariablesOver(Ring, List) := List => (R, L) -> (
+    w := symbol w;
+    I := ideal R;
+    S := coefficientRing R[gens ring I, w_0..w_(#L-1), MonomialOrder => {numgens ring I, #L}];
+    I1 := sub(I, S);
+    L1 := ideal apply(#L, i-> w_i - sub(L_i, S));
+    lT := leadTerm gens gb (I1+L1);
+    fL := flatten entries lT;
+    finitevars := rsort for f in fL list (
+        s := support f;
+        if #s > 1 then continue else s#0
+        );
+    finitevars
+    )
+finiteVariablesOver RingMap := Boolean => f -> finiteVariablesOver(target f, flatten entries matrix f)
+finiteVariablesOver Ring := Boolean => R -> finiteVariablesOver map(R, coefficientRing R)
+
 
 --inNoetherForm
 -- this function isn't used locally, instead the internal function `noetherInfo` is used.
@@ -2634,29 +2679,23 @@ TOOSLOW ///
   R1 = kk[t,a,b,c,d,e,f,g,h];
   I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
 
--- XXX
-isFiniteNew = method()
-isFiniteNew(Ring, List) := Boolean => (R,L) ->(
-    w := symbol w;
-    I := ideal R;
-    S := coefficientRing R[gens ring I, w_0..w_(#L-1), MonomialOrder => {numgens ring I, #L}];
-    I1 := sub(I, S);
-    L1 := ideal apply(#L, i-> w_i - sub(L_i, S));
-    lT := leadTerm gens gb (I1+L1);
-    fL := flatten entries lT;
-    oldvars := drop (gens S, - #L);
-    if oldvars === 
-      rsort for f in fL list(
-      s := support f;
-      if #s >1 then continue else s#0)
-      then true else false
-    )
-R = R1/I
-  J = {-t-c-g, c+d-e-h-2*(c+g), -b-5*(c+g), -d-f-7*(c+g)}
---  isFiniteNew(R,{t, - c - d + e + h, b, d + f,c+g})  
+-- XXX testing isFiniteNew.
+
+  R = R1/I
+  J = {-t-c-g, c+d-e-h-2*(c+g), -b-5*(c+g), -d-f-7*(c+g)} 
+  isFiniteNew(R,{t, - c - d + e + h, b, d + f})
+  --isFiniteNew(R,{t, - c - d + e + h, b, d + f, c + g})  -- difficult.
   isFiniteNew(R,J)    
-       
-  select(fL, f-> #support f === 1)
+  isFiniteNew(R, {t, c+d-e-h-2*(c+g), b, d+f})
+  isFiniteNew(R, {t, c+g, b, d+f})
+
+  Jextra = {t, - c - d + e + h, b, d + f, c + g}
+  -- i = 0: takes a long time...
+  for i from 1 to #Jextra-1 list (
+      << "doing " << i << endl;
+      elapsedTime ans := isFiniteNew(R, drop(Jextra, {i,i}));
+      << "    " << ans << endl;
+      ans)
 ///
 --------------------------------------------------------------
 TEST ///
