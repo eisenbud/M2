@@ -269,7 +269,10 @@ makeFrac Ring := Ring => (B) -> (
     	ambientB := ring I;
     	ambientKB := ((frac A)(monoid B)); -- TODO: does this handle degrees correctly?
     	phiK := map(ambientKB,ambientB, vars ambientKB);
-    	JK := trim phiK I;
+        JKmat := phiK gens gb I;
+        gbJK := forceGB JKmat;
+        JK := ideal JKmat;
+    	-- JK := trim phiK I; -- OLDER VERSION, sometimes slow.
     	KB := ambientKB / JK;
         KB.baseRings = append(KB.baseRings, B)
         )
@@ -2391,6 +2394,7 @@ TEST ///
   restart
   debug needsPackage "NoetherNormalization"
 *-
+  debug needsPackage "NoetherNormalization"
   kk = QQ
   R1 = kk[x,y,z,a,b];
   I = ideal(2*y^2*(y^2+x^2)+(b^2-3*a^2)*y^2-2*b*y^2*(x+y)+2*a^2*b*(y+x)-a^2*x^2+a^2*(a^2-b^2),4*y^3+4*y*(y^2+x^2)-2*b*y^2-4*b*y*(y+x)+2*(b^2-3*a^2)*y+2*a^2*b,4*x*y^2-2*b*y^2-2*a^2*x+2*a^2*b);
@@ -2406,7 +2410,7 @@ TEST ///
   netList candidateParameters R
 ///
 --------------------------------------------------------------
-TEST ///
+TOOSLOW ///
 -*
   LIB "noether.lib";
   LIB "mregular.lib";
@@ -2489,15 +2493,15 @@ TEST ///
 *-
   kk = QQ
   kk = ZZ/101
-  R1 = QQ[a,b,c,d,e,f]
+  R1 = kk[a,b,c,d,e,f]
   I = ideal"2adef+3be2f-cef2,4ad2f+5bdef+cdf2,2abdf+3b2ef-bcf2,4a2df+5abef+acf2,4ad2e+3bde2+7cdef, 2acde+3bce2-c2ef, 4abde+3b2e2-4acdf+2bcef-c2f2, 4a2de+3abe2+7acef, 4acd2+5bcde+c2df, 4abd2+3b2de+7bcdf, 16a2d2-9b2e2+32acdf-18bcef+7c2f2, 2abcd+3b2ce-bc2f, 4a2cd+5abce+ac2f, 4a2bd+3ab2e+7abcf, abc2f-cdef2, ab2cf-bdef2, 2a2bcf+3be2f2-cef3, ab3f-3bdf3, 2a2b2f-4adf3+3bef3-cf4, a3bf+4aef3, 3ac3e-cde3, 3b2c2e-bc3f+2cd2ef, abc2e-cde2f, 6a2c2e-4ade3-3be4+ce3f, 3b3ce-b2c2f+2bd2ef, 2a2bce+3be3f-ce2f2, 3a3ce+4ae3f, 4bc3d+cd3e, 4ac3d-3bc3e-2cd2e2+c4f, 8b2c2d-4ad4-3bd3e-cd3f, 4b3cd+3bd3f, 4ab3d+3b4e-b3cf-6bd2f2, 4a4d+3a3be+a3cf-8ae2f2";
   assert isHomogeneous I
   R = R1/I
-  f = noetherNormalization R; -- really slow... even in char. p
+  --  f = noetherNormalization R; -- really slow... even in char. p
   
   sop = homogeneousLinearParameters R -- quick quick, gives a seemingly nice sop?
   dim R === 3
-  B = noetherRing(R, sop) -- this takes a while...  note that NPos and NoetherPosition aren't nec computing resulting ideals...
+  B = noetherRing(R, sop)
 ///
 --------------------------------------------------------------
 TEST ///
@@ -2560,8 +2564,9 @@ TEST ///
   decompose I
   --here
   R = R1/I
-  noetherNormalization R -- really bad and slow
+  --noetherNormalization R -- really bad and slow
   homogeneousLinearParameters R
+  B = noetherRing(R, oo)
 ///
 --------------------------------------------------------------
 TEST ///
@@ -2577,10 +2582,11 @@ TEST ///
   restart
   debug needsPackage "NoetherNormalization"
 *-
+  -- TODO
   kk = QQ
 ///
 --------------------------------------------------------------
-TEST ///
+TOOSLOW ///
 -*
   LIB "noether.lib";
   LIB "mregular.lib";
@@ -2598,7 +2604,7 @@ TEST ///
   R1 = kk[t,a,b,c,d,e,f,g,h];
   I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
   R = R1/I
-   noetherNormalization R
+  elapsedTime noetherNormalization R -- very slow?
   --try making it homogeneous:
   kk = ZZ/32003
   R1 = kk[t,a,b,c,d,e,f,g,h,z];
@@ -2628,6 +2634,7 @@ TEST ///
   R1 = kk[t,a,b,c,d,e,f,g,h];
   I = ideal"a+c+d-e-h,2df+2cg+2eh-2h2-h-1,3df2+3cg2-3eh2+3h3+3h2-e+4h, 6bdg-6eh2+6h3-3eh+6h2-e+4h, 4df3+4cg3+4eh3-4h4-6h3+4eh-10h2-h-1, 8bdfg+8eh3-8h4+4eh2-12h3+4eh-14h2-3h-1, 12bdg2+12eh3-12h4+12eh2-18h3+8eh-14h2-h-1, -24eh3+24h4-24eh2+36h3-8eh+26h2+7h+1";
 
+-- XXX
 isFiniteNew = method()
 isFiniteNew(Ring, List) := Boolean => (R,L) ->(
     w := symbol w;
@@ -2695,7 +2702,7 @@ TEST ///
   homogeneousLinearParameters R
 ///
 --------------------------------------------------------------
-TEST ///
+TOOSLOW ///
 -*
   LIB "noether.lib";
   LIB "mregular.lib";
