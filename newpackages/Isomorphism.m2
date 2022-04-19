@@ -116,9 +116,10 @@ isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
 	        not (isHomogeneous A and isHomogeneous B) then 
 	        error"inputs not homogeneous";
     	S := ring A;
-	A1 := prune A;
+	<<"pruning two modules in isIso"<<endl;
+elapsedTime	A1 := prune A;
         a1 := A1.cache.pruningMap; --iso from A1 to A
-	B1 := prune B;
+elapsedTime	B1 := prune B;
         b1 := B1.cache.pruningMap; --iso from B1 to B
 	--handle the cases where one of A,B is 0
 	isZA1 := A1==0;
@@ -127,19 +128,22 @@ isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
 	if isZA1 and isZB1 then return (true, map(A,B,0));
 
 	-- from now on, A1 and B1 are nonzero
-	df := checkDegrees (A1,B1,Verbose => o.Verbose);
+	<<"entering checkDegrees"<<endl;
+elapsedTime	df := checkDegrees (A1,B1,Verbose => o.Verbose);
 	if o.Strict and o.Homogeneous and not isDegreeListZero (df_1) then
 	     return(false, null);
 	if class df_1 =!= List then return (false, null);
 	--now there is a chance at an isomorphism up to shift, 
 	--and df is the degree diff.
-        H := Hom(A1,B1);       
+	<<"computing Hom"<<endl;
+elapsedTime        H := Hom(A1,B1);       
 	kk := ultimate(coefficientRing, S);
 	if o.Homogeneous === true then
 	      sH := select(H_*, f-> degree f == -df_1) else 
 	      sH = H_*;
 	if #sH == 0 then return false;
-	g := sum(sH, f-> random(kk)*homomorphism matrix f);
+	<<"random sum of maps"<<endl;
+elapsedTime	g := sum(sH, f-> random(kk)*homomorphism matrix f);
 	kmodule := coker vars S;
 	gbar := kmodule ** g;
 	if gbar==0  then return false;
@@ -326,6 +330,81 @@ TEST /// -* various cases of isomorphism *-
    assert((isIsomorphic(A1,B1, Verbose => true))_0==false)
 ///
 
+TEST///
+needsPackage "Points"
+canonicalIdeal = method()
+canonicalIdeal Ideal := Ideal => I ->(
+    S := ring I;
+    R := S/I;
+    F := res I;
+    omega := coker sub(transpose F.dd_(length F), R);
+    H := Hom(omega,R^1);
+    deg := max degrees source gens H;
+    g := (gens H)*random(source gens H, R^-deg);
+    trim sub(ideal g,R) ---canonical ideal of a 1-dim ring.
+)
+
+kk=ZZ/32003
+S = kk[x,y,z]
+
+d = 15
+I = points randomPointsMat(S,d);
+elapsedTime W = canonicalIdeal I;
+R = ring W;
+n =2
+M = module(trim W^n)
+N=Y;
+alpha = presentation M;
+--beta = presentation N;
+p = map(N,target beta,1)
+--this is the place to restrict the degrees: there are 15 of degree -12, 420 of degree -11, and we want the degree -12.
+elapsedTime ker ((transpose alpha)**p);
+-*
+Basic setup:
+F->G ->M
+P->Q ->N
+the homomorphisms G->Q that induce maps M ->N are the first factor part of
+ker(Hom(G,Q) ++ Hom(F,P) -> Hom(F,Q).)
+--want the matrices that have a specific degree.
+*-
+X' = prune module trim (W^n)
+Y = prune Hom(X, R^1)
+
+M = X';
+
+           Y := youngest(M.cache.cache,N.cache.cache);
+           if Y#?(Hom,M,N) then return Y#(Hom,M,N);
+elapsedTime phi = (transpose presentation M ** N);
+elapsedTime K = ker phi;
+elapsedTime trim K;
+betti K
+
+elapsedTime H1 = intersect(image (alpha**target beta), image(target alpha**beta));
+
+
+
+           H := trim kernel (transpose presentation M ** N);
+           H.cache.homomorphism = (f) -> map(N,M,adjoint'(f,M,N), Degree => first degrees source f);
+           Y#(Hom,M,N) = H; -- a hack: we really want to type "Hom(M,N) = ..."
+           H.cache.formation = FunctionApplication { Hom, (M,N) };
+           H)
+
+prune X
+checkDegrees(X,Y, Verbose =>true)
+H = Hom(X,Y);
+elapsedTime H' = Hom(X',Y);
+
+
+print d;
+for n from 2 to 20 do (
+    print n;
+elapsedTime X = module(trim W^n);
+elapsedTime Y = prune Hom(X, R^1);
+elapsedTime ans = (isIsomorphic(X, Y))_0;
+<< ans<<endl;
+<<endl);
+)
+///
 end--
 
 -* Development section *-
