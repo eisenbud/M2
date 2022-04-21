@@ -1,13 +1,8 @@
--*
-We could use surjective map in both directions for the iso checks 
-
-*-
-
 newPackage(
     "Isomorphism",
-    Version => "0.5",
+    Version => "0.7",
     Date => "April 12, 2022",
-    Headline => "Probabalistic tests of isomorphism",
+    Headline => "Probabalistic test of isomorphism",
     Authors => {{Name => "David Eisenbud", 
                   Email => "de@msri.org", 
                   HomePage => "http://www.msri.org/~de"}
@@ -21,40 +16,16 @@ export {
     "checkDegrees",
     "matrixHom",
     --
-    "Strict" -- option making the homogeneous case preserve degrees.
+    "Strict" -- option for checkDegrees making the homogeneous case preserve degrees.
     }
     
 
 -* Code section *-
 
-matrixHom=method()
-matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
-    --given free presentations
-    --M = coker phi:M1 -> M0
-    --N = coker psi
-    --efficiently compute 
-    --the matrices of the lowest degree homomorphisms M -> N.
-    S := ring phi;
-    phi' := transpose phi;
-    F' := target phi';
-    G' := source phi';
-    Q := target psi;
-
---elapsedTime    h1 := syz(phi'**Q | F'**psi);
---    h := h1^{0..(rank G' * rank Q -1)};
-    elapsedTime    h := modulo(phi'**Q, F'**psi);
-
-    --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
-    d := (min degrees source h)_0;
-    p := positions(degrees source h, e -> e == {d});
-    hp := h_p;
-    a := hp*random(source (hp), S^{-d}); --represents general map of lowest degree
-    map(coker psi, coker phi, reshape(Q, target phi, a))
-    )
-
-
+-* version that produces the degree 0 map
 matrixHom(Matrix, Matrix) := Matrix => (mu,n) -> (
-    --m,n homogeneous, minimal over a ring with degree length 1
+    --mu,n homogeneous, minimal over a ring with degree length 1.
+    
     --given free presentations
     --M = coker m:M1 -> M0 
     --N = coker n: N1 -> N0
@@ -80,17 +51,67 @@ elapsedTime    h := syz(m'**N0 | M1'**n, SyzygyRows => rank N0*rank M0', DegreeL
     hp := h_p;
     a := hp*random(source (hp), S^{-diffdegs}); --represents general map of lowest degree
 --error();
-    map(coker n, coker m, reshape(N0, target m, a))
+    map(coker n, coker m, matrix reshape(N0, target mu, a))
     )
-///
-restart
-debug loadPackage"Isomorphism"
+*-
+matrixHom=method()
+matrixHom(Matrix, Matrix) := Matrix => (m,n, diffdegs) -> (
+    --m,n homogeneous, minimal over a ring with degree length 1 (this restridd
+    
+    --given free presentations
+    --M = coker m:M1 -> M0 
+    --N = coker n: N1 -> N0
+    --(ring M)^diffdegs has the same degrees as N,
+    --so if diffdegs  is positive, then 
+    -- M is generated in higher degrees than N, and
+    --the iso M->N has degree -diffdegs
+    
+    --efficiently compute 
+    --the matrices of a random degree homomorphisms M -> N of degree  -diffdegs.
+    
+    --check that the hypotheses are satisfied:
+    S := ring m;    
+    resField := S^1/(ideal gens S);
+    if not 
+       (degreeLength S == 1 and 
+	isHomogeneous m and 
+	isHomogeneous n and
+	m**resField == 0 and
+	n**resField == 0) then 
+	error"Unsuitable ring, modules or presentations.";
+	
+    M0:= target m;
+    m' := transpose m;
+    M0' := source m';
+    M1' := target m';
+    N0 := target n;
 
+    h := syz(m'**N0 | M1'**n, 
+             SyzygyRows => rank N0*rank M0', 
+	     DegreeLimit => -diffdegs);
+	 
+    p := positions(degrees source h, e -> e == -diffdegs);
+    hp := h_p;
+    a := hp*random(source (hp), S^{diffdegs}); --represents general map of degree -diffdegs
+    map(coker n, coker m, matrix reshape(N0, M0, a))
+    )
+*--
+uninstallPackage "Isomorphism"
+restart
+installPackage "Isomorphism"
+methods matrixHom
+--*
+TEST///
 S = ZZ/101[x,y]
 m = matrix{{x,y}}
 n = matrix{{x^2, y^2}}
-matrixHom(m++m,(m++m))
-checkDegrees(S^{3}**target transpose m,S^{-4}**target n, Verbose =>true)
+matrixHom((m++m),(m++m))
+(v, diffdegs) = checkDegrees((m++m), S^{1}**(m++m))
+
+det matrixHom((m++m),S^{1}**(m++m))!=0
+matrixHom((m++m),S^{-1}**(m++m))
+matrixHom(S^{1}**(m++m),(m++m))
+matrixHom(S^{-1}**(m++m),(m++m))
 
 ///
 isDegreeListZero = L -> 
@@ -129,6 +150,7 @@ checkDegrees(Module, Module) := Sequence => o -> (A,B) -> (
   	if v then <<"degree sequences don't match"<<endl;
 	(false, null)
     )
+checkDegrees(Matrix, Matrix) := Sequence => o-> (m,n) -> checkDegrees(target m, target n, o)
 
 ///
 restart
@@ -488,7 +510,7 @@ elapsedTime Y = prune Hom(X, R^1);
 elapsedTime ans = (isIsomorphic(X, Y))_0;
 << ans<<endl;
 <<endl);
-)
+
 ///
 end--
 
@@ -504,3 +526,31 @@ installPackage "Isomorphism"
 viewHelp "Isomorphism"
     
 restart
+
+
+-* old version
+
+matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
+    --given free presentations
+    --M = coker phi:M1 -> M0
+    --N = coker psi
+    --efficiently compute 
+    --the matrices of the lowest degree homomorphisms M -> N.
+    S := ring phi;
+    phi' := transpose phi;
+    F' := target phi';
+    G' := source phi';
+    Q := target psi;
+
+--elapsedTime    h1 := syz(phi'**Q | F'**psi);
+--    h := h1^{0..(rank G' * rank Q -1)};
+    elapsedTime    h := modulo(phi'**Q, F'**psi);
+
+    --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
+    d := (min degrees source h)_0;
+    p := positions(degrees source h, e -> e == {d});
+    hp := h_p;
+    a := hp*random(source (hp), S^{-d}); --represents general map of lowest degree
+    map(coker psi, coker phi, reshape(Q, target phi, a))
+    )
+*-
