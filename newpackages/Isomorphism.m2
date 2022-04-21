@@ -30,7 +30,7 @@ export {
 matrixHom=method()
 matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
     --given free presentations
-    --M = coker phi
+    --M = coker phi:M1 -> M0
     --N = coker psi
     --efficiently compute 
     --the matrices of the lowest degree homomorphisms M -> N.
@@ -40,8 +40,10 @@ matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
     G' := source phi';
     Q := target psi;
 
-elapsedTime    h1 := syz(phi'**Q | F'**psi);
-    h := h1^{0..(rank G' * rank Q -1)};
+--elapsedTime    h1 := syz(phi'**Q | F'**psi);
+--    h := h1^{0..(rank G' * rank Q -1)};
+    elapsedTime    h := modulo(phi'**Q, F'**psi);
+
     --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
     d := (min degrees source h)_0;
     p := positions(degrees source h, e -> e == {d});
@@ -49,14 +51,47 @@ elapsedTime    h1 := syz(phi'**Q | F'**psi);
     a := hp*random(source (hp), S^{-d}); --represents general map of lowest degree
     map(coker psi, coker phi, reshape(Q, target phi, a))
     )
+
+
+matrixHom(Matrix, Matrix) := Matrix => (mu,n) -> (
+    --m,n homogeneous, minimal over a ring with degree length 1
+    --given free presentations
+    --M = coker m:M1 -> M0 
+    --N = coker n: N1 -> N0
+    --efficiently compute 
+    --the matrices of the lowest degree homomorphisms M -> N.
+    (v,diffdegs) := checkDegrees(target mu, target n);
+    S := ring mu;    
+    m := S^{diffdegs}**mu;
+    m' := transpose m;
+    M1' := target m';
+    M0' := source m';
+    N0 := target n;
+
+    if not v then return false;
+--elapsedTime    
+elapsedTime    h := syz(m'**N0 | M1'**n, SyzygyRows => rank N0*rank M0', DegreeLimit =>0);
+    --elapsedTime    h := modulo(m'**N0, M1'**n);
+
+    --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
+ --   d := (min degrees source h)_0;
+ <<degrees h<<endl;
+    p := positions(degrees source h, e -> e == diffdegs);
+    hp := h_p;
+    a := hp*random(source (hp), S^{-diffdegs}); --represents general map of lowest degree
+--error();
+    map(coker n, coker m, reshape(N0, target m, a))
+    )
 ///
 restart
 debug loadPackage"Isomorphism"
 
 S = ZZ/101[x,y]
-phi = matrix{{x,y}}
-psi = matrix{{x^2, y^2}}
-matrixHom(phi,psi)
+m = matrix{{x,y}}
+n = matrix{{x^2, y^2}}
+matrixHom(m++m,(m++m))
+checkDegrees(S^{3}**target transpose m,S^{-4}**target n, Verbose =>true)
+
 ///
 isDegreeListZero = L -> 
 -- test whether a list of lists has all entries of entries 0
@@ -89,6 +124,7 @@ checkDegrees(Module, Module) := Sequence => o -> (A,B) -> (
 	       <<"To make the degree sequences equal, tensor "<<A<<"with ring " << A << "to " << {dA_0-dB_0} <<endl;
                return (true, dA_0-dB_0)
 	               );
+--	error();
 	        --now matches == false
   	if v then <<"degree sequences don't match"<<endl;
 	(false, null)
@@ -371,8 +407,9 @@ TEST /// -* various cases of isomorphism *-
 ///
 
 -*
+here!
 restart
-debug loadPackage "Isomorphism"
+loadPackage "Isomorphism"
 *-
 
 TEST///
