@@ -26,6 +26,36 @@ export {
 
 -* Code section *-
 
+matrixHom=method()
+matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
+    --given free presentations
+    --M = coker phi
+    --N = coker psi
+    --efficiently compute 
+    --the matrices of the lowest degree homomorphisms M -> N.
+    S := ring phi;
+    phi' := transpose phi;
+    F' := target phi';
+    G' := source phi';
+    Q := target psi;
+
+    h1 := syz(phi'**Q | F'**psi);
+    h := h1^{0..(rank G' * rank Q -1)};
+    --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
+    d := (min degrees source h)_0;
+    p := positions(degrees source h, e -> e == {d});
+    a := h*random(source (h_p), S^{-d}); --represents general map of lowest degree
+    map(coker psi, coker phi, reshape(Q, target phi, a))
+    )
+///
+restart
+debug loadPackage"Isomorphism"
+
+S = ZZ/101[x,y]
+phi = matrix{{x,y}}
+psi = matrix{{x^2, y^2}}
+matrixHom(phi,psi)
+///
 isDegreeListZero = L -> 
 -- test whether a list of lists has all entries of entries 0
    all(L, s -> 
@@ -79,16 +109,24 @@ assert (e_0 == true)
 
 surjectiveMap = method(Options => {Homogeneous => true})
 surjectiveMap(Module, Module) := Sequence => o -> (A,B)->(
+    mm := ideal gens ring A;
+    if isHomogeneous A and isHomogeneous B then (
+	    Abar := A/(mm*A);
+    	    Bbar := B/(mm*B);
+	    if min degrees generators Bbar < min degrees gens Abar then
+	    	return (false, )
+		);
     S := ring A;
-    H := Hom(A,B);
+    H := Hom(A,B); -- this may be sloooow.
     Hp := prune H;
     pmap := Hp.cache.pruningMap;
     if o.Homogeneous then (
 	d := min degrees Hp;
 	f := homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^{-d})))
 	    ) else
-              f = homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^1)));
-    	t := if o.Homogeneous and prune coker f == 0 or coker f == 0 then true else false;
+        f = homomorphism(pmap*map(Hp,S^1, random(target presentation Hp,S^1)));
+    	t := if o.Homogeneous and prune coker f == 0 or coker f == 0 then 
+	      true else false;
     (t,f))
 ///
 restart
