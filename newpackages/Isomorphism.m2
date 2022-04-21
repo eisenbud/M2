@@ -19,6 +19,7 @@ export {
     "isIsomorphic",
     "surjectiveMap",
     "checkDegrees",
+    "matrixHom",
     --
     "Strict" -- option making the homogeneous case preserve degrees.
     }
@@ -39,12 +40,13 @@ matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
     G' := source phi';
     Q := target psi;
 
-    h1 := syz(phi'**Q | F'**psi);
+elapsedTime    h1 := syz(phi'**Q | F'**psi);
     h := h1^{0..(rank G' * rank Q -1)};
     --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
     d := (min degrees source h)_0;
     p := positions(degrees source h, e -> e == {d});
-    a := h*random(source (h_p), S^{-d}); --represents general map of lowest degree
+    hp := h_p;
+    a := hp*random(source (hp), S^{-d}); --represents general map of lowest degree
     map(coker psi, coker phi, reshape(Q, target phi, a))
     )
 ///
@@ -368,6 +370,11 @@ TEST /// -* various cases of isomorphism *-
    assert((isIsomorphic(A1,B1, Verbose => true))_0==false)
 ///
 
+-*
+restart
+debug loadPackage "Isomorphism"
+*-
+
 TEST///
 needsPackage "Points"
 canonicalIdeal = method()
@@ -389,8 +396,11 @@ d = 15
 I = points randomPointsMat(S,d);
 elapsedTime W = canonicalIdeal I;
 R = ring W;
-n =2
-M = module(trim W^n)
+n =1
+M = prune module(trim W^n)
+elapsedTime N = prune Hom(M, R^1)
+elapsedTime Hom(M,N);
+elapsedTime matrixHom(presentation M,presentation N);
 N=Y;
 alpha = presentation M;
 --beta = presentation N;
