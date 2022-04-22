@@ -14,7 +14,6 @@ export {
     "isIsomorphic",
     "surjectiveMap",
     "checkDegrees",
-    "matrixHom",
     --
     "Strict" -- option for checkDegrees making the homogeneous case preserve degrees.
     }
@@ -22,40 +21,8 @@ export {
 
 -* Code section *-
 
--* version that produces the degree 0 map
-matrixHom(Matrix, Matrix) := Matrix => (mu,n) -> (
-    --mu,n homogeneous, minimal over a ring with degree length 1.
-    
-    --given free presentations
-    --M = coker m:M1 -> M0 
-    --N = coker n: N1 -> N0
-    --efficiently compute 
-    --the matrices of the lowest degree homomorphisms M -> N.
-    (v,diffdegs) := checkDegrees(target mu, target n);
-    S := ring mu;    
-    m := S^{diffdegs}**mu;
-    m' := transpose m;
-    M1' := target m';
-    M0' := source m';
-    N0 := target n;
-
-    if not v then return false;
---elapsedTime    
-elapsedTime    h := syz(m'**N0 | M1'**n, SyzygyRows => rank N0*rank M0', DegreeLimit =>0);
-    --elapsedTime    h := modulo(m'**N0, M1'**n);
-
-    --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
- --   d := (min degrees source h)_0;
- <<degrees h<<endl;
-    p := positions(degrees source h, e -> e == diffdegs);
-    hp := h_p;
-    a := hp*random(source (hp), S^{-diffdegs}); --represents general map of lowest degree
---error();
-    map(coker n, coker m, matrix reshape(N0, target mu, a))
-    )
-*-
-matrixHom=method()
-matrixHom(Matrix, Matrix) := Matrix => (m,n, diffdegs) -> (
+randomMinimalDegreeHomomorphism=method()
+randomMinimalDegreeHomomorphism(Matrix, Matrix, ZZ) := Matrix => (m,n,d) -> (
     --m,n homogeneous, minimal over a ring with degree length 1 (this restridd
     
     --given free presentations
@@ -88,32 +55,14 @@ matrixHom(Matrix, Matrix) := Matrix => (m,n, diffdegs) -> (
 
     h := syz(m'**N0 | M1'**n, 
              SyzygyRows => rank N0*rank M0', 
-	     DegreeLimit => -diffdegs);
+	     DegreeLimit => -{d});
 	 
-    p := positions(degrees source h, e -> e == -diffdegs);
+    p := positions(degrees source h, e -> e == -{d});
     hp := h_p;
-    a := hp*random(source (hp), S^{diffdegs}); --represents general map of degree -diffdegs
+    a := hp*random(source (hp), S^{d}); --represents general map of degree -diffdegs
     map(coker n, coker m, matrix reshape(N0, M0, a))
     )
-*--
-uninstallPackage "Isomorphism"
-restart
-installPackage "Isomorphism"
-methods matrixHom
---*
-TEST///
-S = ZZ/101[x,y]
-m = matrix{{x,y}}
-n = matrix{{x^2, y^2}}
-matrixHom((m++m),(m++m))
-(v, diffdegs) = checkDegrees((m++m), S^{1}**(m++m))
 
-det matrixHom((m++m),S^{1}**(m++m))!=0
-matrixHom((m++m),S^{-1}**(m++m))
-matrixHom(S^{1}**(m++m),(m++m))
-matrixHom(S^{-1}**(m++m),(m++m))
-
-///
 isDegreeListZero = L -> 
 -- test whether a list of lists has all entries of entries 0
    all(L, s -> 
@@ -132,7 +81,7 @@ checkDegrees(Module, Module) := Sequence => o -> (A,B) -> (
 	        );
     if not (isHomogeneous A and isHomogeneous B) then (
                 if v then <<"numbers of generators agree"<<endl;
-		return "inhomogeneous");
+		return (true,{"inhomogeneous"}));
 	    
 	dA := sort degrees Abar;
         dB := sort degrees Bbar;
@@ -203,7 +152,7 @@ checkDegrees(B,B)
 checkDegrees(S^{d}**A, B1)
 ///
 
-
+-*
 isIsomorphic = method(Options =>{Homogeneous => true, Verbose => false, Strict =>false})
 isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
     --returns a pair (false, null) or (true, f), or where f is an isomorphism 
@@ -215,7 +164,7 @@ isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
 	        error"inputs not homogeneous";
     	S := ring A;
 	<<"pruning two modules in isIso"<<endl;
-elapsedTime	A1 := prune A;
+        A1 := prune A;
         a1 := A1.cache.pruningMap; --iso from A1 to A
 elapsedTime	B1 := prune B;
         b1 := B1.cache.pruningMap; --iso from B1 to B
@@ -252,14 +201,77 @@ elapsedTime	g := sum(sH, f-> random(kk)*homomorphism matrix f);
 	t2 := elapsedTime prune ker g == 0;
 	if t2 then (true, g) else (false, null)
 	)
-isIso = isIsomorphic
+
+*-
+isIsomorphic = method(Options =>{Homogeneous => true, Verbose => false, Strict =>false})
+isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
+    --returns a pair (false, null) or (true, f), or where f is an isomorphism 
+    --f: A to B.
+    --if an inhomogeneous iso is to be allowed, use the option
+    --Homogeneous => false
+        v := o.Verbose;
+	
+        if o.Homogeneous == true and 
+	        not (isHomogeneous A and isHomogeneous B) then 
+	        error"inputs not homogeneous";
+    	S := ring A;
+	resS := S/(ideal gens S);
+
+    	m := presentation A;
+	if m**resS == 0 then A1 := A else 
+	        (m = presentation (A1 = prune A);
+	        a1 := A1.cache.pruningMap);
+    	n := presentation B;
+	if n**resS == 0 then B1 := B else
+	        (n = presentation (B1 = prune B);
+	        b1 := B1.cache.pruningMap); --iso from B1 to B
+
+	--handle the cases where one of A,B is 0
+	isZA1 := target m ==0;
+	isZB1 := target n ==0;	
+    	if isZA1 =!= isZB1 then return (false, null );
+	if isZA1 and isZB1 then return (true, map(A,B,0));
+
+	-- from now on, A1 and B1 are nonzero
+
+	df := checkDegrees (A1,B1,Verbose => o.Verbose);
+	if o.Strict and o.Homogeneous and not isDegreeListZero df_1 then
+	     return(false, null);
+	if class df_1 =!= List  then return (false, null);
+	--now there is a chance at an isomorphism up to shift, 
+	--and df is the degree diff.
+
+	--compute an appropriate random map g
+	if o.Homogeneous and degreeLength S == 1 then
+	g := randomMinimalDegreeHomomorphism(m,n, df_1_0) else (
+        H := Hom(A1,B1);       
+	kk := ultimate(coefficientRing, S);
+	if o.Homogeneous === true then
+	      sH := select(H_*, f-> degree f == -df_1) else 
+	      sH = H_*;
+	if #sH == 0 then return false;
+    	g = sum(sH, f-> random(kk)*homomorphism matrix f)
+	);
+        
+	--test g to see if it's surjective:
+	kmodule := coker vars S;
+	gbar := kmodule ** g;
+	
+	t1 := prune coker gbar == 0;
+	if t1 == false then return (false, null);
+	
+	t2 := prune ker g == 0;
+	if t2 then (true, g) else (false, null)
+	)
+
+
 -*
 restart
 loadPackage("Isomorphism", Reload =>true)
 *-
 ///
 setRandomSeed 0
-S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
+S = ZZ/32003[a,b,Degrees => {{1,0},{0,1}}]
 B1 = S^{{1,1}}
 B = S^{{1,1}, {2,3}}
 A = coker random(B, S^{2:-{3,3}})
@@ -270,12 +282,17 @@ C2 = coker (matrix random(S^3, S^3)*matrix a*matrix random(S^3,S^3))
 
 --isIsomorphic(C1,C2) -- gives an error because C2 is not homogeneous
 assert((isIsomorphic(C1,C2, Homogeneous => false))_0 ==true)
+isIsomorphic(C1,C2, Homogeneous => false) -- this should be true!
+
+isIsomorphic(C1,C1, Homogeneous => false) -- this should be true!
+
+
 assert((isIsomorphic(A1,A2))_0 == true)
 assert(coker ((isIsomorphic(A1,A2))_1) == 0)
 assert((isIsomorphic (A,A))_0 == true)
 assert((isIsomorphic(B1,B1))_0 == true)
 assert((isIsomorphic(A,B1))_0 == false)
-assert(isIsomorphic(A1,B1, Verbose => true) == false)
+assert((isIsomorphic(A1,B1, Verbose => true))_0 === false)
 ///
 
 
@@ -407,6 +424,26 @@ TEST /// -*getting the degree shift right*-
    checkDegrees (S^{-3}**coker m, coker m')
 ///
 
+-*
+restart
+uninstallPackage "Isomorphism"
+restart
+installPackage "Isomorphism"
+*-
+TEST///--getting the degrees right in matrixHom
+debug needsPackage "Isomorphism"
+S = ZZ/101[x,y]
+m = matrix{{x,y}}
+n = matrix{{x^2, y^2}}
+
+setRandomSeed 0
+assert(all(flatten for a from -2 to 2 list for b from -2 to 2 list(
+(v, diffdegs) = checkDegrees (S^{a}**(m++m),S^{b}**(m++m));
+((prune coker randomMinimalDegreeHomomorphism(S^{a}**(m++m),S^{b}**(m++m),diffdegs_0) == 0))
+), t -> t))
+///
+
+
 TEST /// -* various cases of isomorphism *-
    setRandomSeed 0
    S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
@@ -418,7 +455,6 @@ TEST /// -* various cases of isomorphism *-
    C1 = coker (a = random(B1^3, S^{2:-{3,3}, -{4,5}}))
    C2 = coker (matrix random(S^3, S^3)*matrix a*matrix random(S^3,S^3))
 
-   --isIsomorphic(C1,C2) -- gives an error because C2 is not homogeneous
    assert((isIsomorphic(C1,C2, Homogeneous => false))_0 ==true)
    assert((isIsomorphic(A1,A2))_0 == true)
    assert(coker ((isIsomorphic(A1,A2))_1) == 0)
@@ -431,9 +467,8 @@ TEST /// -* various cases of isomorphism *-
 -*
 here!
 restart
-loadPackage "Isomorphism"
+debug loadPackage "Isomorphism"
 *-
-
 TEST///
 needsPackage "Points"
 canonicalIdeal = method()
@@ -455,61 +490,15 @@ d = 15
 I = points randomPointsMat(S,d);
 elapsedTime W = canonicalIdeal I;
 R = ring W;
-n =1
+n =2
 M = prune module(trim W^n)
 elapsedTime N = prune Hom(M, R^1)
-elapsedTime Hom(M,N);
-elapsedTime matrixHom(presentation M,presentation N);
-N=Y;
-alpha = presentation M;
---beta = presentation N;
-p = map(N,target beta,1)
---this is the place to restrict the degrees: there are 15 of degree -12, 420 of degree -11, and we want the degree -12.
-elapsedTime ker ((transpose alpha)**p);
--*
-Basic setup:
-F->G ->M
-P->Q ->N
-the homomorphisms G->Q that induce maps M ->N are the first factor part of
-ker(Hom(G,Q) ++ Hom(F,P) -> Hom(F,Q).)
---want the matrices that have a specific degree.
-*-
-X' = prune module trim (W^n)
-Y = prune Hom(X, R^1)
-
-M = X';
-
-           Y := youngest(M.cache.cache,N.cache.cache);
-           if Y#?(Hom,M,N) then return Y#(Hom,M,N);
-elapsedTime phi = (transpose presentation M ** N);
-elapsedTime K = ker phi;
-elapsedTime trim K;
-betti K
-
-elapsedTime H1 = intersect(image (alpha**target beta), image(target alpha**beta));
-
-
-
-           H := trim kernel (transpose presentation M ** N);
-           H.cache.homomorphism = (f) -> map(N,M,adjoint'(f,M,N), Degree => first degrees source f);
-           Y#(Hom,M,N) = H; -- a hack: we really want to type "Hom(M,N) = ..."
-           H.cache.formation = FunctionApplication { Hom, (M,N) };
-           H)
-
-prune X
-checkDegrees(X,Y, Verbose =>true)
-H = Hom(X,Y);
-elapsedTime H' = Hom(X',Y);
-
-
-print d;
-for n from 2 to 20 do (
-    print n;
-elapsedTime X = module(trim W^n);
-elapsedTime Y = prune Hom(X, R^1);
-elapsedTime ans = (isIsomorphic(X, Y))_0;
-<< ans<<endl;
-<<endl);
+elapsedTime (g = (isIsomorphic (M,N))_1)
+assert (isWellDefined g)
+assert(source g == M)
+assert(target g == N)
+assert(coker g == 0)
+assert(ker g == 0)
 
 ///
 end--
@@ -523,34 +512,40 @@ restart
 uninstallPackage "Isomorphism"
 restart
 installPackage "Isomorphism"
+check "Isomorphism"
 viewHelp "Isomorphism"
     
 restart
 
 
--* old version
+needsPackage "Points"
+canonicalIdeal = method()
+canonicalIdeal Ideal := Ideal => I ->(
+    S := ring I;
+    R := S/I;
+    F := res I;
+    omega := coker sub(transpose F.dd_(length F), R);
+    H := Hom(omega,R^1);
+    deg := max degrees source gens H;
+    g := (gens H)*random(source gens H, R^-deg);
+    trim sub(ideal g,R) ---canonical ideal of a 1-dim ring.
+)
 
-matrixHom(Matrix, Matrix) := Matrix => (phi, psi) -> (
-    --given free presentations
-    --M = coker phi:M1 -> M0
-    --N = coker psi
-    --efficiently compute 
-    --the matrices of the lowest degree homomorphisms M -> N.
-    S := ring phi;
-    phi' := transpose phi;
-    F' := target phi';
-    G' := source phi';
-    Q := target psi;
+kk=ZZ/32003
+S = kk[x,y,z]
 
---elapsedTime    h1 := syz(phi'**Q | F'**psi);
---    h := h1^{0..(rank G' * rank Q -1)};
-    elapsedTime    h := modulo(phi'**Q, F'**psi);
+d = 15
+I = points randomPointsMat(S,d);
+elapsedTime W = canonicalIdeal I;
+R = ring W;
+n =2
+M = prune module(trim W^n)
+elapsedTime N = prune Hom(M, R^1)
 
-    --h: H -> G'**Q; the columns of H represent the homomorphisms M -> N
-    d := (min degrees source h)_0;
-    p := positions(degrees source h, e -> e == {d});
-    hp := h_p;
-    a := hp*random(source (hp), S^{-d}); --represents general map of lowest degree
-    map(coker psi, coker phi, reshape(Q, target phi, a))
-    )
-*-
+for n from 2 to 20 do (
+    print n;
+X = module(trim W^n);
+Y = prune Hom(X, R^1);
+elapsedTime ans = (isIsomorphic(X, Y))_0;
+<< ans<<endl;
+<<endl);
