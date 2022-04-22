@@ -68,7 +68,7 @@ isDegreeListZero = L ->
    all(L, s -> 
            all(s,  e-> e === 0)); 
 
-checkDegrees = method(Options =>{Verbose =>false})
+checkDegrees = method(Options =>{Verbose =>false, Strict =>false})
 checkDegrees(Module, Module) := Sequence => o -> (A,B) -> (
     v := o.Verbose;
     S := ring A;
@@ -85,6 +85,7 @@ checkDegrees(Module, Module) := Sequence => o -> (A,B) -> (
 	    
 	dA := sort degrees Abar;
         dB := sort degrees Bbar;
+	if o.Strict == true and not dA == dB then return(false, );
 	
         degdiffs := for i from 0 to #dA-1 list dA_i-dB_i;
         matches := all(degdiffs, s-> s == degdiffs_0);
@@ -152,57 +153,6 @@ checkDegrees(B,B)
 checkDegrees(S^{d}**A, B1)
 ///
 
--*
-isIsomorphic = method(Options =>{Homogeneous => true, Verbose => false, Strict =>false})
-isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
-    --returns a pair (false, null) or (true, f), or where f is an isomorphism 
-    --f: A to B.
-    --if an inhomogeneous iso is to be allowed, use the option
-    --Homogeneous => false
-        if o.Homogeneous == true and 
-	        not (isHomogeneous A and isHomogeneous B) then 
-	        error"inputs not homogeneous";
-    	S := ring A;
-	<<"pruning two modules in isIso"<<endl;
-        A1 := prune A;
-        a1 := A1.cache.pruningMap; --iso from A1 to A
-elapsedTime	B1 := prune B;
-        b1 := B1.cache.pruningMap; --iso from B1 to B
-	--handle the cases where one of A,B is 0
-	isZA1 := A1==0;
-	isZB1 := B1==0;	
-    	if isZA1 =!= isZB1 then return (false, null );
-	if isZA1 and isZB1 then return (true, map(A,B,0));
-
-	-- from now on, A1 and B1 are nonzero
-	<<"entering checkDegrees"<<endl;
-elapsedTime	df := checkDegrees (A1,B1,Verbose => o.Verbose);
-	if o.Strict and o.Homogeneous and not isDegreeListZero (df_1) then
-	     return(false, null);
-	if class df_1 =!= List then return (false, null);
-	--now there is a chance at an isomorphism up to shift, 
-	--and df is the degree diff.
-	<<"computing Hom"<<endl;
-elapsedTime        H := Hom(A1,B1);       
-	kk := ultimate(coefficientRing, S);
-	if o.Homogeneous === true then
-	      sH := select(H_*, f-> degree f == -df_1) else 
-	      sH = H_*;
-	if #sH == 0 then return false;
-	<<"random sum of maps"<<endl;
-elapsedTime	g := sum(sH, f-> random(kk)*homomorphism matrix f);
-	kmodule := coker vars S;
-	gbar := kmodule ** g;
-	if gbar==0  then return false;
-	
-	t1 := elapsedTime (prune coker gbar) == 0 ;
-	if t1 == false then return (false, null);
-	
-	t2 := elapsedTime prune ker g == 0;
-	if t2 then (true, g) else (false, null)
-	)
-
-*-
 isIsomorphic = method(Options =>{Homogeneous => true, Verbose => false, Strict =>false})
 isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
     --returns a pair (false, null) or (true, f), or where f is an isomorphism 
@@ -234,9 +184,9 @@ isIsomorphic(Module, Module) := sequence => o ->  (A,B)->(
 
 	-- from now on, A1 and B1 are nonzero
 
-	df := checkDegrees (A1,B1,Verbose => o.Verbose);
-	if o.Strict and o.Homogeneous and not isDegreeListZero df_1 then
-	     return(false, null);
+	df := checkDegrees (A1,B1,Verbose => o.Verbose, Strict => o.Strict);
+--	if o.Strict and o.Homogeneous and not isDegreeListZero df_1 then
+--	     return(false, null);
 	if class df_1 =!= List  then return (false, null);
 	--now there is a chance at an isomorphism up to shift, 
 	--and df is the degree diff.
@@ -318,7 +268,9 @@ doc ///
 Key
  checkDegrees
  (checkDegrees,Module,Module)
+ (checkDegrees,Matrix,Matrix)
  [checkDegrees, Verbose]
+ [checkDegrees, Strict] 
 Headline
  compares the degrees of generators of two modules
 Usage
@@ -359,6 +311,7 @@ Key
  (isIsomorphic, Module, Module)
  [isIsomorphic, Verbose]
  [isIsomorphic, Homogeneous]
+ [isIsomorphic, Strict] 
 Headline
  Probabalistic test for isomorphism of modules
 Usage
@@ -371,6 +324,17 @@ Outputs
  t:Boolean
 Description
   Text
+   In case both modules are homogeneous the program first uses @TO checkDegrees@
+   to see whether an isomorphism is possible. This may be an isomorphism up to shift
+   if Strict => false (the default) or on the nose if Strict => true.
+   
+   If this test is passed, the program uses a variant of the Hom command
+   to compute a random map of minimal possible degree from A to B,
+   and checks whether this is surjective and injective.
+   
+   In the inhomogeneous case (or with Homogeneous => false) the random map is
+   a random linear combination of a basis of generators of the module of homomorphisms.
+   
   Example
    setRandomSeed 0
    S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
@@ -383,8 +347,8 @@ Description
    C2 = coker (matrix random(S^3, S^3)*matrix a*matrix random(S^3,S^3))
 
    --isIsomorphic(C1,C2) -- gives an error because C2 is not homogeneous
-   isIsomorphic (S^{{-3,-3}}**A,A) -- problem.
-   
+   isIsomorphic (S^{{-3,-3}}**A,A)
+   isIsomorphic (S^{{-3,-3}}**A,A, Strict=>true)
    isIsomorphic(C1,C2, Homogeneous => false)
    isIsomorphic(A1,A2)
    coker((isIsomorphic(A1,A2))_1) == 0
@@ -430,6 +394,7 @@ uninstallPackage "Isomorphism"
 restart
 installPackage "Isomorphism"
 *-
+
 TEST///--getting the degrees right in matrixHom
 debug needsPackage "Isomorphism"
 S = ZZ/101[x,y]
@@ -459,7 +424,8 @@ TEST /// -* various cases of isomorphism *-
    assert((isIsomorphic(A1,A2))_0 == true)
    assert(coker ((isIsomorphic(A1,A2))_1) == 0)
    assert((isIsomorphic (A,A))_0 == true)
-   assert((isIsomorphic(B1,B1))_0 == true)
+   assert((isIsomorphic(B1,S^{{1,1}}**B1))_0 == true)   
+   assert((isIsomorphic(B1,S^{{1,1}}**B1, Strict=>true))_0 == false)
    assert((isIsomorphic(A,B1))_0 == false)
    assert((isIsomorphic(A1,B1, Verbose => true))_0==false)
 ///
@@ -504,10 +470,6 @@ assert(ker g == 0)
 end--
 
 -* Development section *-
-restart
-needsPackage "Isomorphism"
-check "Isomorphism"
-
 restart
 uninstallPackage "Isomorphism"
 restart
