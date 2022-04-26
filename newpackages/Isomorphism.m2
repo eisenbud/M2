@@ -142,13 +142,20 @@ isIsomorphic(Module, Module) := sequence => o ->  (N,M)->(
 	resS := S/(ideal gens S);
 
     	m := presentation M;
-	if m**resS == 0 then (M1 := M; m1 := id_M) else 
-	        (m = presentation (M1 = prune M);
-	        m1 = M1.cache.pruningMap);
+
+	if m**resS == 0 then 
+	    (M1 := M; 
+	     m1 := map(M, coker m, 1)) else
+	     (m = presentation (M1 = prune M);
+	     m1 = M1.cache.pruningMap
+    	     );--iso from M1 to M
+	 
     	n := presentation N;
-	if n**resS == 0 then (N1 := N,n1 := id_N) else
-	        (n = presentation (N1 = prune N);
-	        n1 = N1.cache.pruningMap); --iso from M1 to M
+	if n**resS == 0 then 
+	    (N1 := N;
+	    n1 := map(N,coker n, 1)) else
+	    (n = presentation (N1 = prune N);
+	    n1 = N1.cache.pruningMap); --iso from N1 to N
 
 	--handle the cases where one of M,N is 0
 	isZM1 := target m ==0;
@@ -166,7 +173,7 @@ isIsomorphic(Module, Module) := sequence => o ->  (N,M)->(
 	--compute an appropriate random map g
 	if o.Homogeneous and degreeLength S == 1 then
 	g := randomMinimalDegreeHomomorphism(n,m, -df_1_0) else (
-        H := Hom(N1,M1);       
+        H := Hom(M1,N1);       
 	kk := ultimate(coefficientRing, S);
 	if o.Homogeneous === true then
 	      sH := select(H_*, f-> degree f == -df_1) else 
@@ -183,8 +190,9 @@ isIsomorphic(Module, Module) := sequence => o ->  (N,M)->(
 	if t1 == false then return (false, null);
 	
 	t2 := prune ker g == 0;
-	if t2 then (true, g) else (false, null)
-	)
+--error();
+	if t2 then (true, n1*g*(m1^-1)) else (false, null)
+    )
 isIsomorphic(Matrix,Matrix) := Sequence => o -> (n,m) -> 
            isIsomorphic(coker m, coker n)
 
@@ -468,8 +476,8 @@ I = points randomPointsMat(S,d);
 elapsedTime W = canonicalIdeal I;
 R = ring W;
 n =2
-M = prune module(trim W^n)
-N = prune Hom(M, R^1)
+M = module(trim W^n)
+N = Hom(M, R^1)
 g = (isIsomorphic (N,M))_1;
 assert (isWellDefined g)
 assert(source g == M)
@@ -477,9 +485,13 @@ assert(target g == N)
 assert(coker g == 0)
 assert(ker g == 0)
 ///
+
+
 end--
 
 -* Development section *-
+restart
+loadPackage "Isomorphism"
 restart
 uninstallPackage "Isomorphism"
 restart
