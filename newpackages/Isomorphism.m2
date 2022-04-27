@@ -1,13 +1,13 @@
 newPackage(
     "Isomorphism",
-    Version => "0.7",
-    Date => "April 12, 2022",
+    Version => "1.0",
+    Date => "April 27, 2022",
     Headline => "Probabalistic test of isomorphism",
     Authors => {{Name => "David Eisenbud", 
                   Email => "de@msri.org", 
                   HomePage => "http://www.msri.org/~de"}
                   },
-    DebuggingMode => true
+    DebuggingMode => false
     )
 
 export {
@@ -163,10 +163,10 @@ isIsomorphic(Module, Module) := sequence => o ->  (N,M)->(
     	if isZM1 =!= isZN1 then return (false, null );
 	if isZM1 and isZN1 then return (true, map(N,M,0));
 
-	-- from now on, M1 and N1 are nonzero
-
+	-- from now on, M1 and N1 are nonzero and pruned
+	if o.Homogeneous then (
 	df := checkDegrees (N1,M1,Verbose => o.Verbose, Strict => o.Strict);
-	if class df_1 =!= List  then return (false, null);
+	if class df_1 =!= List  then return (false, null));
 	--now there is a chance at an isomorphism up to shift, 
 	--and df is the degree diff.
 
@@ -185,12 +185,11 @@ isIsomorphic(Module, Module) := sequence => o ->  (N,M)->(
 	--test g to see if it's surjective:
 	kmodule := coker vars S;
 	gbar := kmodule ** g;
-	
+
 	t1 := prune coker gbar == 0;
 	if t1 == false then return (false, null);
 	
 	t2 := prune ker g == 0;
---error();
 	if t2 then (true, n1*g*(m1^-1)) else (false, null)
     )
 isIsomorphic(Matrix,Matrix) := Sequence => o -> (n,m) -> 
@@ -353,7 +352,7 @@ Inputs
  Strict => Boolean 
 Outputs
  t:Sequence
-  (Boolean, Matrix)
+  (Boolean, Matrix) or (Boolean, null)
 Description
   Text
    In case both modules are homogeneous the program first uses @TO checkDegrees@
@@ -366,6 +365,11 @@ Description
    
    In the inhomogeneous case (or with Homogeneous => false) the random map is
    a random linear combination of the generators of the module of homomorphisms.
+
+   If the output has the form (true, g), then g is guaranteed to be an
+   isomorphism. If the output is (false, null), then the
+   conclusion of non-isomorphism is only probabilistic.
+   
   Example
    setRandomSeed 0
    S = ZZ/32003[x_0..x_3]     
@@ -390,9 +394,9 @@ Description
    mm = ideal gens S
    (isIsomorphic(Tor_1(W, S^1/(mm^3)), Tor_1(S^1/(mm^3), W)))_0
 Caveat
- If the modules are not given with minimal presentations,
- they are pruned at the beginning of the computation; and
- the map returned is really a map between the pruned modules.
+   A negative result means that a random choice of homomorphism
+   was not an isomorphism; especially when the ground field is small,
+   this may not be definitive.
 SeeAlso
  checkDegrees
 ///
@@ -417,6 +421,7 @@ restart
 uninstallPackage "Isomorphism"
 restart
 installPackage "Isomorphism"
+loadPackage "Isomorphism"
 *-
 
 TEST///--getting the degrees right in matrixHom
@@ -433,6 +438,36 @@ a = -2;b=2;
 ), t -> t))
 ///
 
+TEST///--the inhomogeneous case
+   setRandomSeed 0
+   S = ZZ/101[a,b,Degrees => {{1,0},{0,1}}]
+C = S^{{1,1}, {2,3}}
+C' = S^{{1,1}, {2,4}}
+assert((isIsomorphic(C,C'))_0 == false)
+(t,g) = isIsomorphic(C,C', Homogeneous => false)
+assert(t==true)
+assert(isWellDefined g)
+assert(source g == C')
+assert(target g == C)
+assert(coker g == 0)
+assert(ker g == 0)
+///
+
+TEST/// -- the non-minimally presented case
+   setRandomSeed 0
+      S = ZZ/101[a,b]
+C = coker (m = map(S^{2}++S^1, S^{2}++S^{-1}, matrix"1,0;0,a"))
+a = random(target m, target m)
+b = random(source m, source m)
+C' = coker (a*m*b)
+(t,g) = isIsomorphic(C,C')
+assert(t==true)
+assert(isWellDefined g)
+assert(source g == C')
+assert(target g == C)
+assert(coker g == 0)
+assert(ker g == 0)
+///
 
 TEST /// -* checkDegrees *-
    setRandomSeed 0
@@ -441,10 +476,11 @@ TEST /// -* checkDegrees *-
    B = S^{{1,1}}
    B' = S^{{3,3}}**B
    C = S^{{1,1}, {2,3}}
+
    checkDegrees(A,B)
    assert(checkDegrees(A,B) ==(true,{-1,0}))
    assert(checkDegrees(A,C) == (false,null))
-
+   
    d = checkDegrees(B',B)
    assert(degrees (S^{d_1}**B') == degrees B)
    assert(degrees (B') == degrees (S^{-d_1}**B))
@@ -491,7 +527,7 @@ end--
 
 -* Development section *-
 restart
-loadPackage "Isomorphism"
+debug loadPackage "Isomorphism"
 restart
 uninstallPackage "Isomorphism"
 restart
@@ -500,37 +536,5 @@ check "Isomorphism"
 viewHelp "Isomorphism"
 restart
 
-
-needsPackage "Points"
-canonicalIdeal = method()
-canonicalIdeal Ideal := Ideal => I ->(
-    S := ring I;
-    R := S/I;
-    F := res I;
-    omega := coker sub(transpose F.dd_(length F), R);
-    H := Hom(omega,R^1);
-    deg := max degrees source gens H;
-    g := (gens H)*random(source gens H, R^-deg);
-    trim sub(ideal g,R) ---canonical ideal of a 1-dim ring.
-)
-
-kk=ZZ/32003
-S = kk[x,y,z]
-
-d = 15
-I = points randomPointsMat(S,d);
-elapsedTime W = canonicalIdeal I;
-R = ring W;
-n =2
-M = prune module(trim W^n)
-elapsedTime N = prune Hom(M, R^1)
-
-for n from 2 to 20 do (
-    print n;
-X = module(trim W^n);
-Y = prune Hom(X, R^1);
-elapsedTime ans = (isIsomorphic(X, Y))_0;
-<< ans<<endl;
-<<endl);
 
 
