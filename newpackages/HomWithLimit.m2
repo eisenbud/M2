@@ -24,28 +24,61 @@ Hom(Module, Module, ZZ) := Matrix => (M,N,d) -> (
              SyzygyRows => rank N0*rank M0', 
 	     DegreeLimit => d);
     p := positions(degrees source h, e -> e <= {d});
-    hp := h_p)
+--    hp := h_p;
+   maps0 = apply(p, pp-> map(N, M, matrix reshape(N0, M0, h_{pp})));
+   select(maps0, a -> a!=0)
+	)
+
 
 --need to create "homomorphism"
 end --
+(f) -> map(N,M,adjoint'(f,M,N), Degree => first degrees source f);
+
 restart
 load "HomWithLimit.m2"
- 
+needsPackage "Truncations" 
 TEST /// -*getting the degree shift right*-
    S = ZZ/32003[x_1..x_3]
    m = random(S^3, S^{4:-2})
    A = random(target m, target m)
    B = random(source m, source m)
    m' = A*m*B
-   Hom (coker m, coker m',0)
+   H1 = Hom(coker m, coker m')
+   gens H1
+--   Hom(coker m, coker m') % truncate(2,Hom(coker m, coker m'))
+   h2= Hom (coker m, coker m',2)
+   
+   h2_0*(h2_1//h2_0) == h2_1
+   (h2_1//h2_0)
+prune Hom(coker m, coker m')
+
+   S = ZZ/32003[x_1..x_3]
+   m = random(S^{0,1}, S^{4:-2})
+   A = random(target m, target m)
+   B = random(source m, source m)
+   m' = A*m*B
+   M = coker m
+   M' = coker m'
+   H1 = Hom(coker m, coker m')
+   H2 = truncate(2,H1)
+   h0=Hom (coker m, coker m',0)
+   h1=   Hom (coker m, coker m',1)
+   h2=   Hom (coker m, coker m',2)      
+degrees h0
+degrees h1
+degrees source h2
+degrees presentation H1
+degrees H1
+mingens image h2
+map(M',M,h2_{1})
+
 prune Hom(coker m, coker m')
 ///
 
 -*
 restart
-uninstallPackage "Isomorphism"
-restart
-installPackage "Isomorphism"
+load "HomWithLimit.m2"
+
 *-
 
 TEST///--getting the degrees right in matrixHom
