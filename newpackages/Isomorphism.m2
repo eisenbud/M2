@@ -2,7 +2,7 @@ newPackage(
     "Isomorphism",
     Version => "1.0",
     Date => "April 27, 2022",
-    Headline => "Probabalistic test of isomorphism",
+    Headline => "Probabalistic test of isomorphism between modules",
     Authors => {{Name => "David Eisenbud", 
                   Email => "de@msri.org", 
                   HomePage => "http://www.msri.org/~de"}
@@ -242,6 +242,8 @@ Description
 SeeAlso
  isIsomorphic
  checkDegrees
+Contributors
+ Mike Stillman
 ///
 
 doc ///
@@ -526,9 +528,6 @@ assert(ker g == 0)
 end--
 
 -* Development section *-
-restart
-debug loadPackage "Isomorphism"
-restart
 uninstallPackage "Isomorphism"
 restart
 installPackage "Isomorphism"
