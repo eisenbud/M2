@@ -213,7 +213,8 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
     	n := presentation N;
 	if n**resS == 0 then 
 	    (N1 := N;
-	    n1 := map(N,coker n, 1)) else
+	    n1 := map(N,coker n, 1)) 
+	else
 	    (n = presentation (N1 = prune N);
 	    n1 = N1.cache.pruningMap); --iso from N1 to N
 
@@ -251,7 +252,7 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
 	if t1 == false then return (false, null);
 	
 	t2 := prune ker g == 0;
-	if t2 then (true, n1*g*(m1^-1)) else (false, null)
+	if t2 then (true, (n1^-1)*g*m1) else (false, null)
     )
 
 -*
