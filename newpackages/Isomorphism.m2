@@ -66,7 +66,7 @@ randomHomomorphism(Module, Module, ZZ) := Matrix => (N, M, d) -> (
     hp := h_p;
     a := hp*random(source (hp), S^{-d}); 
     ans := map(N, M, matrix reshape(N0, M0, a), Degree => {d});
-    error "debug";    
+--    error "debug";    
     ans
     )
 -*
@@ -232,14 +232,15 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
 
 	--compute an appropriate random map g
 	if o.Homogeneous and degreeLength S == 1 then
-	g := randomHomomorphism(N1, M1 , -df_1_0) else (
-        H := Hom(M1,N1);       
-	kk := ultimate(coefficientRing, S);
-	if o.Homogeneous === true then
+	g := randomHomomorphism(N1, M1 , df_1_0) 
+	else (
+          H := Hom(M1,N1);       
+	  kk := ultimate(coefficientRing, S);
+	  if o.Homogeneous === true then
 	      sH := select(H_*, f-> degree f == -df_1) else 
 	      sH = H_*;
-	if #sH == 0 then return false;
-    	g = sum(sH, f-> random(kk)*homomorphism matrix f)
+	  if #sH == 0 then return false;
+    	  g = sum(sH, f-> random(kk)*homomorphism matrix f)
 	);
         
 	--test g to see if it's surjective:
@@ -252,8 +253,6 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
 	t2 := prune ker g == 0;
 	if t2 then (true, n1*g*(m1^-1)) else (false, null)
     )
-isIsomorphic(Matrix,Matrix) := Sequence => o -> (n,m) -> 
-           isIsomorphic(coker m, coker n)
 
 -*
 restart
@@ -393,7 +392,6 @@ doc ///
 Key
  isIsomorphic
  (isIsomorphic, Module, Module)
- (isIsomorphic, Matrix, Matrix) 
  [isIsomorphic, Verbose]
  [isIsomorphic, Homogeneous]
  [isIsomorphic, Strict] 
@@ -401,14 +399,9 @@ Headline
  Probabalistic test for isomorphism of modules
 Usage
  t = isIsomorphic (N,M)
- t = isIsomorphic (n,m) 
 Inputs
  M:Module
- m:Matrix
-  presentation of M
  N:Module
- n:Matrix
-  presentation of N
  Homogeneous => Boolean
  Verbose => Boolean
  Strict => Boolean 
@@ -608,6 +601,7 @@ assert(ker g == 0)
 end--
 
 -* Development section *-
+restart
 uninstallPackage "Isomorphism"
 restart
 installPackage "Isomorphism"
