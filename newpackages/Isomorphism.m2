@@ -24,9 +24,7 @@ export {
 
 randomHomomorphism=method()
 randomHomomorphism(Module, Module, ZZ) := Matrix => (N, M, d) -> (
-    --m,n homogeneous, minimal over a ring with degree length 1 (this restridd
-    
-    --given free presentations
+    --given modules M,N, first change if necessary to coker modules
     --M = coker m:M1 -> M0 
     --N = coker n: N1 -> N0
     --(ring M)^diffdegs has the same degrees as N,
@@ -57,18 +55,71 @@ randomHomomorphism(Module, Module, ZZ) := Matrix => (N, M, d) -> (
     M0' := source m';
     M1' := target m';
     N0 := target n;
-
-    h := syz(m'**N0 | M1'**n, 
+    K := m'**N0 | M1'**n;
+    h := syz(K,
              SyzygyRows => rank N0*rank M0', 
-	     DegreeLimit => -{d});
+	     DegreeLimit =>{d});
 
-    p := positions(degrees source h, e -> e >= -{d});
+--    error "debug";
+    p := positions(degrees source h, e -> e <= {d});
     if #p == 0 then return map(N,M,0, Degree => {d});
     hp := h_p;
-    a := hp*random(source (hp), S^{d}); --represents general map of degree -diffdegs
-    ans := map(coker n, coker m, matrix reshape(N0, M0, a), Degree => {d});
-    error "debug";
+    a := hp*random(source (hp), S^{-d}); 
+    ans := map(N, M, matrix reshape(N0, M0, a), Degree => {d});
+    error "debug";    
+    ans
     )
+-*
+restart
+loadPackage "Isomorphism"
+*-
+///--getting the degrees right in matrixHom
+debug needsPackage "Isomorphism"
+S = ZZ/101[x,y]
+
+M = S^1++S^{-3}
+N= S^{1}++S^{-5}
+f = randomHomomorphism (N, M,-1)
+degree f
+isHomogeneous f
+isWellDefined f
+
+setRandomSeed 0
+m = random(S^2, S^{-1})
+n = random(target m, target m)*m*random(source m, source m)
+M = coker m
+N= coker n
+f = randomHomomorphism (S^{1}**N, M,1)
+degree f
+isHomogeneous f
+setRandomSeed 0
+isWellDefined f
+
+
+assert(all(flatten for a from -2 to 2 list for b from -2 to 2 list(
+a = -2;b=2;
+(v, diffdegs) = checkDegrees (S^{a}**(m++m),S^{b}**(m++m));
+((prune coker randomHomomorphism(coker(S^{a}**(m++m)), coker(S^{b}**(m++m)),-diffdegs_0) == 0))
+), t -> t))
+///
+
+///
+S = ZZ/101[x,y]
+M = coker matrix{{x,y}}
+N = M
+f = randomHomomorphism (N,M,1)
+isWellDefined f
+assert(degree f == -{1})
+
+f = randomHomomorphism (S^2,S^{-1},-1)
+random(S^2, S^{-1})
+
+isWellDefined f
+assert(degree f == -{1})
+///
+
+
+
 
 isDegreeListZero = L -> 
 -- test whether a list of lists has all entries of entries 0
