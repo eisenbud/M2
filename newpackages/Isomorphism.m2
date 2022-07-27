@@ -202,7 +202,7 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
     	m := presentation M;
 
 	if m**resS == 0 then(
-	   M1 := M; 
+	   M1 := coker m; 
 	   m1 := map(M, coker m, 1)
 	   )
      	else(
@@ -212,7 +212,7 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
 	 
     	n := presentation N;
 	if n**resS == 0 then 
-	    (N1 := N;
+	    (N1 := coker n;
 	    n1 := map(N,coker n, 1)) 
 	else
 	    (n = presentation (N1 = prune N);
@@ -232,9 +232,12 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
 	--and df is the degree diff.
 
 	--compute an appropriate random map g
-	if o.Homogeneous and degreeLength S == 1 then
-	g := randomHomomorphism(N1, M1 , df_1_0) 
+	if o.Homogeneous and degreeLength S == 1 then (
+          g := randomHomomorphism(N1, M1 , df_1_0);
+          << "in then clause" << endl;
+          )
 	else (
+          << "in else clause" << endl;
           H := Hom(M1,N1);       
 	  kk := ultimate(coefficientRing, S);
 	  if o.Homogeneous === true then
@@ -252,7 +255,7 @@ isIsomorphic(Module, Module) := Sequence => o ->  (N,M)->(
 	if t1 == false then return (false, null);
 	
 	t2 := prune ker g == 0;
-	if t2 then (true, (n1^-1)*g*m1) else (false, null)
+	if t2 then (true, n1*g*m1^-1) else (false, null)
     )
 
 -*
@@ -481,17 +484,23 @@ loadPackage "Isomorphism"
 *-
 
 TEST///--getting the degrees right in matrixHom
-debug needsPackage "Isomorphism"
-S = ZZ/101[x,y]
-m = matrix{{x,y}}
-n = matrix{{x^2, y^2}}
+  debug needsPackage "Isomorphism"
+  S = ZZ/32003[x,y] -- note that for ZZ/101, the code below fails occassionally!
+  m = matrix{{x,y}}
+  n = matrix{{x^2, y^2}}
 
-setRandomSeed 0
-assert(all(flatten for a from -2 to 2 list for b from -2 to 2 list(
-a = -2;b=2;
-(v, diffdegs) = checkDegrees (S^{a}**(m++m),S^{b}**(m++m));
-((prune coker randomHomomorphism(coker(S^{a}**(m++m)), coker(S^{b}**(m++m)),-diffdegs_0) == 0))
-), t -> t))
+  setRandomSeed 0
+
+  for a from -2 to 2 do for b from -2 to 2 do (
+      --a = -2;b=2;
+      print (a,b);
+      Nmat = S^{a}**(m++m);
+      Mmat = S^{b}**(m++m);
+      (v, diffdegs) = checkDegrees(Nmat, Mmat);
+      assert(prune coker randomHomomorphism(coker Nmat, coker Mmat, diffdegs_0) == 0)
+      )
+
+
 ///
 
 -*
@@ -504,7 +513,7 @@ M = coker matrix{{x,y}}
 N = M
 f = randomHomomorphism (N,M,1)
 isWellDefined f
-assert(degree f == -{1})
+assert(degree f == {1})
 
 f = randomHomomorphism (S^2,S^{-1},-1)
 random(S^2, S^{-1})
