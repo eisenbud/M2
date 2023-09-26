@@ -46,6 +46,10 @@ RR_* = RR' = new Type of InexactNumber'
 RRi_* = RRi' = new Type of InexactNumber'
 CC_* = CC' = new Type of InexactNumber'
 
+RR'.texMath = ///{\mathbb R}_*///
+RRi'.texMath = ///{\square\mathbb R}_*///
+CC'.texMath = ///{\mathbb C}_*///
+
 setAttribute(CC',PrintNet,"CC" | "*"^-1)
 setAttribute(RR',PrintNet,"RR" | "*"^-1)
 setAttribute(RRi',PrintNet,"RRi" | "*"^-1)
@@ -205,7 +209,6 @@ new CC from RawRingElement := (CCC,x) -> ( assert( CCC === CC ); rawToCC x)
 -- arithmetic operations
 
 CC.InverseMethod = y -> conjugate y / y^2
-CC ^ ZZ := BinaryPowerMethod
 
 scan((QQ,RR,CC), F -> (
 	  F // F := (x,y) -> if y == 0 then 0_F else x/y;

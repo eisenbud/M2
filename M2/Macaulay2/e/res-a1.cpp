@@ -1,9 +1,12 @@
 // Copyright 1996.  Michael E. Stillman
 
-#include "res-a1-poly.hpp"
 #include "res-a1.hpp"
+
+#include "ExponentVector.hpp"
+#include "res-a1-poly.hpp"
 #include "text-io.hpp"
 #include "interrupted.hpp"
+
 //////////////////////////////////////////////
 //  Initialization of a computation  /////////
 //////////////////////////////////////////////
@@ -274,7 +277,7 @@ int res_comp::degree(const res_pair *p) const
   return result;
 }
 
-void res_comp::multi_degree(const res_pair *p, int *deg) const
+void res_comp::multi_degree(const res_pair *p, monomial deg) const
 {
   // MES: Is this correct?
   M->multi_degree(p->base_monom, deg);
@@ -302,7 +305,7 @@ void res_comp::insert_res_pair(int level, res_pair *p)
     }
   else
     {
-      intarray vp;
+      gc_vector<int> vp;
       M->to_varpower(p->syz->monom, vp);
       search_mi[p->syz->comp->me]->insert_minimal(new Bag(p, vp));
     }
@@ -314,7 +317,7 @@ void res_comp::insert_res_pair(int level, res_pair *p)
 
 int res_comp::compare_res_pairs(res_pair *f, res_pair *g) const
 {
-  exponents EXP1, EXP2;
+  exponents_t EXP1, EXP2;
   int cmp, df, dg, i;
   //  if (f->compare_num < g->compare_num) return 1;
   //  if (f->compare_num > g->compare_num) return -1;
@@ -457,13 +460,11 @@ void res_comp::sort_res_pairs(res_pair *&p) const
   p = merge_res_pairs(p1, p2);
 }
 
-int res_comp::sort_value(res_pair *p, const int *sort_order) const
+int res_comp::sort_value(res_pair *p, const std::vector<int> sort_order) const
 {
-  exponents REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
+  exponents_t REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
   M->to_expvector(p->base_monom, REDUCE_exp);
-  int result = 0;
-  for (int i = 0; i < P->n_vars(); i++) result += REDUCE_exp[i] * sort_order[i];
-  return result;
+  return exponents::weight(P->n_vars(), REDUCE_exp, sort_order);
 }
 
 void res_comp::sort_gens(res_degree *mypairs)
@@ -610,9 +611,9 @@ void res_comp::new_pairs(res_pair *p)
 // and only pairs with elements before this in the sorting order
 // will be considered.
 {
-  VECTOR(Bag *) elems;
-  intarray vp;  // This is 'p'.
-  intarray thisvp;
+  gc_vector<Bag*> elems;
+  gc_vector<int> vp;  // This is 'p'.
+  gc_vector<int> thisvp;
 
   monomial PAIRS_mon = ALLOCATE_MONOMIAL(monom_size);
 
@@ -630,8 +631,8 @@ void res_comp::new_pairs(res_pair *p)
 
   if (P->is_skew_commutative())
     {
-      int *exp = newarray_atomic(int, M->n_vars());
-      varpower::to_ntuple(M->n_vars(), vp.raw(), exp);
+      exponents_t exp = newarray_atomic(int, M->n_vars());
+      varpower::to_expvector(M->n_vars(), vp.data(), exp);
 
       int nskew = P->n_skew_commutative_vars();
       for (int v = 0; v < nskew; v++)
@@ -639,7 +640,7 @@ void res_comp::new_pairs(res_pair *p)
           int w = P->skew_variable(v);
           if (exp[w] > 0)
             {
-              thisvp.shrink(0);
+              thisvp.resize(0);
               varpower::var(w, 1, thisvp);
               Bag *b = new Bag(static_cast<void *>(0), thisvp);
               elems.push_back(b);
@@ -658,9 +659,9 @@ void res_comp::new_pairs(res_pair *p)
           // Compute (P->quotient_ideal->monom : p->monom)
           // and place this into a varpower and Bag, placing
           // that into 'elems'
-          thisvp.shrink(0);
-          varpower::quotient(a.monom().raw(), vp.raw(), thisvp);
-          if (varpower::is_equal(a.monom().raw(), thisvp.raw()))
+          thisvp.resize(0);
+          varpower::quotient(a.monom().data(), vp.data(), thisvp);
+          if (varpower::is_equal(a.monom().data(), thisvp.data()))
             continue;
           Bag *b = new Bag(static_cast<void *>(0), thisvp);
           elems.push_back(b);
@@ -673,7 +674,7 @@ void res_comp::new_pairs(res_pair *p)
   for (Bag& a : *mi_orig)
     {
       Bag *b = new Bag(a.basis_ptr());
-      varpower::quotient(a.monom().raw(), vp.raw(), b->monom());
+      varpower::quotient(a.monom().data(), vp.data(), b->monom());
       elems.push_back(b);
     }
 
@@ -695,7 +696,7 @@ void res_comp::new_pairs(res_pair *p)
       res_pair *second = reinterpret_cast<res_pair *>(a.basis_ptr());
       res_pair *q = new_res_pair(SYZ_S_PAIR, p, second);
       // That set most fields except base_monom:
-      M->from_varpower(a.monom().raw(), q->base_monom);
+      M->from_varpower(a.monom().data(), q->base_monom);
       M->mult(q->base_monom, p->base_monom, q->base_monom);
       insert_res_pair(n_level, q);
     }
@@ -706,7 +707,7 @@ void res_comp::new_pairs(res_pair *p)
 //  S-pairs and reduction ////////////////////
 //////////////////////////////////////////////
 
-int res_comp::find_ring_divisor(const int *exp, ring_elem &result) const
+int res_comp::find_ring_divisor(const_exponents exp, ring_elem &result) const
 // If 'exp' is divisible by a ring lead term, then 1 is returned,
 // and result is set to be that ring element.
 // Otherwise 0 is returned.
@@ -724,7 +725,7 @@ resterm *res_comp::s_pair(res_pair *p) const
 // Care is of course taken with the Schreyer order
 {
   p->syz = R->new_term(K->from_long(1), p->base_monom, p->first);
-  int *si = M->make_one();
+  monomial si = M->make_one();
   M->divide(p->base_monom, p->first->base_monom, si);
   resterm *result = R->mult_by_monomial(p->first->syz, si);
   ring_elem one = K->from_long(1);
@@ -746,7 +747,7 @@ res_pair *res_comp::reduce(resterm *&f, resterm *&fsyz, resterm *&pivot)
 // place a pointer to the corresponding term in "pivot".
 {
   // 'lastterm' is used to append the next monomial to fsyz->syz
-  exponents REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
+  exponents_t REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
   monomial REDUCE_mon = ALLOCATE_MONOMIAL(monom_size);
 
   resterm *lastterm = (fsyz->next == NULL ? fsyz : fsyz->next);
@@ -796,7 +797,7 @@ res_pair *res_comp::reduce_level_one(resterm *&f,
                                      resterm *&pivot)
 {
   // 'lastterm' is used to append the next monomial to fsyz->syz
-  exponents REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
+  exponents_t REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
   monomial REDUCE_mon = ALLOCATE_MONOMIAL(monom_size);
 
   resterm *lastterm = (fsyz->next == NULL ? fsyz : fsyz->next);
@@ -842,7 +843,7 @@ res_pair *res_comp::reduce_level_one(resterm *&f,
 
 void res_comp::reduce_gen(resterm *&f) const
 {
-  exponents REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
+  exponents_t REDUCE_exp = ALLOCATE_EXPONENTS(exp_size);
   monomial REDUCE_mon = ALLOCATE_MONOMIAL(monom_size);
 
   res_pair *q;
@@ -1342,7 +1343,7 @@ const FreeModule *res_comp::free_of(int i) const
   FreeModule *result;
   result = P->make_Schreyer_FreeModule();
   if (i < 0 || i >= resn.size()) return result;
-  int *deg = P->degree_monoid()->make_one();
+  monomial deg = P->degree_monoid()->make_one();
   int n = 0;
   res_level *lev = resn[i];
   for (int j = 0; j < lev->bin.size(); j++)
@@ -1365,7 +1366,7 @@ const FreeModule *res_comp::minimal_free_of(int i) const
   if (i == 0) return generator_matrix->rows();
   result = P->make_FreeModule();
   if (i < 0 || i > length_limit) return result;
-  int *deg = P->degree_monoid()->make_one();
+  monomial deg = P->degree_monoid()->make_one();
   int nminimals = 0;
   res_level *lev = resn[i];
   for (int j = 0; j < lev->bin.size(); j++)
@@ -1496,9 +1497,9 @@ void res_comp::skeleton_pairs(res_pair *&result, res_pair *p)
 // Create and insert all of the pairs which will have lead term 'p'.
 // This also places 'p' into the appropriate monomial ideal
 {
-  VECTOR(Bag *) elems;
-  intarray vp;  // This is 'p'.
-  intarray thisvp;
+  gc_vector<Bag*> elems;
+  gc_vector<int> vp;  // This is 'p'.
+  gc_vector<int> thisvp;
 
   monomial PAIRS_mon = ALLOCATE_MONOMIAL(monom_size);
 
@@ -1516,8 +1517,9 @@ void res_comp::skeleton_pairs(res_pair *&result, res_pair *p)
 
   if (P->is_skew_commutative())
     {
-      int *exp = newarray_atomic(int, M->n_vars());
-      varpower::to_ntuple(M->n_vars(), vp.raw(), exp);
+
+      exponents_t exp = newarray_atomic(int, M->n_vars());
+      varpower::to_expvector(M->n_vars(), vp.data(), exp);
 
       int nskew = P->n_skew_commutative_vars();
       for (int v = 0; v < nskew; v++)
@@ -1525,7 +1527,7 @@ void res_comp::skeleton_pairs(res_pair *&result, res_pair *p)
           int w = P->skew_variable(v);
           if (exp[w] > 0)
             {
-              thisvp.shrink(0);
+              thisvp.resize(0);
               varpower::var(w, 1, thisvp);
               Bag *b = new Bag(static_cast<void *>(0), thisvp);
               elems.push_back(b);
@@ -1544,9 +1546,9 @@ void res_comp::skeleton_pairs(res_pair *&result, res_pair *p)
           // Compute (P->quotient_ideal->monom : p->monom)
           // and place this into a varpower and Bag, placing
           // that into 'elems'
-          thisvp.shrink(0);
-          varpower::quotient(a.monom().raw(), vp.raw(), thisvp);
-          if (varpower::is_equal(a.monom().raw(), thisvp.raw()))
+          thisvp.resize(0);
+          varpower::quotient(a.monom().data(), vp.data(), thisvp);
+          if (varpower::is_equal(a.monom().data(), thisvp.data()))
             continue;
           Bag *b = new Bag(static_cast<void *>(0), thisvp);
           elems.push_back(b);
@@ -1560,7 +1562,7 @@ void res_comp::skeleton_pairs(res_pair *&result, res_pair *p)
   for (Bag& a : *mi_orig)
     {
       Bag *b = new Bag(a.basis_ptr());
-      varpower::quotient(a.monom().raw(), vp.raw(), b->monom());
+      varpower::quotient(a.monom().data(), vp.data(), b->monom());
       elems.push_back(b);
     }
 
@@ -1579,7 +1581,7 @@ void res_comp::skeleton_pairs(res_pair *&result, res_pair *p)
       res_pair *second = reinterpret_cast<res_pair *>(a.basis_ptr());
       res_pair *q = new_res_pair(SYZ_S_PAIR, p, second);
       // That set most fields except base_monom:
-      M->from_varpower(a.monom().raw(), q->base_monom);
+      M->from_varpower(a.monom().data(), q->base_monom);
       M->mult(q->base_monom, p->base_monom, q->base_monom);
       result->next = q;
       result = q;

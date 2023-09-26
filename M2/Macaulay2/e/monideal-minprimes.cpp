@@ -103,7 +103,7 @@ void MinimalPrimes::alg1_grab_prime(int depth)
       exp2[i] = 1;
     else
       exp2[i] = 0;
-  varpower::from_ntuple(nvars, exp2, b->monom());
+  varpower::from_expvector(nvars, exp2, b->monom());
   Q.push_back(b);
 }
 
@@ -171,7 +171,7 @@ MonomialIdeal *MinimalPrimes::alg1_min_primes(int maxcodim, int count)
   long len = 1;
   for (Bag& a : *mi)
     {
-      long d = varpower::simple_degree(a.monom().raw());
+      long d = varpower::simple_degree(a.monom().data());
       len += d;
     }
 
@@ -183,7 +183,7 @@ MonomialIdeal *MinimalPrimes::alg1_min_primes(int maxcodim, int count)
 
   for (Bag& a : *mi)
     {
-      int *m = a.monom().raw();
+      int *m = a.monom().data();
       int d = varpower::simple_degree(m);
 
       monoms[next_monom++] = d + 2;
@@ -264,7 +264,7 @@ void MinimalPrimes::ass_prime_generator(Nmi_node *p, int codim)
 {
   int i = codim + 1;
   if (exps[i] == 0) exps[i] = newarray_atomic(int, nvars);
-  int *exp0 = exps[i];
+  exponents_t exp0 = exps[i];
   for (int j = 0; j < nvars; j++) exp0[j] = exps[codim][j];
   for (;;)
     {
@@ -278,13 +278,13 @@ void MinimalPrimes::ass_prime_generator(Nmi_node *p, int codim)
             {
               to_prime_ideal(nvars, exp0);
               Bag *b = new Bag(0);
-              varpower::from_ntuple(nvars, exp0, b->monom());
+              varpower::from_expvector(nvars, exp0, b->monom());
               primes->insert(b);
               n_minprimes++;
             }
           return;
         }
-      const int *m = p->monom().raw();
+      const int *m = p->monom().data();
       switch (reduce_exp(m, exp0))
         {
           case 0:

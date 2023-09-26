@@ -1,11 +1,15 @@
 // Copyright 1994-2021  Michael E. Stillman
+
 #ifndef _monideal_hh_
 #define _monideal_hh_
 
-#include "varpower.hpp"
+#include "ExponentVector.hpp"
+#include "ExponentList.hpp"
 #include "int-bag.hpp"
+#include "monoid.hpp"
 #include "ring.hpp"
 #include "polyring.hpp"
+#include "mem.hpp"
 
 #if 0
 SparseMonomial: pointer to an array of ints.  First is the length.  [len, v1, e1, v2, e2, ..., vr, er]
@@ -51,8 +55,8 @@ private:
 
   Nmi_node *&down() { return val.down; }
   Bag *&baggage() { return val.bag; }
-  intarray &monom() { return val.bag->monom(); }              // varpower
-  const intarray &monom() const { return val.bag->monom(); }  // varpower
+  gc_vector<int> &monom() { return val.bag->monom(); }              // varpower
+  const gc_vector<int> &monom() const { return val.bag->monom(); }  // varpower
   void insert_to_left(Nmi_node *q)
   {
     q->header = header;
@@ -111,8 +115,8 @@ class MonomialIdeal : public EngineObject
   MonomialIdeal *copy() const;
 
   void remove_MonomialIdeal();     // frees all of the internal things
-  const int *first_elem() const;   // returns varpower
-  const int *second_elem() const;  // returns varpower
+  const_varpower first_elem() const;
+  const_varpower second_elem() const;
 
   // Informational
   int size() const { return count / 2; }
@@ -141,15 +145,15 @@ class MonomialIdeal : public EngineObject
   // Deletion.  Remove the lexicographically largest element, placing
   // it into b.  Return 1 if an element is removed.
 
-  int search_expvector(const int *m, Bag *&b) const;
+  int search_expvector(const_exponents m, Bag *&b) const;
   // Search.  Return whether a monomial which divides 'm' is
   // found.  If so, return the baggage.  'm' is assumed to be an
   // exponent vector of length larger than the top variable occurring
   // in 'this'
-  int search(const int *m, Bag *&b) const;
+  int search(const_varpower m, Bag *&b) const;
   // Search.  Return whether a monomial which divides 'm' is
   // found.  If so, return the baggage.  'm' is a varpower monomial.
-  void find_all_divisors(const int *exp, VECTOR(Bag *)& b) const;
+  void find_all_divisors(const_exponents exp, VECTOR(Bag *)& b) const;
   // Search. Return a list of all elements which divide 'exp'.
 
   class Iterator {
@@ -210,11 +214,11 @@ class MonomialIdeal : public EngineObject
 
   bool is_equal(const MonomialIdeal &mi) const;
 
-  MonomialIdeal *intersect(const int *m) const;  // m is a varpower monomial
+  MonomialIdeal *intersect(const_varpower m) const;
   MonomialIdeal *intersect(const MonomialIdeal &J) const;
-  MonomialIdeal *quotient(const int *m) const;  // m is a varpower monomial
+  MonomialIdeal *quotient(const_varpower m) const;
   MonomialIdeal *quotient(const MonomialIdeal &J) const;
-  MonomialIdeal *erase(const int *m) const;  // m is a varpower monomial
+  MonomialIdeal *erase(const_varpower m) const;
   MonomialIdeal *sat(const MonomialIdeal &J) const;
 
   M2_arrayint lcm() const;

@@ -74,7 +74,7 @@ InexactNumber#{WebApp,Print} = x ->  withFullPrecision ( () -> Thing#{WebApp,Pri
 
 htmlAfterPrint :=  x -> (
     << endl << on() | " : ";
-    if class x === Sequence then x = RowExpression deepSplice { x };
+    if class x === Sequence then x = SPAN deepSplice { x };
     printFunc x;
     )
 
@@ -91,6 +91,7 @@ Thing#{WebApp,AfterNoPrint} = x -> (
     if s =!= null then htmlAfterPrint s
     )
 
+removeWebAppTags = s -> if s === null then null else replace(webAppTagsRegex,"😀",s);
 if topLevelMode === WebApp then (
     compactMatrixForm = false;
     extractStr := x -> concatenate apply(x,y -> if instance(y,Hypertext) then extractStr y else if instance(y,String) then y);
@@ -98,10 +99,12 @@ if topLevelMode === WebApp then (
     processExamplesLoop ExampleItem := (x->new LITERAL from extractStr x) @@ (lookup(processExamplesLoop,ExampleItem));
     -- the help hack 2 (incidentally, this regex is safer than in standard mode)
     M2outputRE      = "(?="|webAppCellTag|")";
-    -- the show hack
-    showURL := lookup(show,URL);
-    show URL := url -> if topLevelMode === WebApp then (<< webAppUrlTag | url#0 | webAppEndTag;) else showURL url;
-    EDIT Sequence := x -> ((filename,start,startcol,stop,stopcol,pos,poscol) -> show URL concatenate("#editor:",filename,":",toString start,":",toString startcol,"-",toString stop,":",toString stopcol))x;
+    -- the show/edit hack
+    show URL := url -> (<< webAppUrlTag | url#0 | webAppEndTag;);
+    editURL := f -> "#editor:"|toString f;
+    editMethod String :=
+    editMethod FilePosition := f -> show editURL f;
+    hypertext FilePosition := f -> SAMP HREF {editURL f,toString f};
     -- redefine htmlLiteral to exclude codes
-    htmlLiteral = (s -> if s===null then null else replace(webAppTagsRegex,"",s)) @@ htmlLiteral;
+    htmlLiteral = removeWebAppTags @@ htmlLiteral;
     )

@@ -231,22 +231,12 @@ fi
 
 AC_SUBST(DOCUMENTATION)
 
+dnl deprecated in 1.22
+dnl TODO: remove this completely after 1.22 is released
 AC_ARG_ENABLE([syntax-highlighting],
     [AS_HELP_STRING([--enable-syntax-highlighting],
-	[whether to enable syntax highlighting using highlightjs in the html
-	 documentation])],
-    [HIGHLIGHTJS=$enableval],
-    [HIGHLIGHTJS=no])
-
-if test "x$HIGHLIGHTJS" = xyes
-then AC_CHECK_PROGS(NPM,npm,false)
-     if test "x$NPM" = xfalse
-     then AC_MSG_ERROR([npm is required for syntax highlighting])
-     fi
-else AC_SUBST(NPM,false)
-fi
-
-AC_SUBST(HIGHLIGHTJS)
+	[this option is deprecated; syntax highlight is always enabled.])],
+    [AC_MSG_WARN([the --enable-syntax-highlighting option is deprecated; syntax highlighting is always enabled.])])
 
 AC_CANONICAL_HOST()
 AC_SUBST(ARCH,$build_cpu)
@@ -1395,6 +1385,7 @@ LIBS="$LIBS $BOOST_REGEX_LIB"
 
 AC_CHECK_HEADERS([boost/math/special_functions.hpp], [],
     [AC_MSG_ERROR([Boost Math Toolkit not available])])
+AC_SEARCH_LIBS([ldexpq], [quadmath])
 
 AC_SUBST(ULIMIT_T,yes)
 AC_SUBST(ULIMIT_M,yes)
@@ -1722,7 +1713,7 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([
     #ifdef HAVE_NETDB_H
      #include <netdb.h>
     #endif
-    main() { 
+    int main(void) {
        struct addrinfo *addr; 
        return 0 != getaddrinfo("1.2.3.4", "80", 0, &addr) ? 99 : 0 ;
        }
