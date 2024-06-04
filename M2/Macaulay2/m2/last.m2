@@ -8,14 +8,13 @@ needs "nets.m2"
 needs "monoids.m2"
 needs "packages.m2"
 needs "robust.m2"
-needs "varieties.m2"
 
 recursionLimit = 300
 
 -- initialize the trivial monoid, see rawMonoid()
 degreesRing 0;
 
-setIOUnSynchronized()					    -- try to avoid deadlocks when running examples
+-- setIOUnSynchronized()					    -- try to avoid deadlocks when running examples
 
 addEndFunction(() -> scan(openFiles(), f -> if isOutputFile f then flush f))
 addEndFunction(() -> path = {})

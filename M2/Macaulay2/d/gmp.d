@@ -270,7 +270,7 @@ export moveToRRiandclear(z:RRimutable):RRi := (
     clear(z);
     w);
      
-set(x:ZZmutable, y:ZZ   ) ::= Ccode( void, "mpz_set   (", x, ",", y, ")" );
+export set(x:ZZmutable, y:ZZ   ) ::= Ccode( void, "mpz_set   (", x, ",", y, ")" );
 set(x:ZZmutable, n:int  ) ::= Ccode( void, "mpz_set_si(", x, ",", n, ")" );
 set(x:ZZmutable, n:uint ) ::= Ccode( void, "mpz_set_ui(", x, ",", n, ")" );
 set(x:ZZmutable, n:long ) ::= Ccode( void, "mpz_set_si(", x, ",", n, ")" );
@@ -473,6 +473,12 @@ fmod(y:ZZ, z:ulong) ::= Ccode( ulong, "mpz_fdiv_ui(", y, ",", z, ")" );
 export (x:ZZ) % (y:ulong) : ulong := fmod(x,y);
 
 export (x:ZZ) % (y:ushort) : ushort := ushort(x % ulong(y));
+
+export nextPrime(x:ZZ):ZZ := (
+     w := newZZmutable();
+     Ccode(void, "mpz_nextprime(", w, ", ", x, ")");
+     moveToZZandclear(w));
+
 gcd(x:ZZmutable, y:ZZ, z:ZZ) ::= Ccode( void, "mpz_gcd(", x, ",", y, ",", z, ")" );
 
 export gcd(x:ZZ,y:ZZ):ZZ := (
@@ -638,8 +644,10 @@ export denominatorRef(x:QQmutable) ::= Ccode( ZZmutable, "mpq_denref(",  x, ")")
 
 export hash(x:QQ):int := hash(numeratorRef(x))+1299841*hash(denominatorRef(x));
 
+isZero0    (x:QQ):bool :=  0 == Ccode(int, "mpq_sgn(",x,")");
 isNegative0(x:QQ):bool := -1 == Ccode(int, "mpq_sgn(",x,")");
 
+export isZero    (x:QQ):bool := isZero0(x);
 export isNegative(x:QQ):bool := isNegative0(x);
 
 export newQQCanonical(i:ZZ,j:ZZ):QQ := (
@@ -2460,6 +2468,11 @@ export coth(x:RRi):RRi := (
 export factorial(x:ulong):ZZ := (
      w := newZZmutable();
      Ccode( void, "mpz_fac_ui(", w, ",", x, ")" );
+     moveToZZandclear(w));
+
+export binomial(n:ZZ, k:ulong):ZZ := (
+     w := newZZmutable();
+     Ccode(void, "mpz_bin_ui(", w, ", ", n, ", ", k, ")");
      moveToZZandclear(w));
 
 export log1p(x:RR):RR := (

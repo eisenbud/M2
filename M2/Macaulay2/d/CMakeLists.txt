@@ -85,8 +85,11 @@ set(DLIST
   threads.dd
   python.d	# removed unless WITH_PYTHON
   interface.dd interface2.d
+  monoid.dd
+  monomial_ordering.dd
   texmacs.d
   boostmath.dd
+  atomic2.d
   ffi.d		# removed unless WITH_FFI
   interp.dd	# this one is last, because it contains the top level interpreter
   version.dd
@@ -144,7 +147,8 @@ add_library(M2-interpreter OBJECT ${CLIST} ${CXXLIST} ${TAGS}
   $<$<BOOL:${WITH_XML}>:xml-c.c xml-c.h>
   $<$<BOOL:${WITH_PYTHON}>:python-c.c>)
 
-target_link_libraries(M2-interpreter PRIVATE M2-supervisor Boost::regex TBB::tbb
+target_link_libraries(M2-interpreter PRIVATE M2-supervisor Boost::regex
+  $<$<BOOL:${WITH_TBB}>:TBB::tbb>
   $<$<BOOL:${WITH_FFI}>:FFI::ffi>)
 
 # TODO: c.f. https://github.com/Macaulay2/M2/issues/2682
@@ -169,6 +173,8 @@ target_include_directories(M2-interpreter
     $<INSTALL_INTERFACE:include/Macaulay2>
     $<$<BOOL:${WITH_PYTHON}>:$<BUILD_INTERFACE:${Python3_INCLUDE_DIRS}>>
   PRIVATE
+    # Note: this shouldn't be necessary since FFI::ffi is linked above
+    $<$<BOOL:${WITH_FFI}>:$<BUILD_INTERFACE:${FFI_INCLUDE_DIRS}>>
     ${SQLite3_INCLUDE_DIRS}
   )
 

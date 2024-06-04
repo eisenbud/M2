@@ -68,6 +68,7 @@ vector Matrix := f -> (
      new target f from {f}
     )
 vector List := v -> vector matrix apply(splice v, i -> {i});
+vector RingElement := vector Number := x -> vector {x}
 
 -----------------------------------------------------------------------------
 
@@ -78,10 +79,22 @@ entries Vector := v -> entries ambient v#0 / first
 norm Vector := v -> norm v#0
 expression Vector := v -> VectorExpression apply(flatten entries super v#0,expression)
 net Vector := v -> net expression v
-toExternalString Vector :=
+describe Vector := v -> Describe expression FunctionApplication(
+    vector, (describe module v, describe \ flatten entries matrix v))
+toExternalString Vector := toString @@ describe
 toString Vector := v -> toString expression v
 texMath Vector := v -> texMath expression v
 --html Vector := v -> html expression v
+
+-- helper for Matrix#AfterPrint and Vector#AfterPrint
+moduleAbbrv = (M, abbrv) -> (
+    if isFreeModule M then M
+    else if hasAttribute(M, ReverseDictionary)
+    then getAttribute(M, ReverseDictionary)
+    else abbrv)
+
+Vector#AfterPrint = Vector#AfterNoPrint = v -> moduleAbbrv(module v, Vector)
+
 ring Vector := v -> ring class v
 module Vector := v -> target v#0
 leadTerm Vector := v -> new class v from leadTerm v#0
@@ -115,8 +128,10 @@ lift(Vector,InexactNumber') :=
 lift(Vector,RingElement) :=
 lift(Vector,Number) := Vector => o -> (v,S) -> vector (lift(v#0,S))
 
++ Vector := Vector => identity
 - Vector := Vector => v -> new class v from {-v#0}
 Number * Vector := RingElement * Vector := Vector => (r,v) -> vector(r * v#0)
+Vector * Number := Vector * RingElement := Vector => (v,r) -> vector(v#0 * r)
 Vector + Vector := Vector => (v,w) -> vector(v#0+w#0)
 Vector - Vector := Vector => (v,w) -> vector(v#0-w#0)
 Vector ** Vector := Vector => (v,w) -> vector(v#0**w#0)
@@ -151,12 +166,14 @@ new Module from Sequence := (Module,x) -> (
      	       symbol numgens => rawRank rM
      	       })) x
 
--- TODO: deprecate these
-degreesMonoid Module := GeneralOrderedMonoid => M -> degreesMonoid ring M
-degreesRing Module := PolynomialRing => M -> degreesRing ring M
-degreeLength Module := M -> degreeLength ring M
+vector(Module, Matrix) := (M, f) -> vector map(M,,entries f)
+vector(Module, List)   := (M, v) -> vector map(M,,apply(splice v, i -> {i}))
+vector(Module, RingElement) := vector(Module, Number) := (M, x) -> vector(M, {x})
+
+Module#id = M -> map(M, M, 1)
 raw Module := M -> M.RawFreeModule
 ring Module := M -> M.ring
+module Module := identity
 
 lift(Module,InexactNumber) := opts -> (M,RR) -> lift(M,default RR,opts)
 lift(Module,InexactNumber') :=
@@ -229,7 +246,7 @@ describe Module := M -> Describe (
      else if M.?generators
      then (expression image) (describe M.generators)
      else new Superscript from {unhold expression ring M, if all(degrees M, deg -> all(deg, zero)) then expression numgens M
-	 else expression(-degrees M)}
+	 else expression runLengthEncode(-degrees M)}
      )
 toExternalString Module := M -> toString describe M
 
@@ -339,7 +356,7 @@ schreyerOrder Module := Matrix => (F) -> (
      tar := new Module from (ring F, rawTarget m);
      map(tar,src,m))
 
-schreyerOrder Matrix := Matrix => (m) -> map(target m, new Module from (ring m, rawSchreyerSource raw m), m)
+schreyerOrder Matrix := Matrix => (m) -> map(ring m, schreyerOrder raw m)
 schreyerOrder RawMatrix := RawMatrix => (m) -> rawMatrixRemake2(rawTarget m, rawSchreyerSource m, rawMultiDegree m, m, 0)
 
 possiblyLift := x -> if denominator x === 1 then numerator x else x -- x is in QQ
@@ -381,7 +398,7 @@ super(Module) := Module => (M) -> (
      else M
      )
 
-End = (M) -> Hom(M,M)
+-----------------------------------------------------------------------------
 
 Module#AfterPrint = M -> (
     ring M,"-module",
@@ -392,7 +409,7 @@ Module#AfterPrint = M -> (
     else if rank ambient M > 0 then
     (", free",
 	if not all(degrees M, d -> all(d, zero))
-	then (", degrees ",runLengthEncode if degreeLength M === 1 then flatten degrees M else degrees M)
+	then (", degrees ",runLengthEncode if degreeLength ring M === 1 then flatten degrees M else degrees M)
 	)
     )
 

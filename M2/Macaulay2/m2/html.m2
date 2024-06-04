@@ -54,7 +54,12 @@ defaultStylesheet := () -> LINK {
 defaultCharset := () -> META { "http-equiv" => "Content-Type", "content" => "text/html; charset=utf-8" }
 
 defaultHEAD = title -> HEAD splice { TITLE title, defaultCharset(), defaultStylesheet(), KaTeX(),
-    SCRIPT {"src" => getStyleFile "prism.js", ""}}
+    SCRIPT {"src" => getStyleFile "prism.js", ""},
+    SCRIPT {"var current_version = '", version#"VERSION", "';"},
+    SCRIPT {"src" => getStyleFile "version-select.js"},
+    LINK {
+	"rel" => "icon", "type" => "image/x-icon",
+	"href" => getStyleFile "icon.gif"}}
 
 -----------------------------------------------------------------------------
 -- Local utilities
@@ -90,7 +95,9 @@ html Hypertext := x -> (
     attr := "";
     cont := if T.?Options then (
 	(op, ct) := override(options T, toSequence x);
-	scanPairs(op, (key, val) -> if val =!= null then attr = " " | key | "=" | format val | attr);
+	scanPairs(op, (key, val) -> (
+		if val =!= null
+		then attr = " " | key | "=" | format toString val | attr));
 	sequence ct) else x;
     pushIndentLevel 1;
     (head, prefix, suffix, tail) := (
@@ -166,8 +173,6 @@ html TO2  := x -> (
 -- html'ing non Hypertext
 ----------------------------------------------------------------------------
 
-html Nothing := x -> "null"
-
 html Monoid :=
 html RingFamily :=
 html Ring :=
@@ -182,7 +187,7 @@ show Hypertext := x -> (
     fn := temporaryFileName() | ".html";
     addEndFunction( () -> if fileExists fn then removeFile fn );
     fn << html HTML { defaultHEAD "Macaulay2 Output", BODY {x}} << endl << close;
-    show new URL from replace(" ", "%20", rootURI | realpath fn)) -- TODO: urlEncode might need to replace more characters
+    show URL urlEncode(rootURI | realpath fn))
 show URL := url -> (
     cmd := { getViewer("WWWBROWSER", "firefox"), url#0 }; -- TODO: silence browser messages, perhaps with "> /dev/null"
     if fork() == 0 then (
@@ -200,7 +205,8 @@ percentEncoding =  new MutableHashTable from toList apply(
     -- unreserved characters from RFC 3986
     -- ALPHA / DIGIT / "-" / "." / "_" / "~"
     -- we also add "/" and ":" since they're standard URL characters
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890-._~/:",
+    -- also "#" for named anchors
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890-._~/:#",
     c -> (c, c))
     -- everything else will be percent encoded and added to the hash table
     -- as needed

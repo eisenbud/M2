@@ -6,9 +6,9 @@ needs "run.m2"
 -- Local utilities
 -----------------------------------------------------------------------------
 
-sourceFileStamp = (filename, linenum) -> concatenate(
+sourceFileStamp = (filename, linenum) -> toString commentize(
     pos := new FilePosition from (toAbsolutePath filename, linenum, 1);
-    concatenate("--", toString pos, ": location of test code"));
+    toString pos, ": location of test code")
 
 -----------------------------------------------------------------------------
 -- TestInput
@@ -25,7 +25,7 @@ locate TestInput := T -> new FilePosition from (T#"filename",
     T#"line number" - depth net code T, 1,
     T#"line number", 1,,)
 toString TestInput := toString @@ locate
-net TestInput := T -> "-*TestInput[" | toString T | "]*-"
+net TestInput := T -> "TestInput[" | toString T | "]"
 editMethod TestInput := editMethod @@ locate
 
 -----------------------------------------------------------------------------
@@ -43,15 +43,13 @@ TEST String := opts -> teststring -> (
         (minimizeFilename currentFileName, currentRowNumber(), teststring);
     currentPackage#"test number" = n + 1;)
 -- TODO: support test titles
-TEST(String, String) := (title, teststring) -> (
-    n := currentPackage#"test number"; () -> check(n - 1, currentPackage))
 
 -----------------------------------------------------------------------------
 -- check
 -----------------------------------------------------------------------------
 
 checkmsg := (verb, desc) ->
-    stderr << commentize pad(pad(verb, 10) | desc, 72) << flush;
+    stderr << commentize pad(pad(verb, 10) | desc, printWidth - 36) << flush;
 
 captureTestResult := (desc, teststring, pkg, usermode) -> (
     stdio << flush; -- just in case previous timing information hasn't been flushed yet
