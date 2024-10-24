@@ -5,7 +5,7 @@ needs "max.m2"
 needs "methods.m2"
 needs "nets.m2"
 
-Constant = new Type of BasicList
+Constant = new Type of Number
 globalAssignment Constant
 
 precedence = method(Dispatch => Thing)
@@ -587,60 +587,6 @@ toString'(Function, Table) := (fmt,m) -> concatenate(
      "}" )
 -----------------------------------------------------------------------------
 
--- TODO: move this to latex.m2
-keywordTexMath = new HashTable from { -- both unary and binary keywords
-    symbol |- => "\\vdash ",
-    symbol .. => "\\,{.}{.}\\,",
-    symbol ..< => "\\,{.}{.}{<}\\,",
-    symbol <= => "\\le ",
-    symbol >= => "\\ge ",
-    symbol => => "\\Rightarrow ",
-    symbol ==> => "\\Longrightarrow ",
-    symbol <== => "\\Longleftarrow ",
-    symbol <==> => "\\Longleftrightarrow ",
-    symbol _>  => "{}_>",
-    symbol _>= => "{}_>=",
-    symbol _<  => "{}_<",
-    symbol _<= => "{}_<",
-    symbol ^>  => "{}^>",
-    symbol ^>= => "{}^>=",
-    symbol ^<  => "{}^<",
-    symbol ^<= => "{}^<",
-    symbol ** => "\\otimes ",
-    symbol ++ => "\\oplus ",
-    symbol != => "\\ne ",
-    symbol -> => "\\rightarrow ",
-    symbol <- => "\\leftarrow ",
-    symbol ===> => "{\\large\\Longrightarrow}",
-    symbol <=== => "{\\large\\Longleftarrow}",
-    symbol << => "\\ll ",
-    symbol >> => "\\gg ",
-    symbol  ! => "!",
-    symbol ^! => "{}^!",
-    symbol _! => "{}_!",
-    symbol  ~ => "\\sim ",
-    symbol ^~ => "{}^\\sim",
-    symbol _~ => "{}_\\sim",
-    --symbol ^# => "{}^\\sharp",
-    --symbol _# => "{}_\\sharp",
-    symbol ^** => "{}^{\\otimes}", -- temporary solution to KaTeX issue https://github.com/KaTeX/KaTeX/issues/3576
-    symbol _ => "\\_",
-    symbol { => "\\{",
-    symbol } => "\\}",
-    symbol \ => "\\backslash ",
-    symbol \\ => "\\backslash\\backslash ",
-    symbol # => "\\#",
-    symbol #? => "\\#?",
-    symbol % => "\\%",
-    symbol & => "\\&",
-    symbol ^ => "\\wedge ",
-    symbol ^^ => "\\wedge\\wedge ",
-    symbol <| => "\\langle ",
-    symbol |> => "\\rangle ",
-    symbol _* => "{}_*", -- temporary solution to KaTeX issue https://github.com/KaTeX/KaTeX/issues/3576
-    symbol ^* => "{}^*" -- temporary solution to KaTeX issue https://github.com/KaTeX/KaTeX/issues/3576
-    }
-
 BinaryOperation = new HeaderType of Expression -- {op,left,right}
 BinaryOperation.synonym = "binary operation expression"
 expressionValue BinaryOperation := (m) -> (
@@ -1105,7 +1051,7 @@ texMathSuperscript := v -> (
     x := texMath v#0;
     y := texMath v#1;
     if precedence v#0 < p or class v#0 === Superscript or class v#0 === Power then x = "\\left(" | x | "\\right)"; -- precedence of double superscript
-    concatenate(x,"_{",y,"}",if class v#0===Symbol and last toString v#0=="'" then "{}") -- no braces around x
+    concatenate(x,"^{",y,"}") -- no braces around x
 )
 texMath Power := v -> if v#1 === 1 or v#1 === ONE then texMath v#0 else texMathSuperscript v
 texMath Superscript := v -> if v#1 === moduleZERO then "0" else texMathSuperscript v
@@ -1115,7 +1061,7 @@ texMath Subscript := v -> (
      x := texMath v#0;
      y := if class v#1 === Sequence then demark(",", apply(v#1,texMath)) else texMath v#1; -- no () for sequences
      if precedence v#0 <  p or class v#0 === Subscript then x = "\\left(" | x | "\\right)"; -- precedence or double subscript
-     concatenate(x,"_{",y,"}") -- no braces around x
+     concatenate(x,"_{",y,"}",if class v#0===Symbol and last toString v#0=="'" then "{}") -- no braces around x
      )
 
 -*

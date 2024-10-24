@@ -163,7 +163,7 @@ address Nothing := identity
 foreignObject = method(TypicalValue => ForeignObject)
 foreignObject ForeignObject := identity
 foreignObject ZZ := n -> int n
-foreignObject Number := foreignObject Constant := x -> double x
+foreignObject Number := x -> double x
 foreignObject String := x -> charstar x
 foreignObject VisibleList := x -> (
     types := unique(class \ foreignObject \ x);
@@ -261,8 +261,7 @@ if version#"pointer size" == 4 then (
     ulong = uint64)
 mpzT = foreignIntegerType("mpz_t", 0, true)
 
-ForeignIntegerType Number :=
-ForeignIntegerType Constant := (T, x) -> new T from truncate x
+ForeignIntegerType Number := (T, x) -> new T from truncate x
 
 isAtomic ForeignIntegerType := T -> if T === mpzT then false else true
 
@@ -287,8 +286,7 @@ float = foreignRealType("float", 32)
 double = foreignRealType("double", 64)
 mpfrT = foreignRealType("mpfr_t", 0)
 
-ForeignRealType Number :=
-ForeignRealType Constant := (T, x) -> new T from realPart numeric x
+ForeignRealType Number := (T, x) -> new T from realPart numeric x
 ForeignRealType RRi := (T, x) -> T toRR x
 
 isAtomic ForeignRealType := T -> if T === mpfrT then false else true
@@ -555,13 +553,10 @@ describe SharedLibrary := lib -> Describe FunctionApplication(
     openSharedLibrary, lib#1)
 toExternalString SharedLibrary := toExternalFormat @@ describe
 
--- on apple silicon machines, shared libraries are often in /opt/homebrew/lib,
--- but this is not in DYLD_LIBRARY_PATH, so we try there if the first call to
--- dlopen fails
+-- on some apple systems, dlopen doesn't check for libraries installed by
+-- homebrew, so we try there if the first call to dlopen fails
 importFrom_Core {"isAbsolutePath"}
-if (version#"operating system" == "Darwin" and
-    isMember(version#"architecture", {"aarch64", "arm", "arm64"}))
-then (
+if version#"operating system" == "Darwin" then (
     brewPrefix := replace("\\s+$", "", get "!brew --prefix");
     dlopen' = filename -> (
 	if isAbsolutePath filename then dlopen filename
@@ -886,7 +881,6 @@ doc ///
 doc ///
   Key
     (symbol SPACE, ForeignIntegerType, Number)
-    (symbol SPACE, ForeignIntegerType, Constant)
     (NewFromMethod, int8, ZZ)
     (NewFromMethod, int16, ZZ)
     (NewFromMethod, int32, ZZ)
@@ -971,16 +965,11 @@ doc ///
     Example
       mpfrT numeric(100, pi)
       value oo
-      mpfrAdd = foreignFunction("mpfr_add", void, {mpfrT, mpfrT, mpfrT, int})
-      x = mpfrT 0p100
-      mpfrAdd(x, numeric(100, pi), exp 1p100, 0)
-      x
 ///
 
 doc ///
   Key
     (symbol SPACE, ForeignRealType, Number)
-    (symbol SPACE, ForeignRealType, Constant)
     (symbol SPACE, ForeignRealType, RRi)
     (NewFromMethod, float, RR)
     (NewFromMethod, double, RR)
@@ -1603,7 +1592,6 @@ doc ///
 doc ///
   Key
     foreignObject
-    (foreignObject, Constant)
     (foreignObject, ForeignObject)
     (foreignObject, VisibleList)
     (foreignObject, Number)
@@ -1775,18 +1763,12 @@ doc ///
     Text
       Load a function contained in a shared library using the C function
       @TT "dlsym"@ and declare its signature.
-    Example
-      mpfr = openSharedLibrary "mpfr"
-      mpfrVersion = foreignFunction(mpfr, "mpfr_get_version", charstar, void)
-      mpfrVersion()
-    Text
       The library may be omitted if it is already loaded, e.g., for functions
       in the C standard library or libraries that Macaulay2 is already linked
-      against.  For example, since Macaulay2 uses @TT "mpfr"@ for its
-      arbitrary precision real numbers, the above example may be simplified.
+      against.
     Example
-      mpfrVersion = foreignFunction("mpfr_get_version", charstar, void)
-      mpfrVersion()
+      mycos = foreignFunction("cos", double, double)
+      mycos pi
     Text
       If a function takes multiple arguments, then provide these argument
       types using a list.
@@ -1847,15 +1829,10 @@ doc ///
     Text
       This function is a wrapper around the C function @TT "dlsym"@.  It
       loads a symbol from a shared library using the specified foreign type.
-    Example
-      mps = openSharedLibrary "mps"
-      cplxT = foreignStructType("cplx_t", {"r" => double, "i" => double})
-      foreignSymbol(mps, "cplx_i", cplxT)
-    Text
       If the shared library is already linked against Macaulay2, then it may
       be omitted.
     Example
-      foreignSymbol("cplx_i", cplxT)
+      foreignSymbol("errno", int)
 ///
 
 doc ///

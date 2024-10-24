@@ -378,9 +378,6 @@ document {
 	  (symbol /,Constant,Number),
 	  (symbol /,InexactNumber,Constant),
 	  (symbol /,Number,Constant),
-	  (symbol ==,Constant,Constant),
-	  (symbol ==,Constant,InexactNumber),
-	  (symbol ==,InexactNumber,Constant),
 	  (symbol ^,Constant,Constant),
 	  (symbol ^,Constant,InexactNumber),
 	  (symbol ^,Constant,Number),
@@ -393,7 +390,6 @@ document {
 	  (symbol *,Constant,RingElement),
 	  (symbol *,RingElement,Constant),
 	  (symbol /,Constant,RingElement),
-	  (symbol /,Holder,OneExpression),
 	  (symbol /,RingElement,Constant)
      	  },
      PARA {

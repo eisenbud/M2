@@ -119,6 +119,14 @@ use S
 R = S/(x-y)
 monoid R
 
+-- used to be in debugme.m2
+A = ZZ[a]
+B = A/a^6
+C = B[b]
+assert(B === ring a)
+assert(C === ring b)
+assert(C === ring(a*b))
+
 --- test Cox rings with torsion degree group
 needsPackage "NormalToricVarieties"
 B = {{2, -1}, {-1, 2}, {-1,-1}}
@@ -134,6 +142,10 @@ L = monomials(D = 3*X_0)
 assert(set first entries basis(degree D, S) === set L)
 -- FIXME should be homogeneous
 isHomogeneous sum({1,1,1,1}, L, times)
+
+-- test truncate
+needsPackage "Truncations"
+assert(set(truncate({0,3}, S))_* === set(monomials(X_0+2*X_1) | monomials(2*X_0+X_1) | monomials(3*X_0)))
 
 --- test passing a map of ZZ-modules for Degrees
 M = monoid[a,b,c, Degrees => A]
