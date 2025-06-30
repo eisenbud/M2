@@ -262,6 +262,14 @@ export toExternalString(z:CC):string := concatenate(array(string)(
 	  ")"
 	  ));
 
+export toExternalString(z:CCi):string := concatenate(array(string)(
+     	  "toCCi(",
+       toExternalString(z.re),
+       ",",
+       toExternalString(z.im),
+       ")"
+       ));
+
 
 export (o:file) << (s:charstarOrNull) : file := o << if s == null() then "(null)" else tostring(s);
 export (o:file) << (x:ZZ) : file := o << tostring(x);
