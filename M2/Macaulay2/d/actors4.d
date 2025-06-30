@@ -992,7 +992,7 @@ tostringfun(e:Expr):Expr := (
      is x:RRcell do toExpr(tostringRR(x.v))
      is x:RRicell do toExpr(tostringRRi(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
-	 is x:CCicell do toExpr(tostringCCi(x.v))
+	 is x:CCicell do toExpr(tostringRRi(x.v.re)+"+"+tostringRRi(x.v.im)+"*ii")
      is Error do toExpr("<<an error message>>")
      is Sequence do toExpr("<<a sequence>>")
      is HashTable do toExpr("<<a hash table>>")
@@ -1407,6 +1407,19 @@ toRRi(e:Expr):Expr := (
 	    else buildErrorPacket(EngineError("The first argument should be an integer")))
    	 else WrongArg(1,"a pair or triple  of integral, rational, or real numbers"));
 setupfun("toRRi",toRRi);
+
+toCCi(e:Expr):Expr := (
+    when e
+    	 is s:Sequence do (
+			if length(s) == 2 then (
+				when s.0 is x:RRicell do (
+					when s.1 is y:RRicell do toExpr(toCCi(x.v,y.v))
+					else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+				else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+			else WrongNumArgs(1,2))
+		else WrongArg(1,"a pair or triple  of integral, rational, or real numbers")
+);
+setupfun("toCCi",toCCi);
                                                      
 rightRR(e:Expr):Expr := (
      when e

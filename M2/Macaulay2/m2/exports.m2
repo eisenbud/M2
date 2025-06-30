@@ -1210,6 +1210,7 @@ export {
 	"to",
 	"toAbsolutePath",
 	"toCC",
+    "toCCi",
 	"toExternalString",
 	"toField",
 	"toList",

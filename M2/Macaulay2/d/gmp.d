@@ -1240,6 +1240,10 @@ export toCC(x:double,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
 
 export toCC(x:double,y:double,prec:ulong):CC := CC(toRR(x,prec),toRR(y,prec));
 
+export toCCi(a:RRi,b:RRi,prec:ulong):CCi := (CCi(toRRi(a,prec),toRRi(b,prec)));
+
+export toCCi(a:RRi,b:RRi):CCi := toCCi(a,b,min(precision(a),precision(b)));
+
 export toFloat(x:RR):float := Ccode(float, "mpfr_get_flt(", x, ", MPFR_RNDN)");
 export toFloat(x:RRi):float := toFloat(midpointRR(x));
 export toFloat(x:RRcell):float := toFloat(x.v);
