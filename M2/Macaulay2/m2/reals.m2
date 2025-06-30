@@ -36,6 +36,7 @@ raw InexactField := R -> R.RawRing
 RR.InexactField = RealField    = new Type of InexactField   ; RealField.synonym = "real field"
 RRi.InexactField = RealIntervalField    = new Type of InexactField   ; RealIntervalField.synonym = "real interval field"
 CC.InexactField = ComplexField = new Type of InexactField; ComplexField.synonym = "complex field"
+CCi.InexactField = ComplexIntervalField = new Type of InexactField; ComplexIntervalField.synonym = "complex interval field"
 
 Nothing' = Nothing					    -- maybe we'll want to rename it later...
 RingFamily_* := RR -> RR#(symbol _*)

@@ -948,6 +948,8 @@ export precision(x:RRi):ulong := precision0(x);
 
 export precision(x:CC):ulong := precision0(x.re);
 
+export precision(x:CCi):ulong := precision0(x.re);
+
 export toRR(x:RR,prec:ulong):RR := (
      if precision0(x) == prec then return x;
      z := newRRmutable(prec);

@@ -177,8 +177,8 @@ tostringRRipointer = tostringRRi;
 
 export tostringCCi(x:CCi):string := (
      if isZero(x.im) then tostringRRi(x.re) 
-     else if isZero(x.re) then tostringRRi(x.im)+"*ii"
-     else tostringRRi(x.re)+"+"+tostringRRi(x.im)+"*ii"
+     else if isZero(x.re) then concatenate(array(string)(tostringRRi(x.im),"*ii"))
+     else concatenate(array(string)(tostringRRi(x.re),"+",tostringRRi(x.im),"*ii"))
 );
 tostringCCipointer = tostringCCi;  
 
