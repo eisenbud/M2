@@ -1198,14 +1198,6 @@ export toCCi(x:RR,y:RRi):CCi := (
      else CCi(toRRi(x,precision0(y)),y)
      );
 
-export toCCi(x:RRi,y:RRi):CCi := (
-     if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
-     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
-     else if precision0(x) == precision0(y) then CCi(x,y)
-     else if precision0(x) < precision0(y) then CCi(x,toRRi(y,precision0(x)))
-     else CCi(toRRi(x,precision0(y)),y)
-     );
-
 export infinityCC(prec:ulong):CC := (x := infinityRR(prec,1); toCC(x,x));
 
 export nanCC(prec:ulong):CC := (x := nanRR(prec); toCC(x,x));
