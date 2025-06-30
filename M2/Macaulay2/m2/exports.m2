@@ -95,6 +95,8 @@ export {
 	"Boxes",
 	"CC",
 	"CC'",
+	"CCi",
+	"CCi'",
 	"CacheExampleOutput",
 	"CacheTable",
 	"CallLimit",

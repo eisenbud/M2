@@ -64,6 +64,13 @@ export CC := { re:RR, im:RR };
 export CCorNull := CC or null;
 
 export CCcell := {+v:CC};
+
+export CCi := { re:RRi, im:RRi };
+
+export CCiorNull := CCi or null;
+
+export CCicell := {+v:CCi};
+
 dummy(x:RR):string := "";
 dummyi(x:RRi):string := "";  -- Added for MPFI
 

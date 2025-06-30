@@ -360,6 +360,7 @@ export atomicIntCell := {+ v:atomicField, hash:hash_t };
 
 export Expr := (
      CCcell or
+     CCicell or
      RRcell or
      RRicell or
      Boolean or

@@ -13,6 +13,7 @@ globalAssignment ImmutableType
 RR.synonym = "real number"
 RRi.synonym = "real interval"
 CC.synonym = "complex number"
+CCi.synonym = "complex interval"
 RR.texMath = ///{\mathbb R}///
 RRi.texMath = ///{\square\mathbb R}///
 CC.texMath = ///{\mathbb C}///
@@ -45,6 +46,7 @@ InexactNumber' = new Type of Nothing'
 RR_* = RR' = new Type of InexactNumber'
 RRi_* = RRi' = new Type of InexactNumber'
 CC_* = CC' = new Type of InexactNumber'
+CCi_* = CCi' = new Type of InexactNumber'
 
 RR'.texMath = ///{\mathbb R}_*///
 RRi'.texMath = ///{\square\mathbb R}_*///

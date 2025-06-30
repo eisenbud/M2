@@ -25,6 +25,7 @@ export hash(e:Expr):hash_t := (
      is x:RRcell do hash(x.v)
      is x:RRicell do hash(x.v)
      is x:CCcell do hash(x.v)
+     is x:CCicell do hash(x.v.re + x.v.im)
      is x:Sequence do (
 	  -- the numbers here are the same as in binary lookup() in objects.d!!
 	  h := hash_t(27449);

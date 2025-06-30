@@ -992,6 +992,7 @@ tostringfun(e:Expr):Expr := (
      is x:RRcell do toExpr(tostringRR(x.v))
      is x:RRicell do toExpr(tostringRRi(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
+	 is x:CCicell do toExpr(tostringRRi(x.v.re)+"+"+tostringRRi(x.v.im)+"*ii")
      is Error do toExpr("<<an error message>>")
      is Sequence do toExpr("<<a sequence>>")
      is HashTable do toExpr("<<a hash table>>")
