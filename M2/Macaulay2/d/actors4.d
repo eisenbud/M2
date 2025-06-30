@@ -992,7 +992,7 @@ tostringfun(e:Expr):Expr := (
      is x:RRcell do toExpr(tostringRR(x.v))
      is x:RRicell do toExpr(tostringRRi(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
-	 is x:CCicell do toExpr(tostringRRi(x.v.re)+"+"+tostringRRi(x.v.im)+"*ii")
+	 is x:CCicell do toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
      is Error do toExpr("<<an error message>>")
      is Sequence do toExpr("<<a sequence>>")
      is HashTable do toExpr("<<a hash table>>")
@@ -1410,6 +1410,8 @@ setupfun("toRRi",toRRi);
 
 toCCi(e:Expr):Expr := (
     when e
+		 is x:ZZcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
+		 is x:CCicell do e
     	 is s:Sequence do (
 			if length(s) == 2 then (
 				when s.0 is x:RRicell do (
@@ -1567,6 +1569,7 @@ precision(e:Expr):Expr := (
      is x:RRcell do toExpr(precision(x.v))
      is x:RRicell do toExpr(precision(x.v))
      is x:CCcell do toExpr(precision(x.v))
+	 is x:CCicell do toExpr(precision(x.v))
      else WrongArgRR());
 setupfun("precision0",precision);
 

@@ -1315,9 +1315,15 @@ export isnan(x:RRi):bool := isnan0(x);
 
 export isfinite(x:CC):bool := isfinite0(x.re) && isfinite0(x.im);
 
+export isfinite(x:CCi):bool := isfinite0(x.re) && isfinite0(x.im);
+
 export isinf(x:CC):bool := isinf0(x.re) && !isnan0(x.im) || isinf0(x.im) && !isnan0(x.re);
 
+export isinf(x:CCi):bool := isinf0(x.re) && !isnan0(x.im) || isinf0(x.im) && !isnan0(x.re);
+
 export isnan(x:CC):bool := isnan0(x.re) || isnan0(x.im);
+
+export isnan(x:CCi):bool := isnan0(x.re) || isnan0(x.im);
 
 export (x:RR) === (y:RR):bool := (			    -- weak equality
      Ccode( void, "mpfr_clear_flags()" );
@@ -1406,6 +1412,8 @@ export (x:RR)  <= (y:int) : bool :=  compare0(x,long(y)) <= 0 && !flagged0();
 export (x:RRi)  <= (y:int) : bool :=  (compare0(x,long(y)) < 0 || rightRR(x) === y) && !flagged0();
 
 export (x:CC) === (y:int) : bool :=  x.re === y && x.im === 0;
+
+export (x:CCi) === (y:int) : bool :=  x.re === y && x.im === 0;
                                     
 compare0(x:RR, y:double) ::= Ccode( int, "(mpfr_clear_flags(),mpfr_cmp_d(",  x, ",", y, "))" );  
 
@@ -2183,11 +2191,18 @@ export (x:RRi) >> (n:int) : RRi := x << long(-n);
 
 export (x:CC) + (y:CC) : CC := toCC(x.re+y.re, x.im+y.im);
 
+export (x:CCi) + (y:CCi) : CCi := toCCi(x.re+y.re, x.im+y.im);
+
 export (x:CC) - (y:CC) : CC := toCC(x.re-y.re, x.im-y.im);
+
+export (x:CCi) - (y:CCi) : CCi := toCCi(x.re-y.re, x.im-y.im);
 
 export (x:RR) - (y:CC) : CC := toCC(x-y.re,-y.im);
 
 export (x:int) - (y:CC) : CC := toCC(x-y.re,-y.im);
+
+export (x:int) - (y:CCi) : CCi := toCCi(x-y.re,-y.im);
+
 export (x:CC) - (y:int) : CC := toCC(x.re-y,x.im);
 
 export (x:CC) - (y:RR) : CC := toCC(x.re-y,x.im);
@@ -2199,6 +2214,8 @@ export (x:RR) + (y:CC) : CC := toCC(x+y.re,y.im);
 export (x:int) + (y:CC) : CC := toCC(x+y.re,y.im);
 
 export -(y:CC) : CC := toCC(-y.re,-y.im);
+
+export -(y:CCi) : CCi := toCCi(-y.re,-y.im);
 
 export (x:CC) * (y:RR) : CC := (
      if isfinite0(x.re) && isfinite0(x.im) && isfinite0(y)
@@ -2246,6 +2263,8 @@ export conj(x:CC):CC := toCC(x.re,-x.im);
 
 export norm2(x:CC):RR := x.re*x.re + x.im*x.im;
 
+export norm2(x:CCi):RRi := x.re*x.re + x.im*x.im;
+
 export (x:CC) << (n:long) : CC := if n == long(0) then x else CC(x.re<<n,x.im<<n);
 
 export (x:CC) >> (n:long) : CC := if n == long(0) then x else CC(x.re>>n,x.im>>n);
@@ -2274,20 +2293,44 @@ export (x:ZZ) / (y:CC) : CC := x * inverse(y);
 export (x:int) / (y:CC) : CC := x * inverse(y);
 
 export strictequality(x:CC,y:CC):bool := strictequality(x.re,y.re) && strictequality(x.im,y.im);
+
+export strictequality(x:CCi,y:CCi):bool := strictequality(x.re,y.re) && strictequality(x.im,y.im);
      
 export (x:CC) === (y:CC) : bool := x.re === y.re && x.im === y.im;
 
+export (x:CCi) === (y:CCi) : bool := x.re === y.re && x.im === y.im;
+
+export (x:CCi) === (y:CC) : bool := x.re === y.re && x.im === y.im;
+
+export (x:CC) === (y:CCi) : bool := x.re === y.re && x.im === y.im;
+
 export (x:CC) === (y:RR) : bool := x.re === y && x.im === 0;
+
+export (x:CCi) === (y:RRi) : bool := x.re === y && x.im === 0;
+
+export (x:CCi) === (y:RR) : bool := x.re === y && x.im === 0;
 
 export (x:RR) === (y:CC) : bool := x === y.re && y.im === 0;
 
+export (x:RRi) === (y:CCi) : bool := x === y.re && y.im === 0;
+
+export (x:RR) === (y:CCi) : bool := x === y.re && y.im === 0;
+
 export (x:CC) === (y:ZZ) : bool := x.re === y && x.im === 0;
+
+export (x:CCi) === (y:ZZ) : bool := x.re === y && x.im === 0;
 
 export (x:ZZ) === (y:CC) : bool := x === y.re && y.im === 0;
 
+export (x:ZZ) === (y:CCi) : bool := x === y.re && y.im === 0;
+
 export (x:CC) === (y:QQ) : bool := x.re === y && x.im === 0;
 
+export (x:CCi) === (y:QQ) : bool := x.re === y && x.im === 0;
+
 export (x:QQ) === (y:CC) : bool := x === y.re && y.im === 0;
+
+export (x:QQ) === (y:CCi) : bool := x === y.re && y.im === 0;
 
 export compare(x:CC,y:CC):int := (
      if ( isinf(x.re) || isinf(y.re) || isinf(x.im) || isinf(y.im) ) then (
@@ -2356,6 +2399,11 @@ export abs(x:CC):RR := (
      z := newRRmutable(precision(x));
      Ccode( void, "mpfr_hypot(", z, ",", x.re, ",", x.im, ",MPFR_RNDN)" );
      moveToRRandclear(z));
+
+--export abs(x:CCi):RRi := (
+--     z := newRRimutable(precision(x));
+--     Ccode( void, "mpfi_hypot(", z, ",", x.re, ",", x.im, ",MPFR_RNDN)" );
+--     moveToRRiandclear(z));
 
 header "#include <complex.h> ";
 
@@ -2785,6 +2833,8 @@ export acos(z:CC):CC := idiv(log(z+itimes(sqrt(1-square(z)))));
 export asin(z:CC):CC := idiv(log(sqrt(1-square(z))+itimes(z)));
 
 export abs2(z:CC):RR := z.re^long(2) + z.im^long(2);
+
+export abs2(z:CCi):RRi := z.re^long(2) + z.im^long(2);
 
 export atan(x:CC):CC := (
      if isnan(x) then return x;
