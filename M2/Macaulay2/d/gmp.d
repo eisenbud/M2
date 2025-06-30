@@ -1200,41 +1200,91 @@ export toCCi(x:RR,y:RRi):CCi := (
 
 export infinityCC(prec:ulong):CC := (x := infinityRR(prec,1); toCC(x,x));
 
+export infinityCCi(prec:ulong):CCi := (x := infinityRRi(prec,1); toCCi(x,x));
+
 export nanCC(prec:ulong):CC := (x := nanRR(prec); toCC(x,x));
+
+export nanCCi(prec:ulong):CCi := (x := nanRRi(prec); toCCi(x,x));
 
 export toCC(x:RR):CC := CC(x,toRR(0,precision0(x)));
 
+export toCCi(x:RRi):CCi := CCi(x,toRRi(0,precision0(x)));
+
+export toCCi(x:RR):CCi := CCi(toRRi(x),toRRi(0,precision0(x)));
+
 export toCC(x:int,y:RR):CC := CC(toRR(x,precision0(y)),y);
 
+export toCCi(x:int,y:RRi):CCi := CCi(toRRi(x,precision0(y)),y);
+
+export toCCi(x:int,y:RR):CCi := CCi(toRRi(x,precision0(y)),toRRi(y));
+
 export toCC(x:RR,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
+
+export toCCi(x:RRi,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
+
+export toCCi(x:RR,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
 
 export toCC(x:CC,prec:ulong):CC := (
      if precision0(x.re) == prec then x
      else CC(toRR(x.re,prec),toRR(x.im,prec)));
 
+export toCCi(x:CCi,prec:ulong):CCi := (
+     if precision0(x.re) == prec then x
+     else CCi(toRRi(x.re,prec),toRRi(x.im,prec)));
+
+export toCCi(x:CC,prec:ulong):CCi := (
+     if precision0(x.re) == prec then CCi(toRRi(x.re,prec),toRRi(x.im,prec))
+     else CCi(toRRi(x.re,prec),toRRi(x.im,prec)));
+
 export toCC(x:RR,y:RR,prec:ulong):CC := CC(toRR(x,prec),toRR(y,prec));
 
 export toCC(x:QQ,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
 
+export toCCi(x:QQ,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
+
 export toCC(x:ZZ,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
+
+export toCCi(x:ZZ,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
 
 export toCC(x:QQ):CC := toCC(x,defaultPrecision);
 
+export toCCi(x:QQ):CCi := toCCi(x,defaultPrecision);
+
 export toCC(x:ZZ):CC := toCC(x,defaultPrecision);
+
+export toCCi(x:ZZ):CCi := toCCi(x,defaultPrecision);
+
+export toCCi(x:CC):CCi := toCCi(x,defaultPrecision);
 
 export toCC(x:int,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
 
+export toCCi(x:int,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
+
 export toCC(x:int,y:int,prec:ulong):CC := CC(toRR(x,prec),toRR(y,prec));
+
+export toCCi(x:int,y:int,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(y,prec));
 
 export toCC(x:ulong,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
 
+export toCCi(x:ulong,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
+
 export toCC(x:double,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
 
+export toCCi(x:double,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
+
 export toCC(x:double,y:double,prec:ulong):CC := CC(toRR(x,prec),toRR(y,prec));
+
+export toCCi(x:double,y:double,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(y,prec));
 
 export toCCi(a:RRi,b:RRi,prec:ulong):CCi := (CCi(toRRi(a,prec),toRRi(b,prec)));
 
 export toCCi(a:RRi,b:RRi):CCi := toCCi(a,b,min(precision(a),precision(b)));
+
+export toCCi(a:RR,b:RRi,prec:ulong):CCi := (CCi(toRRi(a,prec),toRRi(b,prec)));
+
+export toCCi(a:RRi,b:RR,prec:ulong):CCi := (CCi(toRRi(a,prec),toRRi(b,prec)));
+
+export toCCi(a:RR,b:RR,prec:ulong):CCi := (CCi(toRRi(a,prec),toRRi(b,prec)));
 
 export toFloat(x:RR):float := Ccode(float, "mpfr_get_flt(", x, ", MPFR_RNDN)");
 export toFloat(x:RRi):float := toFloat(midpointRR(x));
