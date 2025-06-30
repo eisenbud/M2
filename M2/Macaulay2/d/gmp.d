@@ -86,6 +86,11 @@ export tonetCCpointer := dummy;
 
 export tonetCCparenpointer := dummy;
 
+dummy(x:CCi):string := "";
+
+export tonetCCipointer := dummy;
+
+export tonetCCiparenpointer := dummy;
 
 export min(x:int,y:int):int := if x<y then x else y;
 
@@ -868,6 +873,10 @@ export realPart(z:CC):RR := z.re;
 
 export imaginaryPart(z:CC):RR := z.im;
 
+export realPart(z:CCi):RRi := z.re;
+
+export imaginaryPart(z:CCi):RRi := z.im;
+
 -- warning: these routines just check the sign bit, and don't verify finiteness!
 export sign(x:RR):int := Ccode(int, "mpfr_sgn(", x, ")");
 isPositive0(x:RR) ::=  1 == sign(x);
@@ -908,6 +917,7 @@ export isZero    (x:RR):bool := isZero0(x) && isfinite0(x);
 export isZero    (x:RRi):bool := isZero0(x) && isfinite0(x);
 
 export isZero    (x:CC):bool := isZero0(x.re) && isfinite0(x.re) && isZero0(x.im) && isfinite0(x.im);
+export isZero    (x:CCi):bool := isZero0(x.re) && isfinite0(x.re) && isZero0(x.im) && isfinite0(x.im);
 
 export defaultPrecision := ulong(53); -- should 53 be computed?
 
@@ -921,8 +931,10 @@ export exponent(x:RR):long := if isZero0(x) && isfinite0(x) then minExponent els
 export exponent(x:RRi):long := if isZero0(x) && isfinite0(x) then minExponent else if isfinite0(x) then exponent0(x) else maxExponent;
                                     
 export exponent(x:CC):long := max(exponent(x.re),exponent(x.im));
+export exponent(x:CCi):long := max(exponent(x.re),exponent(x.im));
 
 export newCCmutable(prec:ulong):CCmutable := CCmutable(newRRmutable(prec),newRRmutable(prec));
+export newCCimutable(prec:ulong):CCimutable := CCimutable(newRRimutable(prec),newRRimutable(prec));
 
 export moveToCC(y:CCmutable):CC := CC(moveToRR(y.re), moveToRR(y.im));
 
@@ -941,6 +953,10 @@ export moveToCCiandclear(z:CCimutable):CCi := (
 precision0(x:RR) ::= Ccode(ulong,"(unsigned long)mpfr_get_prec(", x, ")");
 
 precision0(x:RRi) ::= Ccode(ulong,"(unsigned  long)mpfi_get_prec(", x, ")");
+
+precision0(x:CC) ::= Ccode(ulong,"(unsigned long)mpfr_get_prec(", x, ")");
+
+precision0(x:CCi) ::= Ccode(ulong,"(unsigned  long)mpfi_get_prec(", x, ")");
 
 export precision(x:RR):ulong := precision0(x);
 
@@ -1157,6 +1173,30 @@ export toCC(x:RR,y:RR):CC := (
      else if precision0(x) < precision0(y) then CC(x,toRR(y,precision0(x)))
      else CC(toRR(x,precision0(y)),y)
     );
+
+export toCCi(x:RR,y:RR):CCi := (
+     if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
+     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
+     else if precision0(x) == precision0(y) then CCi(toRRi(x),toRRi(y))
+     else if precision0(x) < precision0(y) then CCi(toRRi(x),toRRi(y,precision0(x)))
+     else CCi(toRRi(x,precision0(y)),toRRi(y))
+     );
+
+export toCCi(x:RRi,y:RR):CCi := (
+     if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
+     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
+     else if precision0(x) == precision0(y) then CCi(x,toRRi(y))
+     else if precision0(x) < precision0(y) then CCi(x,toRRi(y,precision0(x)))
+     else CCi(toRRi(x,precision0(y)),toRRi(y))
+     );
+
+export toCCi(x:RR,y:RRi):CCi := (
+     if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
+     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
+     else if precision0(x) == precision0(y) then CCi(toRRi(x),y)
+     else if precision0(x) < precision0(y) then CCi(toRRi(x),toRRi(y,precision0(x)))
+     else CCi(toRRi(x,precision0(y)),y)
+     );
 
 export infinityCC(prec:ulong):CC := (x := infinityRR(prec,1); toCC(x,x));
 
