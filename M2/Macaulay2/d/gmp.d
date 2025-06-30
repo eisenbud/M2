@@ -2400,10 +2400,10 @@ export abs(x:CC):RR := (
      Ccode( void, "mpfr_hypot(", z, ",", x.re, ",", x.im, ",MPFR_RNDN)" );
      moveToRRandclear(z));
 
-export abs(x:CCi):RRi := (
-     z := newRRimutable(precision(x));
-     Ccode( void, "mpfr_hypot(", z, ",", x.re, ",", x.im, ",MPFR_RNDN)" );
-     moveToRRiandclear(z));
+--export abs(x:CCi):RRi := (
+--     z := newRRimutable(precision(x));
+--     Ccode( void, "mpfi_hypot(", z, ",", x.re, ",", x.im, ",MPFR_RNDN)" );
+--     moveToRRiandclear(z));
 
 header "#include <complex.h> ";
 
