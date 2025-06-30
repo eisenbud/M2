@@ -65,6 +65,8 @@ export CCorNull := CC or null;
 
 export CCcell := {+v:CC};
 
+export CCimutable := { re:RRimutable, im:RRimutable };
+
 export CCi := { re:RRi, im:RRi };
 
 export CCiorNull := CCi or null;
@@ -208,6 +210,8 @@ clear(x:RRmutable) ::= Ccode( void, "mpfr_clear(",  x, ")" );
 clear(x:RRimutable) ::= Ccode( void, "mpfi_clear(",  x, ")" );
 
 clear(z:CCmutable):void := ( clear(z.re); clear(z.im); );
+
+clear(z:CCimutable):void := (clear(z.re);clear(z.im););
 
 export moveToZZ(z:ZZmutable):ZZ := (
      y := GCmalloc(ZZmutable);
@@ -922,6 +926,13 @@ export moveToCC(y:CCmutable):CC := CC(moveToRR(y.re), moveToRR(y.im));
 
 export moveToCCandclear(z:CCmutable):CC := (
      w := moveToCC(z);
+     clear(z);
+     w);
+
+export moveToCCi(y:CCimutable):CCi := CCi(moveToRRi(y.re),moveToRRi(y.im));
+
+export moveToCCiandclear(z:CCimutable):CCi := (
+     w := moveToCCi(z);
      clear(z);
      w);
 
