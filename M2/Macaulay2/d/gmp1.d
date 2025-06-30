@@ -175,6 +175,12 @@ export tostringRRi(x:RRi):string := concatenate(
        	));  
 tostringRRipointer = tostringRRi;  
 
+export tostringCCi(x:CCi):string := (
+     if isZero(x.im) then tostringRRi(x.re) 
+     else if isZero(x.re) then tostringRRi(x.im)+"*ii"
+     else tostringRRi(x.re)+"+"+tostringRRi(x.im)+"*ii"
+);
+tostringCCipointer = tostringCCi;  
 
 export toExternalString(x:RR):string := (
      ng := signbit(x);
