@@ -1200,11 +1200,11 @@ export toCCi(x:RR,y:RRi):CCi := (
 
 export infinityCC(prec:ulong):CC := (x := infinityRR(prec,1); toCC(x,x));
 
-export infinityCCi(prec:ulong):CCi := (x := infinityRRi(prec,1); toCCi(x,x));
+--export infinityCCi(prec:ulong):CCi := (x := infinityRRi(prec,1); toCCi(x,x));
 
 export nanCC(prec:ulong):CC := (x := nanRR(prec); toCC(x,x));
 
-export nanCCi(prec:ulong):CCi := (x := nanRRi(prec); toCCi(x,x));
+--export nanCCi(prec:ulong):CCi := (x := nanRRi(prec); toCCi(x,x));
 
 export toCC(x:RR):CC := CC(x,toRR(0,precision0(x)));
 
