@@ -1,5 +1,4 @@
 -- -*- M2-comint -*- hash: 13520444142344506266
--- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : toPython {1, 2/3, "foo", (1, 2, 3), hashTable {"foo" => "bar"}}
 
@@ -15,9 +14,7 @@ o2 : List
 
 i3 : math = import "math"
 
-o3 = <module 'math' from '/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/
-     Python.framework/Versions/3.13/lib/python3.13/lib-dynload/math.cpython-
-     313-darwin.so'>
+o3 = <module 'math' (built-in)>
 
 o3 : PythonObject of class module
 

@@ -1,5 +1,4 @@
 -- -*- M2-comint -*- hash: 2393720217502712319
--- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : R=CC[u1,u2,u3,x,y];
 

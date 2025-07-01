@@ -1,5 +1,4 @@
 -- -*- M2-comint -*- hash: 5125700499117494129
--- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : CC[x,y]; F = {x^2-1,y^2-1};
 

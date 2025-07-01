@@ -1,5 +1,4 @@
 -- -*- M2-comint -*- hash: 713363350566806638
--- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : R=QQ[x1,x2,y]
 
@@ -10,8 +9,6 @@ o1 : PolynomialRing
 i2 : theDir = temporaryFileName();
 
 i3 : makeDirectory theDir
-
-o3 = /var/folders/f4/54tv_3013gbcdz5jqk69txhm0000gn/T/M2-83605-0/1
 
 i4 : makeB'InputFile(theDir,
              BertiniInputConfiguration=>{MPType=>2},
