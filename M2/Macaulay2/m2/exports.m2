@@ -345,6 +345,7 @@ export {
 	"RR",
 	"RR'",
 	"RRb",
+	"RRb'",
     "RRi",
     "RRi'",
 	"RaiseError",
