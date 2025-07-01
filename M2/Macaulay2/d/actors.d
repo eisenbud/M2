@@ -517,6 +517,28 @@ export (lhs:Expr) / (rhs:Expr) : Expr := (
 	       toExpr(toCCi((y.v.re*x.v.re+y.v.im*x.v.im)/(y.v.re^long(2)+y.v.im^long(2)),(y.v.re*x.v.im-y.v.im*x.v.re)/(y.v.re^long(2)+y.v.im^long(2)))))
 	  is Error do rhs
 	  else binarymethod(lhs,rhs,DivideS))
+	 is x:CCicell do (
+		when rhs
+		is y:ZZcell do (					    -- # typical value: symbol /, CCi, ZZ, CCi
+			if y.v === 0
+			then DivisionByZero()
+			else toExpr(toCCi(x.v.re / toRR(y.v,precision(x.v.re)),x.v.im / toRR(y.v,precision(x.v.re))))
+			)
+		is y:QQcell do (					    -- # typical value: symbol /, CCi, QQ, CCi
+			if y.v === 0
+			then DivisionByZero()
+			else toExpr(toCCi(x.v.re / toRR(y.v,precision(x.v.re)),x.v.im / toRR(y.v,precision(x.v.re))))
+			)
+		is y:RRcell do (					    -- # typical value: symbol /, CCi, RR, CCi
+	       toExpr(toCCi(x.v.re / y.v,x.v.im/y.v)))
+		is y:RRicell do (					    -- # typical value: symbol /, CCi, RRi, CCi
+	       toExpr(toCCi(x.v.re / y.v,x.v.im/y.v)))
+		is y:CCcell do (					    -- # typical value: symbol /, CCi, CC, CCi
+	       toExpr(x.v/y.v))
+		is y:CCicell do (					    -- # typical value: symbol /, CCi, CCi, CCi
+	       toExpr(toCCi((y.v.re*x.v.re+y.v.im*x.v.im)/(y.v.re^long(2)),(y.v.re*x.v.im-y.v.im*x.v.re)/(y.v.re^long(2)+y.v.im^long(2)))))
+		is Error do rhs
+		else binarymethod(lhs,rhs,DivideS))
      is x:RawMonomialCell do (
 	  when rhs
 	  is y:RawMonomialCell do (				    -- # typical value: symbol /, RawMonomial, RawMonomial, RawMonomial
