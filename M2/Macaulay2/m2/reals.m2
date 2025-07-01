@@ -17,6 +17,7 @@ CCi.synonym = "complex interval"
 RR.texMath = ///{\mathbb R}///
 RRi.texMath = ///{\square\mathbb R}///
 CC.texMath = ///{\mathbb C}///
+CCi.texMath = ///{\square\mathbb C}///
 Number.synonym = "number"
 InexactFieldFamily.synonym = "inexact field family"
 InexactNumber.synonym = "inexact number"
@@ -52,11 +53,14 @@ CCi_* = CCi' = new Type of InexactNumber'
 RR'.texMath = ///{\mathbb R}_*///
 RRi'.texMath = ///{\square\mathbb R}_*///
 CC'.texMath = ///{\mathbb C}_*///
+CCi'.texMath = ///{\square\mathbb C}_*///
 
 setAttribute(CC',PrintNet,"CC" | "*"^-1)
+setAttribute(CCi',PrintNet,"CCi" | "*"^-1)
 setAttribute(RR',PrintNet,"RR" | "*"^-1)
 setAttribute(RRi',PrintNet,"RRi" | "*"^-1)
 setAttribute(CC',PrintNames,"CC_*")
+setAttribute(CCi',PrintNames,"CCi_*")
 setAttribute(RR',PrintNames,"RR_*")
 setAttribute(RRi',PrintNames,"RRi_*")
 setAttribute(InexactNumber',PrintNet,"InexactNumber" | "*"^-1)
@@ -65,6 +69,7 @@ protect back
 RR'.back = RR
 RRi'.back = RRi
 CC'.back = CC
+CCi'.back = CCi
 new RealField of Nothing' from ZZ := memoize (
      (RealField,Nothing',prec) -> newClass(RealField,Nothing',
 	  hashTable { 
@@ -99,11 +104,13 @@ default InexactFieldFamily := R -> R_defaultPrecision
 diameter' = diameter
 diameter = method()
 diameter RRi := diameter'
+diameter CCi := diameter'
 
 -- lift and promote between real or complex rings
 promote(RawRingElement,RR') := (x,R) -> new RR from x
 promote(RawRingElement,RRi') := (x,R) -> new RRi from x
 promote(RawRingElement,CC') := (x,R) -> new CC from x
+promote(RawRingElement,CCi') := (x,R) -> new CCi from x
 promote(RawRingElement,Number) := (x,R) -> new R from x
 promote(RawRingElement,RingElement) := (x,R) -> new R from x
 promote(Number,InexactNumber) := (x,RR) -> promote(x,default RR)
