@@ -44,7 +44,7 @@ export RRbcell := {+v:RRb, prec:ulong};
 export toRRbcell(x:RRb):RRbcell := (
     y := RRbcell(x, ulong(100));
     Ccode(void, "GC_REGISTER_FINALIZER(", y,
-	", (GC_finalization_proc)arb_clear, 0, 0, 0)");
+	", (GC_finalization_proc)arb_clear, ", y.v, ", 0, 0)");
     y);
 
 -- clear after using
