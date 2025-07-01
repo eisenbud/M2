@@ -1412,6 +1412,7 @@ setupfun("toRRi",toRRi);
 toRRb(e:Expr):Expr := (
     when e
     is x:RRcell do toExpr(toRRb(x.v))
+    is x:RRicell do toExpr(toRRb(x.v))
     else WrongArg("TODO"));
 setupfun("toRRb", toRRb);
 

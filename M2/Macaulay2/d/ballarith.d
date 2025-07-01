@@ -53,7 +53,7 @@ toRRb(x:RR, y:RR, prec:ulong):RRb := (
     Ccode(void, "arb_set_interval_mpfr(", z, ", ", x, ", ", y, ", ", prec, ")");
     z);
 export toRRb(x:RR):RRb := toRRb(x, x, precision(x));
-toRRb(x:RRi):RRb := toRRb(leftRR(x), rightRR(x), precision(x));
+export toRRb(x:RRi):RRb := toRRb(leftRR(x), rightRR(x), precision(x));
 
 toRR(x:RRb, prec:ulong):RR := (
     y := newRRmutable(prec);
