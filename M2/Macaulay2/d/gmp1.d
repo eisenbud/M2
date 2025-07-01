@@ -176,9 +176,8 @@ export tostringRRi(x:RRi):string := concatenate(
        	));  
 tostringRRipointer = tostringRRi;  
 
--- TODO: printingPrecision doesn't seem to work as expected
 export tostringRRb(x:RRb):string := tostring(Ccode(charstar,
-    "arb_get_str(", x, ", ", printingPrecision, ", 0)"));
+    "arb_get_str(", x, ", mpfr_get_str_ndigits(10, arb_bits(", x, ")), 0)"));
 
 export tostringCCi(x:CCi):string := (
      if isZero(x.im) then tostringRRi(x.re) 
