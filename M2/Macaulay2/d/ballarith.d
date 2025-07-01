@@ -26,63 +26,63 @@ header "
 	#endif
 	";
 
--- TODO: RRball and CCball at top level?
+-- TODO: RRb and CCb at top level?
 
 ------------
--- RRball --
+-- RRb --
 ------------
 
-RRball := Pointer "arb_ptr";
-init(x:RRball) ::= (
+RRbmutable := Pointer "arb_ptr";
+init(x:RRbmutable) ::= (
     Ccode(void, "arb_init(", x, ")");
     x);
-newRRball():RRball := init(GCmalloc(RRball));
-clear(x:RRball) ::= Ccode(void, "arb_clear(", x, ")");
+newRRbmutable():RRbmutable := init(GCmalloc(RRbmutable));
+clear(x:RRbmutable) ::= Ccode(void, "arb_clear(", x, ")");
 
 -- clear after using
-toRRball(x:RR, y:RR, prec:ulong):RRball := (
-    z := newRRball();
+toRRbmutable(x:RR, y:RR, prec:ulong):RRbmutable := (
+    z := newRRbmutable();
     Ccode(void, "arb_set_interval_mpfr(", z, ", ", x, ", ", y, ", ", prec, ")");
     z);
-toRRball(x:RR):RRball := toRRball(x, x, precision(x));
-toRRball(x:RRi):RRball := toRRball(leftRR(x), rightRR(x), precision(x));
+toRRbmutable(x:RR):RRbmutable := toRRbmutable(x, x, precision(x));
+toRRbmutable(x:RRi):RRbmutable := toRRbmutable(leftRR(x), rightRR(x), precision(x));
 
-toRR(x:RRball, prec:ulong):RR := (
+toRR(x:RRbmutable, prec:ulong):RR := (
     y := newRRmutable(prec);
     Ccode(int, "arf_get_mpfr(", y, ", arb_midref(", x, "), MPFR_RNDN)");
     moveToRRandclear(y));
 
-toRRi(x:RRball, prec:ulong):RRi := (
+toRRi(x:RRbmutable, prec:ulong):RRi := (
     y := newRRimutable(prec);
     Ccode(void, "arb_get_interval_mpfr((mpfr_ptr)&", y,
 	"->left, (mpfr_ptr)&", y, "->right, ", x, ")");
     moveToRRiandclear(y));
 
-moveToRRiandclear(x:RRball, prec:ulong):RRi := (
+moveToRRiandclear(x:RRbmutable, prec:ulong):RRi := (
     r := toRRi(x, prec);
     clear(x);
     r);
 
 -- special functions
 export eint(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_ei(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export Gamma(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_gamma(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export Gamma(z:RRi,w:RRi):RRi := (
     prec := min(precision(z), precision(w));
-    x := toRRball(z);
-    y := toRRball(w);
-    r := newRRball();
+    x := toRRbmutable(z);
+    y := toRRbmutable(w);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_gamma_upper(", r, ", ", x, ", ", y, ", 0, ",
 	prec, ")");
     clear(x);
@@ -91,9 +91,9 @@ export Gamma(z:RRi,w:RRi):RRi := (
 
 export regularizedGamma(z:RRi,w:RRi):RRi := (
     prec := min(precision(z), precision(w));
-    x := toRRball(z);
-    y := toRRball(w);
-    r := newRRball();
+    x := toRRbmutable(z);
+    y := toRRbmutable(w);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_gamma_upper(", r, ", ", x, ", ", y, ", 1, ",
 	prec, ")");
     clear(x);
@@ -101,52 +101,52 @@ export regularizedGamma(z:RRi,w:RRi):RRi := (
     moveToRRiandclear(r, prec));
 
 export Digamma(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_digamma(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export lgamma(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_lgamma(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export zeta(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_zeta(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export erf(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_erf(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export erfc(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_erfc(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export inverseErf(x:RRi):RRi := (
-    y := toRRball(x);
-    r := newRRball();
+    y := toRRbmutable(x);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_erfinv(", r, ", ", y, ", ", precision(x), ")");
     clear(y);
     moveToRRiandclear(r, precision(x)));
 
 export BesselJ(z:RRi,w:RRi):RRi := (
     prec := min(precision(z), precision(w));
-    x := toRRball(z);
-    y := toRRball(w);
-    r := newRRball();
+    x := toRRbmutable(z);
+    y := toRRbmutable(w);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_bessel_j(", r, ", ", x, ", ", y, ", ", prec, ")");
     clear(x);
     clear(y);
@@ -154,9 +154,9 @@ export BesselJ(z:RRi,w:RRi):RRi := (
 
 export BesselY(z:RRi,w:RRi):RRi := (
     prec := min(precision(z), precision(w));
-    x := toRRball(z);
-    y := toRRball(w);
-    r := newRRball();
+    x := toRRbmutable(z);
+    y := toRRbmutable(w);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_bessel_y(", r, ", ", x, ", ", y, ", ", prec, ")");
     clear(x);
     clear(y);
@@ -164,10 +164,10 @@ export BesselY(z:RRi,w:RRi):RRi := (
 
 export Beta(z:RRi,w:RRi):RRi := (
     prec := min(precision(z), precision(w));
-    x := toRRball(z);
-    y := toRRball(w);
-    v := toRRball(toRRi(1, prec));
-    r := newRRball();
+    x := toRRbmutable(z);
+    y := toRRbmutable(w);
+    v := toRRbmutable(toRRi(1, prec));
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_beta_lower(", r, ", ", x, ", ", y, ", ", v,
 	 ", 0, ", prec, ")");
     clear(x);
@@ -176,10 +176,10 @@ export Beta(z:RRi,w:RRi):RRi := (
 
 export regularizedBeta(u:RRi,v:RRi,w:RRi):RRi := (
     prec := min(min(precision(u), precision(v)), precision(w));
-    x := toRRball(u);
-    y := toRRball(v);
-    z := toRRball(w);
-    r := newRRball();
+    x := toRRbmutable(u);
+    y := toRRbmutable(v);
+    z := toRRbmutable(w);
+    r := newRRbmutable();
     Ccode(void, "arb_hypgeom_beta_lower(", r, ", ", y, ", ", z, ", ", x,
 	 ", 1, ", prec, ")");
     clear(x);
@@ -191,52 +191,52 @@ export regularizedBeta(u:RRi,v:RRi,w:RRi):RRi := (
 -- CCBall --
 ------------
 
-CCball := Pointer "acb_ptr";
-init(z:CCball) ::= (
+CCbmutable := Pointer "acb_ptr";
+init(z:CCbmutable) ::= (
     Ccode(void, "acb_init(", z, ")");
     z);
-newCCball():CCball := init(GCmalloc(CCball));
-clear(z:CCball) ::= Ccode(void, "acb_clear(", z, ")");
+newCCbmutable():CCbmutable := init(GCmalloc(CCbmutable));
+clear(z:CCbmutable) ::= Ccode(void, "acb_clear(", z, ")");
 
 -- clear after using
-toCCball(z:CC):CCball := (
-    x := toRRball(realPart(z));
-    y := toRRball(imaginaryPart(z));
-    w := newCCball();
+toCCbmutable(z:CC):CCbmutable := (
+    x := toRRbmutable(realPart(z));
+    y := toRRbmutable(imaginaryPart(z));
+    w := newCCbmutable();
     Ccode(void, "acb_set_arb_arb(", w, ", ", x, ", ", y, ")");
     clear(x);
     clear(y);
     w);
 
-toCC(z:CCball, prec:ulong):CC := (
-    x := Ccode(RRball, "acb_realref(", z, ")");
-    y := Ccode(RRball, "acb_imagref(", z, ")");
+toCC(z:CCbmutable, prec:ulong):CC := (
+    x := Ccode(RRbmutable, "acb_realref(", z, ")");
+    y := Ccode(RRbmutable, "acb_imagref(", z, ")");
     toCC(toRR(x, prec), toRR(y, prec)));
 
-moveToCCandclear(z:CCball, prec:ulong):CC := (
+moveToCCandclear(z:CCbmutable, prec:ulong):CC := (
     r := toCC(z, prec);
     clear(z);
     r);
 
 export eint(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_ei(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export Gamma(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_gamma(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export Gamma(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
-    x := toCCball(z);
-    y := toCCball(w);
-    r := newCCball();
+    x := toCCbmutable(z);
+    y := toCCbmutable(w);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_gamma_upper(", r, ", ", x, ", ", y, ", 0, ",
 	prec, ")");
     clear(x);
@@ -245,9 +245,9 @@ export Gamma(z:CC,w:CC):CC := (
 
 export regularizedGamma(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
-    x := toCCball(z);
-    y := toCCball(w);
-    r := newCCball();
+    x := toCCbmutable(z);
+    y := toCCbmutable(w);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_gamma_upper(", r, ", ", x, ", ", y, ", 1, ",
 	prec, ")");
     clear(x);
@@ -255,45 +255,45 @@ export regularizedGamma(z:CC,w:CC):CC := (
     moveToCCandclear(r, prec));
 
 export Digamma(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_digamma(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export lgamma(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_lgamma(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export zeta(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_zeta(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export erf(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_erf(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export erfc(z:CC):CC := (
-    w := toCCball(z);
-    r := newCCball();
+    w := toCCbmutable(z);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_erfc(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
 
 export BesselJ(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
-    x := toCCball(z);
-    y := toCCball(w);
-    r := newCCball();
+    x := toCCbmutable(z);
+    y := toCCbmutable(w);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_bessel_j(", r, ", ", x, ", ", y, ", ", prec, ")");
     clear(x);
     clear(y);
@@ -301,9 +301,9 @@ export BesselJ(z:CC,w:CC):CC := (
 
 export BesselY(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
-    x := toCCball(z);
-    y := toCCball(w);
-    r := newCCball();
+    x := toCCbmutable(z);
+    y := toCCbmutable(w);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_bessel_y(", r, ", ", x, ", ", y, ", ", prec, ")");
     clear(x);
     clear(y);
@@ -311,10 +311,10 @@ export BesselY(z:CC,w:CC):CC := (
 
 export Beta(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
-    x := toCCball(z);
-    y := toCCball(w);
-    v := toCCball(toCC(1, prec));
-    r := newCCball();
+    x := toCCbmutable(z);
+    y := toCCbmutable(w);
+    v := toCCbmutable(toCC(1, prec));
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_beta_lower(", r, ", ", x, ", ", y, ", ", v,
 	 ", 0, ", prec, ")");
     clear(x);
@@ -323,10 +323,10 @@ export Beta(z:CC,w:CC):CC := (
 
 export regularizedBeta(u:CC,v:CC,w:CC):CC := (
     prec := min(min(precision(u), precision(v)), precision(w));
-    x := toCCball(u);
-    y := toCCball(v);
-    z := toCCball(w);
-    r := newCCball();
+    x := toCCbmutable(u);
+    y := toCCbmutable(v);
+    z := toCCbmutable(w);
+    r := newCCbmutable();
     Ccode(void, "acb_hypgeom_beta_lower(", r, ", ", y, ", ", z, ", ", x,
 	 ", 1, ", prec, ")");
     clear(x);

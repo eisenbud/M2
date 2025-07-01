@@ -1411,6 +1411,8 @@ setupfun("toRRi",toRRi);
 toCCi(e:Expr):Expr := (
     when e
 		 is x:ZZcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
+		 is x:QQcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
+		 is x:RRcell do toExpr(toCCi(toRRi(x.v),toRRi(0, precision(x.v))))
 		 is x:CCicell do e
     	 is s:Sequence do (
             if length(s) > 3 then WrongNumArgs(1,3) else
