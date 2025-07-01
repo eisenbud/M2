@@ -991,6 +991,7 @@ tostringfun(e:Expr):Expr := (
      is NetFile do toExpr("<<a netfile>>")
      is x:RRcell do toExpr(tostringRR(x.v))
      is x:RRicell do toExpr(tostringRRi(x.v))
+     is x:RRbcell do toExpr("<<a real ball>>")
      is z:CCcell do toExpr(tostringCC(z.v))
 	 is x:CCicell do toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
      is Error do toExpr("<<an error message>>")
@@ -1408,12 +1409,19 @@ toRRi(e:Expr):Expr := (
    	 else WrongArg(1,"a pair or triple  of integral, rational, or real numbers"));
 setupfun("toRRi",toRRi);
 
+toRRb(e:Expr):Expr := (
+    when e
+    is x:RRcell do toExpr(toRRb(x.v))
+    else WrongArg("TODO"));
+setupfun("toRRb", toRRb);
+
 toCCi(e:Expr):Expr := (
     when e
 		 is x:ZZcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
 		 is x:QQcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
 		 is x:RRcell do toExpr(toCCi(toRRi(x.v),toRRi(0, precision(x.v))))
 		 is x:RRicell do toExpr(toCCi(x.v,toRRi(0, precision(x.v))))
+         is x:CCcell do toExpr(toCCi(toRRi(realPart(x.v)),toRRi(imaginaryPart(x.v))))
 		 is x:CCicell do e
     	 is s:Sequence do (
             if length(s) > 3 then WrongNumArgs(1,3) else

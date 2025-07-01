@@ -32,19 +32,27 @@ header "
 -- RRb --
 ------------
 
-RRb := Pointer "arb_ptr";
+export RRb := Pointer "arb_ptr";
 init(x:RRb) ::= (
     Ccode(void, "arb_init(", x, ")");
     x);
 newRRb():RRb := init(GCmalloc(RRb));
 clear(x:RRb) ::= Ccode(void, "arb_clear(", x, ")");
 
+export RRbcell := {+v:RRb, prec:ulong};
+
+export toRRbcell(x:RRb):RRbcell := (
+    y := RRbcell(x, ulong(100));
+    Ccode(void, "GC_REGISTER_FINALIZER(", y,
+	", (GC_finalization_proc)arb_clear, 0, 0, 0)");
+    y);
+
 -- clear after using
 toRRb(x:RR, y:RR, prec:ulong):RRb := (
     z := newRRb();
     Ccode(void, "arb_set_interval_mpfr(", z, ", ", x, ", ", y, ", ", prec, ")");
     z);
-toRRb(x:RR):RRb := toRRb(x, x, precision(x));
+export toRRb(x:RR):RRb := toRRb(x, x, precision(x));
 toRRb(x:RRi):RRb := toRRb(leftRR(x), rightRR(x), precision(x));
 
 toRR(x:RRb, prec:ulong):RR := (

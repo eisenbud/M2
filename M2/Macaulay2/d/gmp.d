@@ -2347,7 +2347,13 @@ export inverse(z:CC):CC := (
 
 export (x:CC) / (y:CC) : CC := x * inverse(y);
 
+export (x:CCi) / (y:CC) : CCi := x * inverse(y);
+
+export (x:CCi) / (y:CCi) : CCi := toCCi((x.re*y.re+x.im*y.im)/(y.re*y.re+y.im*y.im),(x.im*y.re-x.re*y.im)/(y.re*y.re+y.im*y.im));
+
 export (x:RR) / (y:CC) : CC := x * inverse(y);
+
+export (x:RRi) / (y:CC) : CCi := x * inverse(y);
 
 export (x:ZZ) / (y:CC) : CC := x * inverse(y);
 
