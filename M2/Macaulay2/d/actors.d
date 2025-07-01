@@ -475,6 +475,8 @@ export (lhs:Expr) / (rhs:Expr) : Expr := (
           is y:RRicell do (toExpr(x.v / y.v))   -- # typical value: symbol /, RR, RRi, RRi
      	  is y:CCcell do (					    -- # typical value: symbol /, RR, CC, CC
 	       toExpr(x.v / y.v))
+		  is y:CCicell do (					    -- # typical value: symbol /, RR, CCi, CCi
+	       toExpr(toCCi((y.v.re*x.v)/(y.v.re^long(2)+y.v.im^long(2)),(-y.v.im*x.v)/(y.v.re^long(2)+y.v.im^long(2)))))
 	  is Error do rhs
 	  else binarymethod(lhs,rhs,DivideS))
     is x:RRicell do (
