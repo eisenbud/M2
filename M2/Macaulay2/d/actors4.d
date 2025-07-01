@@ -1418,7 +1418,13 @@ toCCi(e:Expr):Expr := (
     	 is s:Sequence do (
             if length(s) > 3 then WrongNumArgs(1,3) else
 			if length(s) == 2 then (
-				when s.0 is x:RRicell do (
+				when s.0 is x:RRcell do (
+                        when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v,precision(x.v))))
+                                is y:QQcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v,precision(x.v))))
+                                is y:RRcell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
+                                is y:RRicell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
+                                else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+                         is x:RRicell do (
                       when s.1 is y:ZZcell do toExpr(toCCi(x.v,toRRi(y.v,precision(x.v))))
                                is y:QQcell do toExpr(toCCi(x.v,toRRi(y.v,precision(x.v))))
                                is y:RRcell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
