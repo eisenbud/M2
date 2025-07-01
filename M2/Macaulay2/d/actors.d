@@ -492,7 +492,7 @@ export (lhs:Expr) / (rhs:Expr) : Expr := (
            is y:RRcell do (toExpr(x.v / y.v))    -- # typical value: symbol /, RRi, RR, RRi
            is y:RRicell do (toExpr(x.v / y.v))   -- # typical value: symbol /, RRi, RRi, RRi
 		   is y:CCcell do (toExpr(x.v / y.v))   -- # typical value: symbol /, RRi, CC, CCi
-		   is y:CCicell do (toExpr(toCCi(x.v) / y.v))   -- # typical value: symbol /, RRi, CCi, CCi
+		   is y:CCicell do (toExpr(toCCi((x.v*y.v.re)/(y.v.re^long(2)+y.v.im^long(2)),(-x.v*y.v.im)/(y.v.re^long(2)+y.v.im^long(2)))))   -- # typical value: symbol /, RRi, CCi, CCi
 	       is Error do rhs
 	       else binarymethod(lhs,rhs,DivideS))
      is x:CCcell do (
