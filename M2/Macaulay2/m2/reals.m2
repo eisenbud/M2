@@ -125,6 +125,12 @@ promote(ZZ,RRi') :=
 promote(QQ,RRi') :=
 promote(RR,RRi') := (i,K) -> toRRi(K.precision,i,i)
 promote(RRi,RRi') := (i,K) -> toRRi(K.precision,left(i),right(i))
+promote(ZZ,CCi') :=
+promote(QQ,CCi') := (i,K) -> toCCi(toRRi(i),interval 0)
+promote(RR,CCi') := (i,K) -> toCCi(toRRi(precision i,i,i),toRRi(precision i, 0,0))
+promote(RRi,CCi') := (i,K) -> toCCi(i, interval 0)
+promote(CC,CCi') := (i,K) -> toCCi(toRRi(precision i,realPart i,realPart i),toRRi(precision i, imaginaryPart i, imaginaryPart i))
+promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should be fixed 
 lift(Number,InexactNumber) := opts -> (x,RR) -> lift(x,default RR,opts)
 
 liftable(Number,InexactNumber) := (x,RR) -> liftable(x,default RR)
@@ -166,6 +172,12 @@ ZZ _ ComplexField :=
 QQ _ ComplexField :=
 RR _ ComplexField :=
 CC _ ComplexField := (x,R) -> toCC(R.precision,x)
+ZZ _ ComplexIntervalField :=
+QQ _ ComplexIntervalField :=
+RR _ ComplexIntervalField :=
+RRi _ ComplexIntervalField := (x,R) -> toCCi(R.precision,x, interval 0)
+CC _ ComplexIntervalField := (x,R) -> toCCi(R.precision,x)
+CCi _ ComplexIntervalField := (x,R) -> toCCi(R.precision,x)
 
 lift(RR,QQ) := opts -> (r,QQ) -> (
      if r == 0 then return 0/1;
