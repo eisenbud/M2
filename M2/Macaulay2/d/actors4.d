@@ -1413,6 +1413,7 @@ toCCi(e:Expr):Expr := (
 		 is x:ZZcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
 		 is x:CCicell do e
     	 is s:Sequence do (
+            if length(s) > 3 then WrongNumArgs(1,3) else
 			if length(s) == 2 then (
 				when s.0 is x:RRicell do (
 					when s.1 is y:RRicell do toExpr(toCCi(x.v,y.v))
