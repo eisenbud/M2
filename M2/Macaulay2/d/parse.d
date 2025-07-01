@@ -22,6 +22,7 @@ extern void err_error(struct M2_string_struct*);
 
 use nets;
 use gmp;
+use ballarith;
 use xml;
 use engine;
 use varnets;
@@ -363,6 +364,7 @@ export Expr := (
      CCicell or
      RRcell or
      RRicell or
+     RRbcell or
      Boolean or
      PseudocodeClosure or
      Pseudocode or

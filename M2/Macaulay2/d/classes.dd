@@ -22,6 +22,7 @@ setupconst("QQ",Expr(QQClass));
 setupconst("RingFamily",Expr(ringFamilyClass));
 setupconst("InexactFieldFamily",Expr(inexactNumberTypeClass));
 setupconst("RRi",Expr(RRiClass));
+setupconst("RRb",Expr(RRbClass));
 setupconst("RR",Expr(RRClass));
 setupconst("CC",Expr(CCClass));
 setupconst("CCi",Expr(CCiClass));
@@ -148,6 +149,7 @@ export Class(e:Expr):HashTable := (
      is SymbolBody do symbolBodyClass
      is RRicell do RRiClass
      is RRcell do RRClass
+     is RRbcell do RRbClass
      is CCcell do CCClass
      is CCicell do CCiClass
      is RawComputationCell do rawComputationClass
