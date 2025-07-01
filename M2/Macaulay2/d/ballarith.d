@@ -39,10 +39,10 @@ init(x:RRb) ::= (
 newRRb():RRb := init(GCmalloc(RRb));
 clear(x:RRb) ::= Ccode(void, "arb_clear(", x, ")");
 
-export RRbcell := {+v:RRb, prec:ulong};
+export RRbcell := {+v:RRb};
 
 export toRRbcell(x:RRb):RRbcell := (
-    y := RRbcell(x, ulong(100));
+    y := RRbcell(x);
     Ccode(void, "GC_REGISTER_FINALIZER(", y,
 	", (GC_finalization_proc)arb_clear, ", y.v, ", 0, 0)");
     y);
@@ -70,6 +70,8 @@ moveToRRiandclear(x:RRb, prec:ulong):RRi := (
     r := toRRi(x, prec);
     clear(x);
     r);
+
+export precision(x:RRb):ulong := ulong(100);
 
 -- special functions
 export eint(x:RRi):RRi := (

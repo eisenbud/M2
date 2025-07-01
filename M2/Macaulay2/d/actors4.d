@@ -991,7 +991,7 @@ tostringfun(e:Expr):Expr := (
      is NetFile do toExpr("<<a netfile>>")
      is x:RRcell do toExpr(tostringRR(x.v))
      is x:RRicell do toExpr(tostringRRi(x.v))
-     is x:RRbcell do toExpr("<<a real ball>>")
+     is x:RRbcell do toExpr(tostringRRb(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
 	 is x:CCicell do toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
      is Error do toExpr("<<an error message>>")
@@ -1601,6 +1601,7 @@ precision(e:Expr):Expr := (
      when e
      is x:RRcell do toExpr(precision(x.v))
      is x:RRicell do toExpr(precision(x.v))
+     is x:RRbcell do toExpr(precision(x.v))
      is x:CCcell do toExpr(precision(x.v))
 	 is x:CCicell do toExpr(precision(x.v))
      else WrongArgRR());

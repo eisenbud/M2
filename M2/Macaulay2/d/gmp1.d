@@ -6,6 +6,7 @@ header "";
 --Functions in this file may make calls to stdio.
 
 use gmp;
+use ballarith;
 use stdio;
 use err;
 
@@ -174,6 +175,10 @@ export tostringRRi(x:RRi):string := concatenate(
         if isEmpty(x) then " (an empty interval)" else ""
        	));  
 tostringRRipointer = tostringRRi;  
+
+-- TODO: printingPrecision doesn't seem to work as expected
+export tostringRRb(x:RRb):string := tostring(Ccode(charstar,
+    "arb_get_str(", x, ", ", printingPrecision, ", 0)"));
 
 export tostringCCi(x:CCi):string := (
      if isZero(x.im) then tostringRRi(x.re) 
