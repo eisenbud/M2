@@ -296,6 +296,7 @@ export (lhs:Expr) * (rhs:Expr) : Expr := (
      	  is y:RRcell do toExpr(toRR(x.v,precision(y.v)) * y.v)		    -- # typical value: symbol *, ZZ, RR, RR
           is y:RRicell do toExpr(y.v * x.v)     -- # typical value: symbol *, ZZ, RRi, RRi
      	  is y:CCcell do toExpr(x.v * y.v)	    -- # typical value: symbol *, ZZ, CC, CC
+		  is y:CCicell do toExpr(x.v * y.v)	    -- # typical value: symbol *, ZZ, CCi, CCi
 	  is Error do rhs
 	  else binarymethod(lhs,rhs,StarS))
      is x:QQcell do (
@@ -305,6 +306,7 @@ export (lhs:Expr) * (rhs:Expr) : Expr := (
      	  is y:RRcell do toExpr(y.v * x.v)			    -- # typical value: symbol *, QQ, RR, RR
           is y:RRicell do toExpr(y.v * x.v)             -- # typical value: symbol *, QQ, RRi, RRi
      	  is y:CCcell do toExpr(y.v * toRR(x.v,precision(y.v.re)))	    -- # typical value: symbol *, QQ, CC, CC
+		  is y:CCicell do toExpr(y.v * toRR(x.v,precision(y.v.re)))	    -- # typical value: symbol *, QQ, CCi, CCi
 	  is Error do rhs
 	  else binarymethod(lhs,rhs,StarS))
      is x:RawRingElementCell do (
@@ -333,6 +335,7 @@ export (lhs:Expr) * (rhs:Expr) : Expr := (
      	  is y:RRcell do toExpr(x.v * y.v)			    -- # typical value: symbol *, RR, RR, RR
           is y:RRicell do toExpr(y.v * x.v)             -- # typical value: symbol *, RR, RRi, RRi
      	  is y:CCcell do toExpr(x.v * y.v)			    -- # typical value: symbol *, RR, CC, CC
+		  is y:CCicell do toExpr(x.v * y.v)			    -- # typical value: symbol *, RR, CCi, CCi
 	  is Error do rhs
 	  else binarymethod(lhs,rhs,StarS))
       is x:RRicell do (
@@ -341,6 +344,8 @@ export (lhs:Expr) * (rhs:Expr) : Expr := (
 	       is y:QQcell do toExpr(x.v * y.v)  -- # typical value: symbol *, RRi, QQ, RRi
 	       is y:RRcell do toExpr(x.v * y.v)  -- # typical value: symbol *, RRi, RR, RRi
            is y:RRicell do toExpr(x.v * y.v) -- # typical value: symbol *, RRi, RRi, RRi
+		   is y:CCcell do toExpr(toCCi(x.v) * y.v)  -- # typical value: symbol *, RRi, CC, CCi
+           is y:CCicell do toExpr(toCCi(x.v) * y.v) -- # typical value: symbol *, RRi, CCi, CCi
 	       is Error do rhs
 	       else binarymethod(lhs,rhs,StarS))
     is x:CCcell do (
@@ -348,7 +353,19 @@ export (lhs:Expr) * (rhs:Expr) : Expr := (
 	  is y:ZZcell do toExpr(x.v * y.v)	    -- # typical value: symbol *, CC, ZZ, CC
      	  is y:QQcell do toExpr(x.v * toRR(y.v,precision(x.v.re)))	    -- # typical value: symbol *, CC, QQ, CC
      	  is y:RRcell do toExpr(y.v * x.v)			    -- # typical value: symbol *, CC, RR, CC
+		  is y:RRicell do toExpr(toCCi(y.v) * x.v)			    -- # typical value: symbol *, CC, RRi, CCi
      	  is y:CCcell do toExpr(y.v * x.v)			    -- # typical value: symbol *, CC, CC, CC
+		  is y:CCicell do toExpr(y.v * x.v)			    -- # typical value: symbol *, CC, CCi, CCi
+	  is Error do rhs
+	  else binarymethod(lhs,rhs,StarS))
+	is x:CCicell do (
+	  when rhs
+	  	  is y:ZZcell do toExpr(x.v * y.v)	    -- # typical value: symbol *, CCi, ZZ, CCi
+     	  is y:QQcell do toExpr(x.v * toRR(y.v,precision(x.v.re)))	    -- # typical value: symbol *, CCi, QQ, CCi
+     	  is y:RRcell do toExpr(y.v * x.v)			    -- # typical value: symbol *, CCi, RR, CCi
+		  is y:RRicell do toExpr(y.v * x.v)			    -- # typical value: symbol *, CCi, RRi, CCi
+     	  is y:CCcell do toExpr(toCCi(y.v) * x.v)			    -- # typical value: symbol *, CCi, CC, CCi
+		  is y:CCicell do toExpr(y.v * x.v)			    -- # typical value: symbol *, CCi, CCi, CCi
 	  is Error do rhs
 	  else binarymethod(lhs,rhs,StarS))
      is x:RawMonomialCell do (

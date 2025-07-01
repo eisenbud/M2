@@ -1200,11 +1200,11 @@ export toCCi(x:RR,y:RRi):CCi := (
 
 export infinityCC(prec:ulong):CC := (x := infinityRR(prec,1); toCC(x,x));
 
---export infinityCCi(prec:ulong):CCi := (x := infinityRRi(prec,1); toCCi(x,x));
+export infinityCCi(prec:ulong):CCi := (x := infinityRR(prec,1); toCCi(x,x));
 
 export nanCC(prec:ulong):CC := (x := nanRR(prec); toCC(x,x));
 
---export nanCCi(prec:ulong):CCi := (x := nanRRi(prec); toCCi(x,x));
+export nanCCi(prec:ulong):CCi := (x := nanRR(prec); toCCi(x,x));
 
 export toCC(x:RR):CC := CC(x,toRR(0,precision0(x)));
 
@@ -2223,11 +2223,47 @@ export (x:CC) * (y:RR) : CC := (
      else if isnan(x) || isnan(y) then nanCC(min(precision(x),precision(y)))
      else infinityCC(min(precision(x),precision(y))));
 
+export (x:CC) * (y:RRi) : CCi := (
+     if isfinite0(x.re) && isfinite0(x.im) && isfinite0(y)
+     then toCCi(y*x.re, y*x.im)
+     else if isnan(x) || isnan(y) then nanCCi(min(precision(x),precision(y)))
+     else infinityCCi(min(precision(x),precision(y))));
+
+export (x:CCi) * (y:RRi) : CCi := (
+     if isfinite0(x.re) && isfinite0(x.im) && isfinite0(y)
+     then toCCi(x.re*y, x.im*y)
+     else if isnan(x) || isnan(y) then nanCCi(min(precision(x),precision(y)))
+     else infinityCCi(min(precision(x),precision(y))));
+
+export (x:CCi) * (y:RR) : CCi := (
+     if isfinite0(x.re) && isfinite0(x.im) && isfinite0(y)
+     then toCCi(x.re*y, x.im*y)
+     else if isnan(x) || isnan(y) then nanCCi(min(precision(x),precision(y)))
+     else infinityCCi(min(precision(x),precision(y))));
+
 export (y:RR) * (x:CC) : CC := (
      if isfinite0(x.re) && isfinite0(x.im) && isfinite(y)
      then toCC(x.re*y, x.im*y)
      else if isnan(x) || isnan(y) then nanCC(min(precision(x),precision(y)))
      else infinityCC(min(precision(x),precision(y))));
+
+export (y:RRi) * (x:CC) : CCi := (
+     if isfinite0(x.re) && isfinite0(x.im) && isfinite(y)
+     then toCCi(y*x.re, y*x.im)
+     else if isnan(x) || isnan(y) then nanCCi(min(precision(x),precision(y)))
+     else infinityCCi(min(precision(x),precision(y))));
+
+export (y:RRi) * (x:CCi) : CCi := (
+     if isfinite0(x.re) && isfinite0(x.im) && isfinite(y)
+     then toCCi(x.re*y, x.im*y)
+     else if isnan(x) || isnan(y) then nanCCi(min(precision(x),precision(y)))
+     else infinityCCi(min(precision(x),precision(y))));
+
+export (y:RR) * (x:CCi) : CCi := (
+     if isfinite0(x.re) && isfinite0(x.im) && isfinite(y)
+     then toCCi(x.re*y, x.im*y)
+     else if isnan(x) || isnan(y) then nanCCi(min(precision(x),precision(y)))
+     else infinityCCi(min(precision(x),precision(y))));
 
 export (y:int) * (x:CC) : CC := (
      if isinf(x) && y != 0
@@ -2239,15 +2275,40 @@ export (x:CC) * (y:ZZ) : CC := (
      then infinityCC(precision(x))
      else toCC(x.re*y, x.im*y));
 
+export (x:CCi) * (y:ZZ) : CCi := (
+     if isinf(x) && !isZero(y)
+     then infinityCCi(precision(x))
+     else toCCi(x.re*y, x.im*y));
+
 export (y:ZZ) * (x:CC) : CC := (
      if isinf(x) && !isZero(y)
      then infinityCC(precision(x))
      else toCC(x.re*y, x.im*y));
 
+export (y:ZZ) * (x:CCi) : CCi := (
+     if isinf(x) && !isZero(y)
+     then infinityCCi(precision(x))
+     else toCCi(x.re*y, x.im*y));
+
 export (x:CC) * (y:CC) : CC := (
      if isinf(x) && !isZero(y) && !isnan(y) || isinf(y) && !isZero(x) && !isnan(x)
      then infinityCC(min(precision(x),precision(y)))
      else toCC(x.re*y.re-x.im*y.im, x.im*y.re+x.re*y.im));
+
+export (x:CC) * (y:CCi) : CCi := (
+     if isinf(x) && !isZero(y) && !isnan(y) || isinf(y) && !isZero(x) && !isnan(x)
+     then infinityCCi(min(precision(x),precision(y)))
+     else toCCi(y.re*x.re-y.im*x.im, y.re*x.im+y.im*x.re));
+
+export (x:CCi) * (y:CC) : CCi := (
+     if isinf(x) && !isZero(y) && !isnan(y) || isinf(y) && !isZero(x) && !isnan(x)
+     then infinityCCi(min(precision(x),precision(y)))
+     else toCCi(x.re*y.re-x.im*y.im, x.im*y.re+x.re*y.im));
+
+export (x:CCi) * (y:CCi) : CCi := (
+     if isinf(x) && !isZero(y) && !isnan(y) || isinf(y) && !isZero(x) && !isnan(x)
+     then infinityCCi(min(precision(x),precision(y)))
+     else toCCi(x.re*y.re-x.im*y.im, x.im*y.re+x.re*y.im));
 
 export (x:CC) / (y:RR) : CC := (
      if isZero(y) && !isnan(x) && !isZero(x)
