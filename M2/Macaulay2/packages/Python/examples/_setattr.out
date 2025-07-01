@@ -1,8 +1,11 @@
 -- -*- M2-comint -*- hash: 10814637973204880769
+-- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : math = import "math"
 
-o1 = <module 'math' (built-in)>
+o1 = <module 'math' from '/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/
+     Python.framework/Versions/3.13/lib/python3.13/lib-dynload/math.cpython-
+     313-darwin.so'>
 
 o1 : PythonObject of class module
 

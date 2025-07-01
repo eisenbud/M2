@@ -41,13 +41,29 @@ spanRRi(RRi,RRi) := opts -> (N,M) -> (
     else if opts.Precision < 0 then toRRi(min(left N,left M),max(right N,right M))
     else toRRi(opts.Precision,min(left N,left M),max(right N,right M)))
 
+spanCCi = method(Options => {Precision => -1})
+
+for A in {ZZ,QQ,RR,RRi} do
+for B in {ZZ,QQ,RR,RRi} do
+spanCCi(A,B) := opts -> (N,M) -> (
+    toCCi(spanRRi(N,M), interval 0)
+    )
+
+for A in {ZZ,QQ,RR,RRi} do (
+spanRRi(CCi,A) := opts -> (N,M) -> (
+    if isEmpty(N) then interval(opts,M)
+    else if opts.Precision < 0 then toRRi(min(left N,M),max(right N,M))
+    else toRRi(opts.Precision,min(left N,M),max(right N,M)));
+spanRRi(A,CCi) := opts -> (N,M) -> span(opts,M,N))
+
+
 span = method(Dispatch => Thing, Options => true)
 
 span ZZ := span QQ := span RR := {Precision => -1} >> opts -> N -> interval(N,opts)
 
 span RRi := {Precision => -1} >> opts -> N -> interval(left N,right N,opts)
 
-span List := span Sequence := {Precision => -1} >> opts -> L -> fold(L, (N, M) -> spanRRi(N, M, opts))
+span List := span Sequence := {Precision => -1} >> opts -> L -> fold(L, (N, M) -> spanCCi(N, M, opts))
 
 for A in {ZZ,QQ,RR} do
 isMember(A,RRi) := (N,M) -> subsetRRi(N,M);

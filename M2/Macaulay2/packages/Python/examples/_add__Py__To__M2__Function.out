@@ -1,8 +1,11 @@
 -- -*- M2-comint -*- hash: 7688935989390791107
+-- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : fractions = import "fractions"
 
-o1 = <module 'fractions' from '/usr/lib/python3.12/fractions.py'>
+o1 = <module 'fractions' from
+     '/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/
+     Versions/3.13/lib/python3.13/fractions.py'>
 
 o1 : PythonObject of class module
 

@@ -1,4 +1,5 @@
 -- -*- M2-comint -*- hash: 17285782284337978894
+-- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : makeB'InputFile(storeBM2Files,
          BertiniInputConfiguration=>{{TrackType,1}},    AffVariableGroup=>{x,y,z},    B'Polynomials=>{"z*((x+y+z)^3-1)","z*(y^2-3+z)"}    );

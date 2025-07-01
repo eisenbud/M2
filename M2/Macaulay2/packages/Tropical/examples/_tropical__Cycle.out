@@ -1,4 +1,5 @@
 -- -*- M2-comint -*- hash: 12667402382605992779
+-- warning: source code version: version-1.14.0.1-10750-gb7aabc663 != executable version 1.25.06
 
 i1 : F = fan {posHull matrix {{1},{0},{0}}, posHull matrix {{0},{1},{0}}, posHull matrix {{0},{0},{1}}, posHull matrix {{-1},{-1},{-1}}}
 
