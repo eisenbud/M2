@@ -61,6 +61,19 @@ spanRRi(CCi,A) := opts -> (N,M) -> (
     else toRRi(opts.Precision,min(left N,M),max(right N,M)));
 spanRRi(A,CCi) := opts -> (N,M) -> span(opts,M,N))
 
+spanner = method(Options => {Precision => -1})
+
+for A in {ZZ,QQ,RR,RRi} do
+for B in {ZZ,QQ,RR,RRi} do
+spanner(A,B) := opts -> (N,M) -> (spanRRi(N,M))
+
+for A in {ZZ,QQ,RR,RRi,CC,CCi} do
+for B in {CC,CCi} do
+spanner(A,B) := opts -> (N,M) -> (spanCCi(N,M))
+
+for A in {CC,CCi} do
+for B in {ZZ,QQ,RR,RRi} do
+spanner(A,B) := opts -> (N,M) -> (spanCCi(N,M))
 
 span = method(Dispatch => Thing, Options => true)
 
@@ -68,7 +81,11 @@ span ZZ := span QQ := span RR := {Precision => -1} >> opts -> N -> interval(N,op
 
 span RRi := {Precision => -1} >> opts -> N -> interval(left N,right N,opts)
 
-span List := span Sequence := {Precision => -1} >> opts -> L -> fold(L, (N, M) -> spanCCi(N, M, opts))
+span CC := {Precision => -1} >> opts -> N -> interval(realPart N,imaginaryPart N,opts)
+
+span CCi := {Precision => -1} >> opts -> N -> interval(realPart N,imaginaryPart N,opts)
+
+span List := span Sequence := {Precision => -1} >> opts -> L -> fold(L, (N, M) -> spanner(N, M, opts))
 
 for A in {ZZ,QQ,RR} do
 isMember(A,RRi) := (N,M) -> subsetRRi(N,M);
