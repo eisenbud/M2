@@ -222,7 +222,6 @@ export toExpr(x:ZZ):Expr := Expr(ZZcell(x));
 export toExpr(x:QQ):Expr := Expr(QQcell(x));
 export toExpr(x:RR):Expr := Expr(RRcell(x));
 export toExpr(x:RRi):Expr := Expr(RRicell(x));
-export toExpr(x:RRb):Expr := Expr(toRRbcell(x));
 export toExpr(x:CC):Expr := Expr(CCcell(x));
 export toExpr(x:CCi):Expr := Expr(CCicell(x));
 export toExpr(x:float):Expr := Expr(RRcell(toRR(x,ulong(24))));
