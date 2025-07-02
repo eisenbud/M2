@@ -72,6 +72,12 @@ moveToRRiandclear(x:RRb, prec:ulong):RRi := (
     clear(x);
     r);
 
+-- arithmetic
+export RRbadd(x:RRb, y:RRb, prec:ulong):RRb := (
+    z := newRRb();
+    Ccode(void, "arb_add(", z, ", ", x, ", ", y, ", ", prec, ")");
+    z);
+
 -- special functions
 export eint(x:RRi):RRi := (
     y := toRRb(x);
