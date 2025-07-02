@@ -357,6 +357,7 @@ export atomicIntClass := newbasictype();
 export pseudocodeClosureClass := newtypeof(pseudocodeClass);
 export CCiClass := newbignumbertype();
 export RRbClass := newbignumbertype();
+export CCbClass := newbignumbertype();
 -- all new types, dictionaries, and classes go just above this line, if possible, so hash codes don't change gratuitously!
 
 

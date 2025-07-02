@@ -994,6 +994,7 @@ tostringfun(e:Expr):Expr := (
      is x:RRbcell do toExpr(tostringRRb(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
 	 is x:CCicell do toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
+     is x:CCbcell do toExpr("<<a complex ball>>")
      is Error do toExpr("<<an error message>>")
      is Sequence do toExpr("<<a sequence>>")
      is HashTable do toExpr("<<a hash table>>")
@@ -1515,7 +1516,24 @@ toCCi(e:Expr):Expr := (
 			else WrongNumArgs(1,2))
 		 else WrongArg(1,"a pair or triple of integral, rational, or real numbers, with a precision"));
 setupfun("toCCi",toCCi);
-                                                     
+
+toCCb(e:Expr):Expr := (
+    when e
+    -- # typical value: toCCb, CC, CCb
+    is x:CCcell do toExpr(toCCb(x.v), precision(x.v))
+    is a:Sequence do (
+	if length(a) == 2 then (
+	    when a.0
+	    is x:RRbcell do (
+		when a.1
+		-- # typical value: toCCb, RRb, RRb, CCb
+		is y:RRbcell do toExpr(toCCb(x.v, y.v), min(x.prec, y.prec))
+		else WrongArg(2, "a real ball"))
+	    else WrongArg(1, "a real ball"))
+	else WrongNumArgs(1, 2))
+    else WrongArg("a complex number or pair of real numbers"));
+setupfun("toCCb", toCCb);
+
 rightRR(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(rightRR(x.v))
@@ -1664,6 +1682,7 @@ precision(e:Expr):Expr := (
      is x:RRbcell do toExpr(x.prec)
      is x:CCcell do toExpr(precision(x.v))
 	 is x:CCicell do toExpr(precision(x.v))
+     is x:CCbcell do toExpr(x.prec)
      else WrongArgRR());
 setupfun("precision0",precision);
 
