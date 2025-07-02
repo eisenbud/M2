@@ -223,6 +223,7 @@ lift(RRi,ZZ) := opts -> (r,ZZ) -> (
 ring RR := x -> new RealField of RR' from precision x
 ring RRi := x -> new RealIntervalField of RRi' from precision x
 ring CC := x -> new ComplexField of CC' from precision x
+ring CCi := x -> new ComplexIntervalField of CCi' from precision x
 
 new RR from RawRingElement := (RRR,x) -> ( assert( RRR === RR ); rawToRR x)
 new RRi from RawRingElement := (RRRi,x) -> ( assert( RRRi === RRi ); rawToRRi x)
