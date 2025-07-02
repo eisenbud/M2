@@ -1530,14 +1530,16 @@ setupfun("left",leftRR);
 widthRR(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(widthRR(x.v))
+		is x:CCicell do
         else WrongArg("an interval"));
 setupfun("diameter",widthRR).Protected = false;
                                                      
-midpointRR(e:Expr):Expr := (
+midpoint0(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(midpointRR(x.v))
-        else WrongArg("an interval"));
-setupfun("midpoint",midpointRR);
+		is x:CCicell do toExpr(toCC(midpointRR(realPart(x.v)),midpointRR(imaginaryPart(x.v))))
+        else WrongArg("an interval or complex interval"));
+setupfun("midpoint",midpoint0);
                                                      
 isEmptyRRi(e:Expr):Expr := (
      when e
