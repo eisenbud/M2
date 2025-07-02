@@ -18,23 +18,23 @@ interval(A,B) := opts -> (N,M) -> (
     else toRRi(opts.Precision,N,M))
 
 interval(RRi,RRi) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(N,M))
---    else toCCi(opts.Precision,N,M))
+    if opts.Precision < 0 then toCCi(N,M)
+    else toCCi(opts.Precision,N,M))
 
 interval(CC) := opts -> A -> toCCi A
 
 for A in {ZZ,QQ,RR} do
 interval(CC,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(realPart N, M), interval imaginaryPart N))
---    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
+    if opts.Precision < 0 then toCCi(interval(realPart N, M), interval imaginaryPart N)
+    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
 for A in {ZZ,QQ,RR} do
 interval(A,CC) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(N, realPart M), interval imaginaryPart M))
---    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
+    if opts.Precision < 0 then toCCi(interval(N, realPart M), interval imaginaryPart M)
+    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
 for A in {ZZ,QQ,RR} do
 interval(CC,CC) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(realPart N, realPart M), interval (imaginaryPart N, imaginaryPart M)))
---    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
+    if opts.Precision < 0 then toCCi(interval(realPart N, realPart M), interval (imaginaryPart N, imaginaryPart M))
+    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
 
 
 interval(Array) := opts -> A -> (
@@ -70,19 +70,30 @@ spanRRi(RRi,RRi) := opts -> (N,M) -> (
 
 spanCCi = method(Options => {Precision => -1})
 
-for A in {ZZ,QQ,RR,RRi} do
-for B in {ZZ,QQ,RR,RRi} do
-spanCCi(A,B) := opts -> (N,M) -> (
-    toCCi(spanRRi(N,M), interval 0)
-    )
+--for A in {ZZ,QQ,RR,RRi} do
+--for B in {ZZ,QQ,RR,RRi} do
+--spanCCi(A,B) := opts -> (N,M) -> (
+--    toCCi(spanRRi(N,M), interval 0)
+--    )
 
 for A in {ZZ,QQ,RR,RRi} do (
-spanRRi(CCi,A) := opts -> (N,M) -> (
-    if isEmpty(N) then interval(opts,M)
-    else if opts.Precision < 0 then toRRi(min(left N,M),max(right N,M))
-    else toRRi(opts.Precision,min(left N,M),max(right N,M)));
-spanRRi(A,CCi) := opts -> (N,M) -> span(opts,M,N))
+spanCCi(CC,A) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),toRRi imaginaryPart N)
+    else toCCi(opts.Precision,spanRRi(realPart N,M),toRRi imaginaryPart N));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
+spanCCi(A,CC) := opts -> (N,M) -> spanCCi(opts,M,N);
+spanCCi(CCi,A) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),imaginaryPart N)
+    else toCCi(opts.Precision,spanRRi(realPart N,M),imaginaryPart N));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
+spanCCi(A,CCi) := opts -> (N,M) -> spanCCi(opts,M,N))
 
+spanCCi(CC,CC) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,realPart M),spanRRi(imaginaryPart N, imaginaryPart M)))
+spanCCi(CC,CCi) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,realPart M),spanRRi(imaginaryPart N, imaginaryPart M)))
+spanCCi(CCi,CC) := opts -> (N,M) -> spanCCi(opts,M,N)
+spanCCi(CCi,CCi) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,realPart M),spanRRi(imaginaryPart N, imaginaryPart M)))
+    
 spanner = method(Options => {Precision => -1})
 
 for A in {ZZ,QQ,RR,RRi} do
