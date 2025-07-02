@@ -67,7 +67,7 @@ toRR(x:RRb, prec:ulong):RR := (
     Ccode(int, "arf_get_mpfr(", y, ", arb_midref(", x, "), MPFR_RNDN)");
     moveToRRandclear(y));
 
-toRRi(x:RRb, prec:ulong):RRi := (
+export toRRi(x:RRb, prec:ulong):RRi := (
     y := newRRimutable(prec);
     Ccode(void, "arb_get_interval_mpfr((mpfr_ptr)&", y,
 	"->left, (mpfr_ptr)&", y, "->right, ", x, ")");
@@ -212,19 +212,32 @@ export regularizedBeta(u:RRi,v:RRi,w:RRi):RRi := (
 -- CCBall --
 ------------
 
-CCb := Pointer "acb_ptr";
+export CCb := Pointer "acb_ptr";
 init(z:CCb) ::= (
     Ccode(void, "acb_init(", z, ")");
     z);
 newCCb():CCb := init(GCmalloc(CCb));
 clear(z:CCb) ::= Ccode(void, "acb_clear(", z, ")");
 
+export CCbcell := {+v:CCb, prec:ulong};
+
+-- every CCbcell should be constructed using this so that it's finalized
+export toCCbcell(x:CCb, prec:ulong):CCbcell := (
+    y := CCbcell(x, prec);
+    Ccode(void, "GC_REGISTER_FINALIZER(", y,
+	", (GC_finalization_proc)acb_clear, ", y.v, ", 0, 0)");
+    y);
+
 -- clear after using
-toCCb(z:CC):CCb := (
+export toCCb(x:RRb, y:RRb):CCb := (
+    z := newCCb();
+    Ccode(void, "acb_set_arb_arb(", z, ", ", x, ", ", y, ")");
+    z);
+
+export toCCb(z:CC):CCb := (
     x := toRRb(realPart(z));
     y := toRRb(imaginaryPart(z));
-    w := newCCb();
-    Ccode(void, "acb_set_arb_arb(", w, ", ", x, ", ", y, ")");
+    w := toCCb(x, y);
     clear(x);
     clear(y);
     w);

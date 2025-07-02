@@ -225,6 +225,7 @@ export toExpr(x:RRi):Expr := Expr(RRicell(x));
 export toExpr(x:RRb,prec:ulong):Expr := Expr(toRRbcell(x, prec));
 export toExpr(x:CC):Expr := Expr(CCcell(x));
 export toExpr(x:CCi):Expr := Expr(CCicell(x));
+export toExpr(x:CCb,prec:ulong):Expr := Expr(toCCbcell(x, prec));
 export toExpr(x:float):Expr := Expr(RRcell(toRR(x,ulong(24))));
 export toExpr(x:double):Expr := Expr(RRcell(toRR(x,ulong(53))));
 export toExpr(x:RawComputation):Expr := Expr(RawComputationCell(x));
