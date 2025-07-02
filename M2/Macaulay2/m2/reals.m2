@@ -107,6 +107,15 @@ new RealIntervalField of Nothing' from ZZ := memoize (
 	       symbol isBasic => true,
 	       symbol RawRing => rawRRi prec
 	       }))
+new RealBallField of Nothing' from ZZ := memoize (
+    (RealBallField, Nothing', prec) -> newClass(RealBallField, Nothing',
+	hashTable {
+	    symbol precision => prec,
+	    symbol Engine => true,
+	    symbol baseRings => {ZZ,QQ},
+	    symbol isBasic => true,
+	    symbol RawRing => null -- TODO
+	    }))
 precision InexactField := R -> R.precision
 InexactFieldFamily _ ZZ := (T,prec) -> new T.InexactField of T#(symbol _*) from prec -- oops...
 default InexactFieldFamily := R -> R_defaultPrecision
@@ -232,6 +241,7 @@ lift(RRi,ZZ) := opts -> (r,ZZ) -> (
 
 ring RR := x -> new RealField of RR' from precision x
 ring RRi := x -> new RealIntervalField of RRi' from precision x
+ring RRb := x -> new RealBallField of RRb' from precision x
 ring CC := x -> new ComplexField of CC' from precision x
 ring CCi := x -> new ComplexIntervalField of CCi' from precision x
 
@@ -424,6 +434,7 @@ toString ComplexField := R -> concatenate("CC_",toString R.precision)
 
 expression RealField := R -> new Subscript from {symbol RR, R.precision}
 expression RealIntervalField := R -> new Subscript from {symbol RRi, R.precision}
+expression RealBallField := R -> new Subscript from {symbol RRb, R.precision}
 expression ComplexField := R -> new Subscript from {symbol CC, R.precision}
 expression RR := x -> (
      if x < 0 
