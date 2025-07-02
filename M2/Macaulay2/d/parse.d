@@ -362,6 +362,7 @@ export atomicIntCell := {+ v:atomicField, hash:hash_t };
 export Expr := (
      CCcell or
      CCicell or
+     CCbcell or
      RRcell or
      RRicell or
      RRbcell or
