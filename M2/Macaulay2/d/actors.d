@@ -1331,6 +1331,7 @@ isFinite(e:Expr):Expr := (
      is x:RRcell do toExpr(isfinite(x.v))
      is x:RRicell do toExpr(isfinite(x.v))
      is x:CCcell do toExpr(isfinite(x.v))
+	 is x:CCicell do toExpr(isfinite(x.v))
      else WrongArg("a number")
      );
 setupfun("isFinite0",isFinite);
@@ -1343,6 +1344,7 @@ isANumber(e:Expr):Expr := (
      is x:RRcell do toExpr(!isnan(x.v))
      is x:RRicell do toExpr(!isnan(x.v))
      is x:CCcell do toExpr(!isnan(x.v))
+	 is x:CCicell do toExpr(!isnan(x.v))
      else WrongArg("a number")
      );
 setupfun("isANumber",isANumber);
@@ -1354,6 +1356,7 @@ isInfinite(e:Expr):Expr := (
      is x:RRcell do toExpr(isinf(x.v))
      is x:RRicell do toExpr(isinf(x.v))
      is x:CCcell do toExpr(isinf(x.v))
+	 is x:CCicell do toExpr(isinf(x.v))
      else WrongArg("a number")
      );
 setupfun("isInfinite",isInfinite).Protected=false;
