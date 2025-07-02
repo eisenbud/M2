@@ -1411,8 +1411,36 @@ setupfun("toRRi",toRRi);
 
 toRRb(e:Expr):Expr := (
     when e
-    is x:RRcell do toExpr(toRRb(x.v))
-    else WrongArg("TODO"));
+    -- # typical value: toRRb, ZZ, RRb
+    is x:ZZcell do Expr(toRRbcell(
+	    toRRb(toRR(x.v, defaultPrecision)),
+	    defaultPrecision))
+    -- # typical value: toRRb, QQ, RRb
+    is x:QQcell do Expr(toRRbcell(
+	    toRRb(toRR(x.v, defaultPrecision)),
+	    defaultPrecision))
+    -- # typical value: toRRb, RR, RRb
+    is x:RRcell do Expr(toRRbcell(toRRb(x.v), precision(x.v)))
+    -- # typical value: toRRb, RRi, RRb
+    is x:RRicell do Expr(toRRbcell(toRRb(x.v), precision(x.v)))
+    is a:Sequence do (
+	if length(a) == 3 then (
+	    when a.0
+	    is x:RRcell do (
+		when a.1
+		is y:RRcell do (
+		    when a.2
+		    -- # typical value: toRRb, RR, RR, ZZ, RRb
+		    is prec:ZZcell do (
+			if !isULong(prec) then WrongArgSmallUInteger(3)
+			else Expr(toRRbcell(
+				toRRb(x.v, y.v, toULong(prec)),
+				toULong(prec))))
+		    else WrongArgZZ(3))
+		else WrongArgRR(2))
+	    else WrongArgRR(1))
+	else WrongNumArgs(1, 2))
+    else WrongArg("a real number, real interval, or (RR, RR, ZZ) triple"));
 setupfun("toRRb", toRRb);
 
 toCCi(e:Expr):Expr := (
@@ -1601,7 +1629,7 @@ precision(e:Expr):Expr := (
      when e
      is x:RRcell do toExpr(precision(x.v))
      is x:RRicell do toExpr(precision(x.v))
-     is x:RRbcell do toExpr(precision(x.v))
+     is x:RRbcell do toExpr(x.prec)
      is x:CCcell do toExpr(precision(x.v))
 	 is x:CCicell do toExpr(precision(x.v))
      else WrongArgRR());
