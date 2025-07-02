@@ -68,6 +68,9 @@ export (lhs:Expr) + (rhs:Expr) : Expr := (
 	 is y:ZZcell do toExpr(
 	     RRbadd(x.v, toRRb(y.v, x.prec), x.prec),
 	     x.prec)
+	 is y:QQcell do toExpr(
+	     RRbadd(x.v, toRRb(y.v, x.prec), x.prec),
+	     x.prec)
 	 is y:RRbcell do (
 	     prec := min(x.prec, y.prec);
 	     toExpr(RRbadd(x.v, y.v, prec), prec))
