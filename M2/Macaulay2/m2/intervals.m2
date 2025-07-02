@@ -8,6 +8,8 @@ for A in {ZZ,QQ,RR} do
 interval A := opts -> N -> (
     if opts.Precision < 0 then toRRi(N)
     else toRRi(opts.Precision,N,N))
+interval(RRi) := opts -> A -> A
+interval(CCi) := opts -> A -> toCCi A
 
 for A in {ZZ,QQ,RR} do
 for B in {ZZ,QQ,RR} do
@@ -15,12 +17,37 @@ interval(A,B) := opts -> (N,M) -> (
     if opts.Precision < 0 then toRRi(N,M)
     else toRRi(opts.Precision,N,M))
 
+interval(RRi,RRi) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(N,M))
+--    else toCCi(opts.Precision,N,M))
+
+interval(CC) := opts -> A -> toCCi A
+
+for A in {ZZ,QQ,RR} do
+interval(CC,A) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(interval(realPart N, M), interval imaginaryPart N))
+--    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
+for A in {ZZ,QQ,RR} do
+interval(A,CC) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(interval(N, realPart M), interval imaginaryPart M))
+--    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
+for A in {ZZ,QQ,RR} do
+interval(CC,CC) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(interval(realPart N, realPart M), interval (imaginaryPart N, imaginaryPart M)))
+--    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
+
+
 interval(Array) := opts -> A -> (
     if (length(A) == 0) or (length(A)>2) then error("expected length 2")
     else if length(A) == 1 then interval(opts,A_0)
-    else interval(opts,A_0,A_1))
+    else interval(opts,A_0,A_1))    
 
 spanRRi = method(Options => {Precision => -1})
+
+for A in {ZZ,QQ,RR,RRi} do
+spanRRi(A) := opts -> (M) -> (
+    if opts.Precision < 0 then toRRi(M)
+    else toRRi(opts.Precision,M))
 
 for A in {ZZ,QQ,RR} do
 for B in {ZZ,QQ,RR} do

@@ -63,6 +63,12 @@ export (lhs:Expr) + (rhs:Expr) : Expr := (
 		 is y:CCicell do toExpr(toCCi(x.v) + y.v)              -- # typical value: symbol +, RRi, CCi, CCi
 	     is Error do rhs
 	     else binarymethod(lhs,rhs,PlusS))
+     is x:RRbcell do (
+	 when rhs
+	 is y:RRbcell do (
+	     prec := min(x.prec, y.prec);
+	     toExpr(RRbadd(x.v, y.v, prec), prec))
+	 else binarymethod(lhs, rhs, PlusS))
      is x:CCcell do (
 	  when rhs
 	  is y:ZZcell do toExpr(x.v + toRR(y.v,precision(x.v.re)))	    -- # typical value: symbol +, CC, ZZ, CC
