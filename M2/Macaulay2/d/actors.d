@@ -536,7 +536,7 @@ export (lhs:Expr) / (rhs:Expr) : Expr := (
 		is y:CCcell do (					    -- # typical value: symbol /, CCi, CC, CCi
 	       toExpr(x.v/y.v))
 		is y:CCicell do (					    -- # typical value: symbol /, CCi, CCi, CCi
-	       toExpr(toCCi((y.v.re*x.v.re+y.v.im*x.v.im)/(y.v.re^long(2)),(y.v.re*x.v.im-y.v.im*x.v.re)/(y.v.re^long(2)+y.v.im^long(2)))))
+	       toExpr(toCCi((y.v.re*x.v.re+y.v.im*x.v.im)/(y.v.re^long(2)+y.v.im^long(2)),(y.v.re*x.v.im-y.v.im*x.v.re)/(y.v.re^long(2)+y.v.im^long(2)))))
 		is Error do rhs
 		else binarymethod(lhs,rhs,DivideS))
      is x:RawMonomialCell do (
