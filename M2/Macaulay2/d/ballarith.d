@@ -78,6 +78,16 @@ moveToRRiandclear(x:RRb, prec:ulong):RRi := (
     clear(x);
     r);
 
+export midpoint(x:RRb, prec:ulong):RR := (
+    y := newRRmutable(prec);
+    Ccode(void, "arf_get_mpfr(", y, ", arb_midref(", x, "), MPFR_RNDN)");
+    moveToRRandclear(y));
+
+export radius(x:RRb):RR := (
+    y := Ccode(double, "mag_get_d(arb_radref(", x, "))");
+    -- radius is a mag_t, which always has precision 30
+    toRR(y, ulong(30)));
+
 -- arithmetic
 export RRbadd(x:RRb, y:RRb, prec:ulong):RRb := (
     z := newRRb();

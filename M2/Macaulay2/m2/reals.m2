@@ -122,7 +122,7 @@ default InexactFieldFamily := R -> R_defaultPrecision
 
 diameter' = diameter
 diameter = method()
-diameter RRi := diameter'
+diameter RRi := diameter RRb := diameter'
 diameter CCi := diameter'
 
 -- lift and promote between real or complex rings
