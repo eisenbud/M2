@@ -24,7 +24,7 @@ export hash(e:Expr):hash_t := (
      is x:QQcell do hash(x.v)
      is x:RRcell do hash(x.v)
      is x:RRicell do hash(x.v)
-     is x:RRbcell do hash_t(6)
+     is x:RRbcell do hash(x.v, x.prec)
      is x:CCcell do hash(x.v)
      is x:CCicell do hash(x.v.re + x.v.im)
      is x:CCbcell do hash_t(7)

@@ -88,6 +88,9 @@ export radius(x:RRb):RR := (
     -- radius is a mag_t, which always has precision 30
     toRR(y, ulong(30)));
 
+export hash(x:RRb, prec:ulong):hash_t := (
+    953 * hash(midpoint(x, prec)) + 277 * hash(radius(x)));
+
 -- arithmetic
 export RRbadd(x:RRb, y:RRb, prec:ulong):RRb := (
     z := newRRb();
