@@ -2328,6 +2328,8 @@ export norm2(x:CCi):RRi := x.re*x.re + x.im*x.im;
 
 export (x:CC) << (n:long) : CC := if n == long(0) then x else CC(x.re<<n,x.im<<n);
 
+export (x:CCi) >> (n:long) : CCi := if n == long(0) then x else CCi(x.re>>n,x.im>>n);
+
 export (x:CC) >> (n:long) : CC := if n == long(0) then x else CC(x.re>>n,x.im>>n);
 
 export (x:CC) << (n:int) : CC := if n == 0 then x else CC(x.re<<n,x.im<<n);
@@ -2344,6 +2346,17 @@ export inverse(z:CC):CC := (
      	  toCC((z.re/n2) >> expon, -(z.im/n2) >> expon))
      else if isinf(z) then toCC(0,0,precision(z))
      else nanCC(precision(z)));
+
+export inverse(z:CCi):CCi := (
+     if isfinite(z) then 
+     if isZero0(z.re) && isZero0(z.im) then infinityCCi(precision0(z.re)) 
+     else (
+     	  expon := exponent(z);
+     	  if expon > 10000 || expon < -10000 then z = z >> expon else expon = long(0);
+     	  n2 := norm2(z);
+     	  toCCi((z.re/n2) >> expon, -(z.im/n2) >> expon))
+     else if isinf(z) then toCCi(0,0,precision(z))
+     else nanCCi(precision(z)));
 
 export (x:CC) / (y:CC) : CC := x * inverse(y);
 
@@ -2895,6 +2908,12 @@ square(z:CC):CC := (
      else infinityCC(precision0(z.re))
     );
 
+square(z:CCi):CCi := (
+     if isfinite0(z.re) && isfinite0(z.im) then toCCi(z.re^long(2)-z.im^long(2),2*z.re*z.im)
+     else if isnan0(z.re) || isnan0(z.im) then nanCCi(precision0(z.re))
+     else infinityCCi(precision0(z.re))
+    );
+
 export acos(z:CC):CC := idiv(log(z+itimes(sqrt(1-square(z)))));
 
 export asin(z:CC):CC := idiv(log(sqrt(1-square(z))+itimes(z)));
@@ -2928,6 +2947,22 @@ export (x:CC) ^ (y:ZZ):CC := (
 	  -- we could do a few more of these optimizations here...
 	 );
      exp(log(x)*y));
+
+export (x:CCi) ^ (y:ZZ):CCi := (
+     if isZero0(y) then return toCCi(1,0,precision0(x.re));
+     if isZero0(x.re) && isZero0(x.im) && isfinite0(x.re) && isfinite0(x.im) then return if isNegative0(y) then infinityCCi(precision0(x.re)) else x;
+     if isinf(x) then return if isNegative0(y) then toCCi(0,precision0(x.re)) else x;
+     if isLong(y) then (
+	  n := toLong(y);
+     	  if n == long(0) then return toCCi(1,precision(x));
+	  if n == long(1) then return x;
+	  if n == long(-1) then return inverse(x);
+	  if n == long(2) then return square(x);
+	  if n == long(-2) then return inverse(square(x));
+	  -- we could do a few more of these optimizations here...
+	 );
+     if isEven(y) then return square(x^(y >> 1))
+     else (return x*(x^(y-1))));
 
 export (x:RR) ^ (y:CC):CC := if isNegative(x) then exp(log(toCC(x))*y) else exp(log(x)*y);
 
