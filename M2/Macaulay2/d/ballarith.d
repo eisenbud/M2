@@ -48,7 +48,7 @@ export toRRbcell(x:RRb):RRbcell := (
     y);
 
 -- clear after using
-toRRb(x:RR, y:RR, prec:ulong):RRb := (
+export toRRb(x:RR, y:RR, prec:ulong):RRb := (
     z := newRRb();
     Ccode(void, "arb_set_interval_mpfr(", z, ", ", x, ", ", y, ", ", prec, ")");
     z);
