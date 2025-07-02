@@ -2929,22 +2929,6 @@ export (x:CC) ^ (y:ZZ):CC := (
 	 );
      exp(log(x)*y));
 
-export (x:CCi) ^ (y:ZZ):CCi := (
-     if isZero0(y) then return toCCi(1,0,precision0(x.re));
-     if isZero0(x.re) && isZero0(x.im) && isfinite0(x.re) && isfinite0(x.im) then return if isNegative0(y) then infinityCCi(precision0(x.re)) else x;
-     if isinf(x) then return if isNegative0(y) then toCCi(0,precision0(x.re)) else x;
-     if isLong(y) then (
-	  n := toLong(y);
-     	  if n == long(0) then return toCCi(1,precision(x));
-	  if n == long(1) then return x;
-	  if n == long(-1) then return inverse(x);
-	  if n == long(2) then return square(x);
-	  if n == long(-2) then return inverse(square(x));
-	  -- we could do a few more of these optimizations here...
-	 );
-     if isEven(y) then return square(x^(y >> 1))
-     else (return x*(x^(y-1))));
-
 export (x:RR) ^ (y:CC):CC := if isNegative(x) then exp(log(toCC(x))*y) else exp(log(x)*y);
 
 export arrayZZ := array(ZZ);

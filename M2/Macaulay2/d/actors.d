@@ -821,11 +821,6 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	  is y:CCcell do toExpr(x.v^y.v)
      	  is Error do rhs
 	  else binarymethod(lhs,rhs,PowerS))
-	 is x:CCicell do (
-	  when rhs
-	  is y:ZZcell do toExpr(x.v^y.v)
-     	  is Error do rhs
-	  else binarymethod(lhs,rhs,PowerS))
      is x:RawRingElementCell do (
 	  when rhs
 	  is y:ZZcell do (
