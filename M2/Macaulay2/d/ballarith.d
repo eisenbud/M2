@@ -55,6 +55,12 @@ export toRRb(x:RR, y:RR, prec:ulong):RRb := (
     z);
 export toRRb(x:RR):RRb := toRRb(x, x, precision(x));
 export toRRb(x:RRi):RRb := toRRb(leftRR(x), rightRR(x), precision(x));
+export toRRb(x:ZZ, prec:ulong):RRb := (
+    y := toRR(x);
+    toRRb(y, y, prec));
+export toRRb(x:QQ, prec:ulong):RRb := (
+    y := toRR(x);
+    toRRb(y, y, prec));
 
 toRR(x:RRb, prec:ulong):RR := (
     y := newRRmutable(prec);
