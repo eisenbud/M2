@@ -107,6 +107,15 @@ new RealIntervalField of Nothing' from ZZ := memoize (
 	       symbol isBasic => true,
 	       symbol RawRing => rawRRi prec
 	       }))
+new RealBallField of Nothing' from ZZ := memoize (
+    (RealBallField, Nothing', prec) -> newClass(RealBallField, Nothing',
+	hashTable {
+	    symbol precision => prec,
+	    symbol Engine => true,
+	    symbol baseRings => {ZZ,QQ},
+	    symbol isBasic => true,
+	    symbol RawRing => null -- TODO
+	    }))
 precision InexactField := R -> R.precision
 InexactFieldFamily _ ZZ := (T,prec) -> new T.InexactField of T#(symbol _*) from prec -- oops...
 default InexactFieldFamily := R -> R_defaultPrecision
@@ -124,7 +133,7 @@ promote(RawRingElement,CCi') := (x,R) -> new CCi from x
 promote(RawRingElement,Number) := (x,R) -> new R from x
 promote(RawRingElement,RingElement) := (x,R) -> new R from x
 promote(Number,InexactNumber) := (x,RR) -> promote(x,default RR)
-promote(ZZ,RR') := 
+promote(ZZ,RR') :=
 promote(QQ,RR') := 
 promote(RR,RR') := (i,K) -> toRR(K.precision,i)
 promote(ZZ,CC') := 
@@ -140,7 +149,7 @@ promote(QQ,CCi') := (i,K) -> toCCi(toRRi(i),interval 0)
 promote(RR,CCi') := (i,K) -> toCCi(toRRi(precision i,i,i),toRRi(precision i, 0,0))
 promote(RRi,CCi') := (i,K) -> toCCi(i, interval 0)
 promote(CC,CCi') := (i,K) -> toCCi(toRRi(precision i,realPart i,realPart i),toRRi(precision i, imaginaryPart i, imaginaryPart i))
-promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should be fixed 
+promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should be fixed
 lift(Number,InexactNumber) := opts -> (x,RR) -> lift(x,default RR,opts)
 
 liftable(Number,InexactNumber) := (x,RR) -> liftable(x,default RR)
@@ -232,6 +241,7 @@ lift(RRi,ZZ) := opts -> (r,ZZ) -> (
 
 ring RR := x -> new RealField of RR' from precision x
 ring RRi := x -> new RealIntervalField of RRi' from precision x
+ring RRb := x -> new RealBallField of RRb' from precision x
 ring CC := x -> new ComplexField of CC' from precision x
 ring CCi := x -> new ComplexIntervalField of CCi' from precision x
 
@@ -424,6 +434,7 @@ toString ComplexField := R -> concatenate("CC_",toString R.precision)
 
 expression RealField := R -> new Subscript from {symbol RR, R.precision}
 expression RealIntervalField := R -> new Subscript from {symbol RRi, R.precision}
+expression RealBallField := R -> new Subscript from {symbol RRb, R.precision}
 expression ComplexField := R -> new Subscript from {symbol CC, R.precision}
 expression RR := x -> (
      if x < 0 
