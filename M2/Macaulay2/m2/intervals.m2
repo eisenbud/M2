@@ -22,6 +22,11 @@ interval(Array) := opts -> A -> (
 
 spanRRi = method(Options => {Precision => -1})
 
+for A in {ZZ,QQ,RR,RRi} do
+spanRRi(A) := opts -> (M) -> (
+    if opts.Precision < 0 then toRRi(M)
+    else toRRi(opts.Precision,M))
+
 for A in {ZZ,QQ,RR} do
 for B in {ZZ,QQ,RR} do
 spanRRi(A,B) := opts -> (N,M) -> (
