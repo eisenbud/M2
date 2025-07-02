@@ -114,7 +114,7 @@ promote(RawRingElement,CCi') := (x,R) -> new CCi from x
 promote(RawRingElement,Number) := (x,R) -> new R from x
 promote(RawRingElement,RingElement) := (x,R) -> new R from x
 promote(Number,InexactNumber) := (x,RR) -> promote(x,default RR)
-promote(ZZ,RR') := 
+promote(ZZ,RR') :=
 promote(QQ,RR') := 
 promote(RR,RR') := (i,K) -> toRR(K.precision,i)
 promote(ZZ,CC') := 
@@ -130,7 +130,7 @@ promote(QQ,CCi') := (i,K) -> toCCi(toRRi(i),interval 0)
 promote(RR,CCi') := (i,K) -> toCCi(toRRi(precision i,i,i),toRRi(precision i, 0,0))
 promote(RRi,CCi') := (i,K) -> toCCi(i, interval 0)
 promote(CC,CCi') := (i,K) -> toCCi(toRRi(precision i,realPart i,realPart i),toRRi(precision i, imaginaryPart i, imaginaryPart i))
-promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should be fixed 
+promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should be fixed
 lift(Number,InexactNumber) := opts -> (x,RR) -> lift(x,default RR,opts)
 
 liftable(Number,InexactNumber) := (x,RR) -> liftable(x,default RR)
