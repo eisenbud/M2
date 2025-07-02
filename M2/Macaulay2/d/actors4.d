@@ -1369,6 +1369,7 @@ toRRi(e:Expr):Expr := (
 	     is x:QQcell do toExpr(toRRi(x.v))
 	     is x:RRcell do toExpr(toRRi(x.v))
 	     is x:RRicell do e
+	     is x:RRbcell do toExpr(toRRi(x.v, x.prec))
     	 is s:Sequence do (
 	     if length(s) > 3 then WrongNumArgs(1,3) else
 	     if length(s) == 2 then (

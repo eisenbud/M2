@@ -67,7 +67,7 @@ toRR(x:RRb, prec:ulong):RR := (
     Ccode(int, "arf_get_mpfr(", y, ", arb_midref(", x, "), MPFR_RNDN)");
     moveToRRandclear(y));
 
-toRRi(x:RRb, prec:ulong):RRi := (
+export toRRi(x:RRb, prec:ulong):RRi := (
     y := newRRimutable(prec);
     Ccode(void, "arb_get_interval_mpfr((mpfr_ptr)&", y,
 	"->left, (mpfr_ptr)&", y, "->right, ", x, ")");
