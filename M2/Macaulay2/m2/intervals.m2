@@ -17,6 +17,15 @@ interval(A,B) := opts -> (N,M) -> (
     if opts.Precision < 0 then toRRi(N,M)
     else toRRi(opts.Precision,N,M))
 
+for A in {ZZ,QQ,RR} do
+interval(A,RRi) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(interval N, M)
+    else toCCi(opts.Precision, interval N, M))
+for A in {ZZ,QQ,RR} do
+interval(RRi,A) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(N, interval M)
+    else toCCi(opts.Precision, N, interval M))
+
 interval(RRi,RRi) := opts -> (N,M) -> (
     if opts.Precision < 0 then toCCi(N,M)
     else toCCi(opts.Precision,N,M))
@@ -124,12 +133,29 @@ for A in {ZZ,QQ,RR} do
 isMember(A,RRi) := (N,M) -> subsetRRi(N,M);
 
 isSubset(RRi,RRi) := (N,M) -> subsetRRi(N,M);
+isSubset(CCi,RRi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
+
+for A in {ZZ,QQ,RR} do
+isMember(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
+
+for A in {RRi,CCi} do
+isSubset(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
 
 -- intersect is an associative binary method, so it works on arbitrary lists and sequences
 intersect RRi       := RRi => { Precision => -1 } >> opts -> identity
 intersect(RRi, RRi) := RRi => { Precision => -1 } >> opts -> (N, M) -> (
     if opts.Precision < 0 then intersectRRi(N,M)
     else intersectRRi(opts.Precision,N,M))
+
+intersect CCi       := CCi => { Precision => -1 } >> opts -> identity
+intersect(CCi, RRi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
+    if opts.Precision < 0 then interval(intersectRRi(realPart N,M), imaginaryPart N)
+    else interval(intersectRRi(opts.Precision,realPart N,M), imaginaryPart N))
+intersect(RRi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> intersect(M, N)
+intersect(CCi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
+    if opts.Precision < 0 then interval(intersectRRi(realPart N,realPart M), intersectRRi(imaginaryPart N, imaginaryPart M))
+    else interval(intersectRRi(opts.Precision,realPart N, realPart M), intersectRRi(opts.Precision, imaginaryPart N, imaginaryPart M)))
+
 
 isEmpty RRi := Boolean => isEmptyRRi
 isEmpty CCi := x -> isEmptyRRi realPart x or isEmptyRRi imaginaryPart x
