@@ -133,9 +133,13 @@ for A in {ZZ,QQ,RR} do
 isMember(A,RRi) := (N,M) -> subsetRRi(N,M);
 
 isSubset(RRi,RRi) := (N,M) -> subsetRRi(N,M);
+isSubset(CCi,RRi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
 
---for A in {ZZ,QQ,RR} do
---isMember(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
+for A in {ZZ,QQ,RR} do
+isMember(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
+
+for A in {RRi,CCi} do
+isSubset(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
 
 -- intersect is an associative binary method, so it works on arbitrary lists and sequences
 intersect RRi       := RRi => { Precision => -1 } >> opts -> identity
