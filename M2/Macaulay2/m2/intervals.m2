@@ -17,6 +17,15 @@ interval(A,B) := opts -> (N,M) -> (
     if opts.Precision < 0 then toRRi(N,M)
     else toRRi(opts.Precision,N,M))
 
+for A in {ZZ,QQ,RR} do
+interval(A,RRi) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(interval N, M)
+    else toCCi(opts.Precision, interval N, M))
+for A in {ZZ,QQ,RR} do
+interval(RRi,A) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(N, interval M)
+    else toCCi(opts.Precision, N, interval M))
+
 interval(RRi,RRi) := opts -> (N,M) -> (
     if opts.Precision < 0 then toCCi(N,M)
     else toCCi(opts.Precision,N,M))
