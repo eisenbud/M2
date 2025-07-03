@@ -186,10 +186,6 @@ export tostringRRiforCCi(x:RRi):string := concatenate(
        	));  
 --tostringRRiforCCipointer = tostringRRiforCCi;  
 
-
-export tostringRRb(x:RRb):string := tostring(Ccode(charstar,
-    "arb_get_str(", x, ", mpfr_get_str_ndigits(10, arb_bits(", x, ")), 0)"));
-
 export tostringCCi(x:CCi):string := (
      if isZero(x.im) then tostringRRi(x.re) 
      else if isZero(x.re) then concatenate(array(string)(tostringRRi(x.im),"*ii"))

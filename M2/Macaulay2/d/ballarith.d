@@ -91,6 +91,9 @@ export radius(x:RRb):RR := (
 export hash(x:RRb, prec:ulong):hash_t := (
     953 * hash(midpoint(x, prec)) + 277 * hash(radius(x)));
 
+export tostringRRb(x:RRb):string := tostring(Ccode(charstar,
+    "arb_get_str(", x, ", mpfr_get_str_ndigits(10, arb_bits(", x, ")), 0)"));
+
 -- arithmetic
 export RRbadd(x:RRb, y:RRb, prec:ulong):RRb := (
     z := newRRb();
@@ -274,6 +277,9 @@ export imaginaryPart(x:CCb):RRb := (
     y := newRRb();
     Ccode(void, "acb_get_imag(", y, ", ", x, ")");
     y);
+
+export tostringCCb(x:CCb):string := (
+    tostringRRb(realPart(x)) + "+" + tostringRRb(imaginaryPart(x)) + "*ii");
 
 export eint(z:CC):CC := (
     w := toCCb(z);
