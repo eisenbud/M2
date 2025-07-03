@@ -56,10 +56,10 @@ export toRRb(x:RR, y:RR, prec:ulong):RRb := (
 export toRRb(x:RR):RRb := toRRb(x, x, precision(x));
 export toRRb(x:RRi):RRb := toRRb(leftRR(x), rightRR(x), precision(x));
 export toRRb(x:ZZ, prec:ulong):RRb := (
-    y := toRR(x);
+    y := toRR(x, prec);
     toRRb(y, y, prec));
 export toRRb(x:QQ, prec:ulong):RRb := (
-    y := toRR(x);
+    y := toRR(x, prec);
     toRRb(y, y, prec));
 
 toRR(x:RRb, prec:ulong):RR := (
@@ -257,6 +257,32 @@ export toCCb(z:CC):CCb := (
     clear(x);
     clear(y);
     w);
+
+export toCCb(x:RRb):CCb := (
+    y := newRRb();
+    Ccode(RRb, "arb_zero(", y, ")");
+    z := toCCb(x, y);
+    clear(y);
+    z);
+
+export toCCb(x:ZZ, prec:ulong):CCb := (
+    y := toRRb(x, prec);
+    z := toCCb(y);
+    clear(y);
+    z);
+
+export toCCb(x:QQ, prec:ulong):CCb := (
+    y := toRRb(x, prec);
+    z := toCCb(y);
+    clear(y);
+    z);
+
+export toCCb(x:RR):CCb := (
+    y := toRRb(x);
+    z := toCCb(y);
+    clear(y);
+    z);
+
 
 toCC(z:CCb, prec:ulong):CC := (
     x := Ccode(RRb, "acb_realref(", z, ")");

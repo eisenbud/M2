@@ -1519,6 +1519,14 @@ setupfun("toCCi",toCCi);
 
 toCCb(e:Expr):Expr := (
     when e
+    -- # typical value: toCCb, ZZ, CCb
+    is x:ZZcell do toExpr(toCCb(x.v, defaultPrecision), defaultPrecision)
+    -- # typical value: toCCb, QQ, CCb
+    is x:QQcell do toExpr(toCCb(x.v, defaultPrecision), defaultPrecision)
+    -- # typical value: toCCb, RR, CCb
+    is x:RRcell do toExpr(toCCb(x.v), precision(x.v))
+    -- # typical value: toCCb, RRb, CCb
+    is x:RRbcell do toExpr(toCCb(x.v), x.prec)
     -- # typical value: toCCb, CC, CCb
     is x:CCcell do toExpr(toCCb(x.v), precision(x.v))
     is a:Sequence do (
