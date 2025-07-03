@@ -265,6 +265,16 @@ moveToCCandclear(z:CCb, prec:ulong):CC := (
     clear(z);
     r);
 
+export realPart(x:CCb):RRb := (
+    y := newRRb();
+    Ccode(void, "acb_get_real(", y, ", ", x, ")");
+    y);
+
+export imaginaryPart(x:CCb):RRb := (
+    y := newRRb();
+    Ccode(void, "acb_get_imag(", y, ", ", x, ")");
+    y);
+
 export eint(z:CC):CC := (
     w := toCCb(z);
     r := newCCb();
