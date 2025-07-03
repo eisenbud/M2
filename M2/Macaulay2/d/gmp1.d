@@ -176,13 +176,21 @@ export tostringRRi(x:RRi):string := concatenate(
        	));  
 tostringRRipointer = tostringRRi;  
 
-export tostringRRb(x:RRb):string := tostring(Ccode(charstar,
-    "arb_get_str(", x, ", mpfr_get_str_ndigits(10, arb_bits(", x, ")), 0)"));
+export tostringRRiforCCi(x:RRi):string := concatenate( 
+    array(string)(
+       	"[",
+       	tostringRR(leftRR(x)),
+       	",",
+       	tostringRR(rightRR(x)),
+       	"]"
+       	));  
+--tostringRRiforCCipointer = tostringRRiforCCi;  
 
 export tostringCCi(x:CCi):string := (
      if isZero(x.im) then tostringRRi(x.re) 
      else if isZero(x.re) then concatenate(array(string)(tostringRRi(x.im),"*ii"))
-     else concatenate(array(string)(tostringRRi(x.re),"+",tostringRRi(x.im),"*ii"))
+     else if isEmpty(x) then concatenate(array(string)(tostringRRiforCCi(x.re),"+",tostringRRiforCCi(x.im),"*ii", " (an empty interval)"))
+     else concatenate(array(string)(tostringRRiforCCi(x.re),"+",tostringRRiforCCi(x.im),"*ii"))
 );
 tostringCCipointer = tostringCCi;  
 

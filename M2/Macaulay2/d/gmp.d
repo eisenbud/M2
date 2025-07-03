@@ -901,6 +901,7 @@ isnan0 (x:RRi) ::= Ccode(bool,"mpfi_nan_p(",x,")");
 sign0(x:RR) ::= 0 != Ccode(int,"mpfr_signbit(",x,")");
 sign0(x:RRi) ::= 0 != Ccode(int,"mpfi_is_strictly_neg(",x,")");
 export isEmpty(x:RRi):bool := Ccode(bool,"mpfi_is_empty(",x,")");
+export isEmpty(x:CCi):bool := isEmpty(x.re) || isEmpty(x.im);
                                     
 exponent0(x:RR) ::= Ccode(long,"(long)mpfr_get_exp(",x,")"); -- sometimes int, sometimes long, see gmp.h for type mp_exp_t
 exponent0(x:RRi) ::= max(exponent0(rightRR(x)),exponent0(leftRR(x)));

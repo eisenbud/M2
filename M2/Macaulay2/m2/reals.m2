@@ -122,7 +122,7 @@ default InexactFieldFamily := R -> R_defaultPrecision
 
 diameter' = diameter
 diameter = method()
-diameter RRi := diameter'
+diameter RRi := diameter RRb := diameter'
 diameter CCi := diameter'
 
 -- lift and promote between real or complex rings
@@ -248,6 +248,7 @@ ring CCi := x -> new ComplexIntervalField of CCi' from precision x
 new RR from RawRingElement := (RRR,x) -> ( assert( RRR === RR ); rawToRR x)
 new RRi from RawRingElement := (RRRi,x) -> ( assert( RRRi === RRi ); rawToRRi x)
 new CC from RawRingElement := (CCC,x) -> ( assert( CCC === CC ); rawToCC x)
+new CCi from RawRingElement := (CCCi,x) -> ( assert( RRRi === RRi ); rawToCCi x)
 
 -- arithmetic operations
 
