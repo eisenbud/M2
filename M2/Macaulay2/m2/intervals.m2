@@ -131,6 +131,16 @@ intersect(RRi, RRi) := RRi => { Precision => -1 } >> opts -> (N, M) -> (
     if opts.Precision < 0 then intersectRRi(N,M)
     else intersectRRi(opts.Precision,N,M))
 
+intersect CCi       := CCi => { Precision => -1 } >> opts -> identity
+intersect(CCi, RRi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
+    if opts.Precision < 0 then interval(intersectRRi(realPart N,M), imaginaryPart N)
+    else interval(intersectRRi(opts.Precision,realPart N,M), imaginaryPart N))
+intersect(RRi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> intersect(M, N)
+intersect(CCi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
+    if opts.Precision < 0 then interval(intersectRRi(realPart N,realPart M), intersectRRi(imaginaryPart N, imaginaryPart M))
+    else interval(intersectRRi(opts.Precision,realPart N, realPart M), intersectRRi(opts.Precision, imaginaryPart N, imaginaryPart M)))
+
+
 isEmpty RRi := Boolean => isEmptyRRi
 isEmpty CCi := x -> isEmptyRRi realPart x or isEmptyRRi imaginaryPart x
 
