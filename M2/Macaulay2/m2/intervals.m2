@@ -87,12 +87,12 @@ spanCCi = method(Options => {Precision => -1})
 
 for A in {ZZ,QQ,RR,RRi} do (
 spanCCi(CC,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),toRRi imaginaryPart N)
-    else toCCi(opts.Precision,spanRRi(realPart N,M),toRRi imaginaryPart N));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),spanRRi(0, imaginaryPart N))
+    else toCCi(opts.Precision,spanRRi(realPart N,M),spanRRi(0, imaginaryPart N)));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
 spanCCi(A,CC) := opts -> (N,M) -> spanCCi(opts,M,N);
 spanCCi(CCi,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),imaginaryPart N)
-    else toCCi(opts.Precision,spanRRi(realPart N,M),imaginaryPart N));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),spanRRi(0, imaginaryPart N))
+    else toCCi(opts.Precision,spanRRi(realPart N,M),spanRRi(0, imaginaryPart N)));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
 spanCCi(A,CCi) := opts -> (N,M) -> spanCCi(opts,M,N))
 
 spanCCi(CC,CC) := opts -> (N,M) -> (
@@ -123,14 +123,16 @@ span ZZ := span QQ := span RR := {Precision => -1} >> opts -> N -> interval(N,op
 
 span RRi := {Precision => -1} >> opts -> N -> interval(left N,right N,opts)
 
-span CC := {Precision => -1} >> opts -> N -> interval(realPart N,imaginaryPart N,opts)
+span CC := {Precision => -1} >> opts -> N -> interval(toRRi realPart N, toRRi imaginaryPart N,opts)
 
-span CCi := {Precision => -1} >> opts -> N -> interval(realPart N,imaginaryPart N,opts)
+span CCi := {Precision => -1} >> opts -> N -> interval(toRRi realPart N, toRRi imaginaryPart N,opts)
 
 span List := span Sequence := {Precision => -1} >> opts -> L -> fold(L, (N, M) -> spanner(N, M, opts))
 
 for A in {ZZ,QQ,RR} do
 isMember(A,RRi) := (N,M) -> subsetRRi(N,M);
+isMember(CC,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N, imaginaryPart M);
+isMember(CC,RRi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N, imaginaryPart M);
 
 isSubset(RRi,RRi) := (N,M) -> subsetRRi(N,M);
 isSubset(CCi,RRi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);

@@ -108,6 +108,7 @@ Key
     (isMember, QQ, RRi)
     (isMember, ZZ, RRi)
     (isMember, RR, RRi)
+    (isMember, QQ, CCi)
 Headline
     membership test in an interval
 Usage
@@ -127,6 +128,7 @@ SeeAlso
 doc ///
 Key
     (isEmpty, RRi)
+    (isEmpty, CCi)
 Headline
     empty test for an interval
 Usage
@@ -145,6 +147,8 @@ SeeAlso
 doc ///
 Key
     (isSubset, RRi, RRi)
+    (isSubset, RRi, CCi)
+    (isSubset, CCi, CCi)
 Headline
     subset test for intervals
 Usage
@@ -237,6 +241,7 @@ Key
     (interval,QQ,RR)
     (interval,QQ,ZZ)
     (interval,RR)
+    (interval,RR,CC)
     (interval,RR,QQ)
     (interval,RR,RR)
     (interval,RR,ZZ)
@@ -244,6 +249,11 @@ Key
     (interval,ZZ,QQ)
     (interval,ZZ,RR)
     (interval,ZZ,ZZ)
+    (interval,RRi,RRi)
+    (interval,CC)
+    (interval,CC,RR)
+    (interval,CC,CC)
+    (interval,CCi)
     [interval,Precision]
 Headline
     construct an interval
@@ -320,3 +330,29 @@ SeeAlso
     interval
     toRRi
 ///
+
+doc ///
+Key
+    toCCi
+Headline
+    construct an interval
+Usage
+    I = toCCi(n)
+    I = toCCi(re,im)
+    I = toCCi(prec,re,im)
+Inputs
+    n:CC
+    re:RRi
+    im:RRi
+    prec:ZZ
+Outputs
+    I:CCi
+Description
+  Text
+    Returns an interval as small as possible containing {\tt n} or from {\tt l} to {\tt r}.  Note that if {\tt l} is to the right of {\tt r}, the constructed interval is empty.  This is a more low-level function and @TO interval@ or span should be used instead.
+SeeAlso
+    (span, List)
+    (span, Sequence)
+    interval
+///
+

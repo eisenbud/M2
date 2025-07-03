@@ -310,7 +310,7 @@ random QQ := QQ => opts -> x -> rawFareyApproximation(
 
 -- algebraic operations and functions
 
-RR.isBasic = CC.isBasic = RRi.isBasic = true
+RR.isBasic = CC.isBasic = RRi.isBasic = CCi.isBasic = true
 
 Thing ** InexactFieldFamily := (X,T) -> X ** default T
 
@@ -490,6 +490,7 @@ InexactNumber#AfterPrint = x ->  (class x," (of precision ",precision x,")")
 isReal = method()
 isReal RRi := isReal RR := isReal QQ := isReal ZZ := x -> true
 isReal CC := z -> imaginaryPart z == 0
+isReal CCi := z -> imaginaryPart z == 0
 isReal Constant := isReal @@ numeric
 isReal InfiniteNumber := x -> false
 
