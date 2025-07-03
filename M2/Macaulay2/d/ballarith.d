@@ -278,6 +278,9 @@ export imaginaryPart(x:CCb):RRb := (
     Ccode(void, "acb_get_imag(", y, ", ", x, ")");
     y);
 
+export hash(x:CCb, prec:ulong):hash_t := (
+    761 * hash(realPart(x), prec) + 743 * hash(imaginaryPart(x), prec));
+
 export tostringCCb(x:CCb):string := (
     tostringRRb(realPart(x)) + "+" + tostringRRb(imaginaryPart(x)) + "*ii");
 
