@@ -28,6 +28,14 @@ using cc_srcptr = cc_struct const *;
 
 typedef struct
 {
+  __mpfi_struct re;
+  __mpfi_struct im;
+} cci_struct;
+using cci_ptr = cci_struct *;
+using cci_srcptr = cci_struct const *;
+
+typedef struct
+{
   double re;
   double im;
 } cc_doubles_struct;
@@ -55,6 +63,7 @@ union ring_elem
   mpfi_srcptr mpfi_val;
   cc_doubles_srcptr cc_doubles_val;
   cc_srcptr cc_val;
+  cci_srcptr cci_val;
   const void *mPolyVal;
  public:
   ring_elem() : poly_val(nullptr) {}
@@ -85,7 +94,9 @@ union ring_elem
   mpq_srcptr get_mpq() const { return mpq_val; }
   mpfr_srcptr get_mpfr() const { return mpfr_val; }
   mpfi_srcptr get_mpfi() const { return mpfi_val; }
+
   cc_srcptr get_cc() const { return cc_val; }
+  cci_srcptr get_cci() const { return cci_val; }
   cc_doubles_srcptr get_cc_doubles() const { return cc_doubles_val; }
   const local_elem* get_local_elem() const { return local_val; }
   const schur_poly* get_schur_poly() const { return schur_poly_val; }

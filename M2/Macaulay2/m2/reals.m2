@@ -103,10 +103,19 @@ new RealIntervalField of Nothing' from ZZ := memoize (
 	  hashTable {
 	       symbol precision => prec,
 	       symbol Engine => true,
-	       symbol baseRings => {ZZ,QQ},
+	       symbol baseRings => {ZZ,QQ,RR_prec},
 	       symbol isBasic => true,
 	       symbol RawRing => rawRRi prec
 	       }))
+new ComplexIntervalField of Nothing' from ZZ := memoize (
+     (ComplexIntervalField,Nothing',prec) -> newClass(ComplexIntervalField,Nothing',
+      hashTable {
+           symbol precision => prec,
+           symbol Engine => true,
+           symbol baseRings => {ZZ,QQ,RR_prec,CC_prec,RRi_prec},
+           symbol isBasic => true,
+           symbol RawRing => rawCCi prec
+           }))
 new RealBallField of Nothing' from ZZ := memoize (
     (RealBallField, Nothing', prec) -> newClass(RealBallField, Nothing',
 	hashTable {
