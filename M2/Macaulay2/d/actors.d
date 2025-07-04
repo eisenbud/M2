@@ -816,7 +816,10 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	  else binarymethod(lhs,rhs,PowerS))
     is x:RRicell do (
 	  when rhs
-	  is y:ZZcell do toExpr(x.v^y.v)
+	  is y:ZZcell do (
+	       if y.v < 0 then toExpr(1/(x.v^(-y.v)))
+	       else toExpr(x.v^y.v)
+	       )
 	  is y:QQcell do (
 	       d := denominator(y.v);
 	       if d === 1 then toExpr(x.v^numerator(y.v))

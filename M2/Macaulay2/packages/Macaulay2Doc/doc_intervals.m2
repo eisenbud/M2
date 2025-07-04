@@ -61,13 +61,14 @@ SeeAlso
 doc ///
 Key
     diameter
+    (diameter, CCi)
     (diameter, RRi)
 Headline
     diameter of an interval
 Usage
     x = diameter I
 Inputs
-    I:RRi
+    I:{RRi, CCi}
 Outputs
     x:RR
 Description
@@ -105,17 +106,20 @@ SeeAlso
 
 doc ///
 Key
+    (isMember, QQ, CCi)
+    (isMember, RR, CCi)
+    (isMember, ZZ, CCi)
+    (isMember, CC, CCi)
     (isMember, QQ, RRi)
     (isMember, ZZ, RRi)
     (isMember, RR, RRi)
-    (isMember, QQ, CCi)
 Headline
     membership test in an interval
 Usage
     isMember(x,I)
 Inputs
-    x:{QQ,ZZ,RR}
-    I:RRi
+    x:{QQ,ZZ,RR,CC}
+    I:CCi
 Outputs
     :Boolean
 Description
@@ -146,16 +150,17 @@ SeeAlso
 
 doc ///
 Key
+    (isSubset, CCi, CCi)
     (isSubset, RRi, RRi)
     (isSubset, RRi, CCi)
-    (isSubset, CCi, CCi)
+    (isSubset, CCi, RRi)
 Headline
     subset test for intervals
 Usage
     x = isSubset(I,J)
 Inputs
-    I:RRi
-    J:RRi
+    I:CCi
+    J:CCi
 Outputs
     x:Boolean
 Description
@@ -165,7 +170,7 @@ SeeAlso
     isMember
 ///
 
-undocumented{(span,RRi), (span, QQ), (span, RR), (span, ZZ)}
+undocumented{(isReal, CCi), (span, CCi), (span,RRi), (span, QQ), (span, RR), (span, ZZ)}
 
 doc ///
 Key
@@ -180,6 +185,7 @@ SeeAlso
     (span, Sequence)
     (span, List)
     toRRi
+    toCCi
 ///
 
 doc ///
@@ -193,11 +199,13 @@ Usage
     I = span(L,Precision => prec)
 Inputs
     L:List
-        containing @TO Number@ (including @TO RRi@)
+        containing @TO Number@ (including @TO CCi@)
     Precision => ZZ
         specifies the desired precision of the output, a value of {\tt -1} uses the minimum precision of the inputs.
 Outputs
     I:RRi
+	when input List has only real numbers or intervals
+    I:CCi
 Description
   Text
     Returns the smallest interval containing the inputs (which can include intervals).  Typically, the returned interval is not empty.
@@ -205,6 +213,7 @@ SeeAlso
     interval
     (span, Sequence)
     toRRi
+    toCCi
 ///
 
 doc ///
@@ -218,11 +227,13 @@ Usage
     I = span(S,Precision => prec)
 Inputs
     S:Sequence
-        containing @TO Number@ (including @TO RRi@)
+        containing @TO Number@ (including @TO CCi@)
     Precision => ZZ
         specifies the desired precision of the output, a value of {\tt -1} uses the minimum precision of the inputs.
 Outputs
     I:RRi
+	when input List has only real numbers or intervals
+    I:CCi
 Description
   Text
     Returns the smallest interval containing the inputs (which can include intervals).  Typically, the returned interval is not empty.
@@ -230,6 +241,7 @@ SeeAlso
     interval
     (span, List)
     toRRi
+    toCCi
 ///
 
 doc ///
