@@ -75,11 +75,11 @@ export CCicell := {+v:CCi};
 
 dummy(x:RR):string := "";
 dummyi(x:RRi):string := "";  -- Added for MPFI
-dummyCCi(x:CCi):string := "";  
+dummyCCi(x:CCi):string := "";  -- Added for MPFI
 
 export tostringRRpointer := dummy;
 export tostringRRipointer := dummyi;  -- Added for MPFI
-export tostringCCipointer := dummyCCi;  
+export tostringCCipointer := dummyCCi;  -- Added for MPFI
 dummy(x:CC):string := "";
 
 export tonetCCpointer := dummy;
@@ -901,7 +901,6 @@ isnan0 (x:RRi) ::= Ccode(bool,"mpfi_nan_p(",x,")");
 sign0(x:RR) ::= 0 != Ccode(int,"mpfr_signbit(",x,")");
 sign0(x:RRi) ::= 0 != Ccode(int,"mpfi_is_strictly_neg(",x,")");
 export isEmpty(x:RRi):bool := Ccode(bool,"mpfi_is_empty(",x,")");
-export isEmpty(x:CCi):bool := isEmpty(x.re) || isEmpty(x.im);
                                     
 exponent0(x:RR) ::= Ccode(long,"(long)mpfr_get_exp(",x,")"); -- sometimes int, sometimes long, see gmp.h for type mp_exp_t
 exponent0(x:RRi) ::= max(exponent0(rightRR(x)),exponent0(leftRR(x)));
@@ -954,6 +953,10 @@ export moveToCCiandclear(z:CCimutable):CCi := (
 precision0(x:RR) ::= Ccode(ulong,"(unsigned long)mpfr_get_prec(", x, ")");
 
 precision0(x:RRi) ::= Ccode(ulong,"(unsigned  long)mpfi_get_prec(", x, ")");
+
+precision0(x:CC) ::= Ccode(ulong,"(unsigned long)mpfr_get_prec(", x, ")");
+
+precision0(x:CCi) ::= Ccode(ulong,"(unsigned  long)mpfi_get_prec(", x, ")");
 
 export precision(x:RR):ulong := precision0(x);
 
@@ -1173,7 +1176,7 @@ export toCC(x:RR,y:RR):CC := (
 
 export toCCi(x:RR,y:RR):CCi := (
      if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
-     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec); CCi(z,z))
+     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
      else if precision0(x) == precision0(y) then CCi(toRRi(x),toRRi(y))
      else if precision0(x) < precision0(y) then CCi(toRRi(x),toRRi(y,precision0(x)))
      else CCi(toRRi(x,precision0(y)),toRRi(y))
@@ -1181,7 +1184,7 @@ export toCCi(x:RR,y:RR):CCi := (
 
 export toCCi(x:RRi,y:RR):CCi := (
      if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
-     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec); CCi(z,z))
+     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
      else if precision0(x) == precision0(y) then CCi(x,toRRi(y))
      else if precision0(x) < precision0(y) then CCi(x,toRRi(y,precision0(x)))
      else CCi(toRRi(x,precision0(y)),toRRi(y))
@@ -1189,7 +1192,7 @@ export toCCi(x:RRi,y:RR):CCi := (
 
 export toCCi(x:RR,y:RRi):CCi := (
      if ( isnan0(x) || isnan0(y) ) then (prec := precision0(x); z := nanRRi(prec); CCi(z,z))
-     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec); CCi(z,z))
+     else if ( isinf0(x) || isinf0(y) ) then (prec := precision0(x); z := infinityRRi(prec,1); CCi(z,z))
      else if precision0(x) == precision0(y) then CCi(toRRi(x),y)
      else if precision0(x) < precision0(y) then CCi(toRRi(x),toRRi(y,precision0(x)))
      else CCi(toRRi(x,precision0(y)),y)
@@ -1197,11 +1200,11 @@ export toCCi(x:RR,y:RRi):CCi := (
 
 export infinityCC(prec:ulong):CC := (x := infinityRR(prec,1); toCC(x,x));
 
-export nanCCi(prec:ulong):CCi := (x := nanRR(prec); toCCi(x,x));
-
 export infinityCCi(prec:ulong):CCi := (x := infinityRR(prec,1); toCCi(x,x));
 
 export nanCC(prec:ulong):CC := (x := nanRR(prec); toCC(x,x));
+
+export nanCCi(prec:ulong):CCi := (x := nanRR(prec); toCCi(x,x));
 
 export toCC(x:RR):CC := CC(x,toRR(0,precision0(x)));
 
@@ -2348,8 +2351,10 @@ export inverse(z:CCi):CCi := (
      if isfinite(z) then 
      if isZero0(z.re) && isZero0(z.im) then infinityCCi(precision0(z.re)) 
      else (
+     	  expon := exponent(z);
+     	  if expon > 10000 || expon < -10000 then z = z >> expon else expon = long(0);
      	  n2 := norm2(z);
-     	  toCCi((z.re/n2), -(z.im/n2)))
+     	  toCCi((z.re/n2) >> expon, -(z.im/n2) >> expon))
      else if isinf(z) then toCCi(0,0,precision(z))
      else nanCCi(precision(z)));
 

@@ -182,11 +182,12 @@ set(SRCLIST
   SLP
   ZZ
   ZZp
-  aring-RRi
   aring-CC
   aring-CCC
   aring-RR
   aring-RRR
+  aring-RRi
+  aring-CCi
   aring-gf-flint-big
   aring-gf-flint
   aring-m2-gf

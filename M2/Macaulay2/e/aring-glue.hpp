@@ -139,6 +139,14 @@ class ConcreteRing : public Ring
     return ret;
   }
 
+  virtual bool from_ComplexInterval(gmp_CCi z, ring_elem &result) const
+    {
+        Element a(*R);
+        bool ret = get_from_ComplexInterval(*R, a , z);
+        if (ret) R->to_ring_elem(result, a);
+        return ret;
+    }
+
   virtual bool from_BigComplex(gmp_CC q, ring_elem &result) const
   {
     Element a(*R);
@@ -522,6 +530,7 @@ ConcreteRing<RingType> *ConcreteRing<RingType>::create(
   result->oneV = result->from_long(1);
   result->minus_oneV = result->from_long(-1);
 
+
   return result;
 }
 
@@ -640,6 +649,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingQQ, ARingCC>(R, S, fR, resultS);
             case M2::ring_CCC:
               return RP::promoter<ARingQQ, ARingCCC>(R, S, fR, resultS);
+            case M2::ring_CCi:
+             return RP::promoter<ARingQQ, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
@@ -656,6 +667,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingRR, ARingCC>(R, S, fR, resultS);
             case M2::ring_CCC:
               return RP::promoter<ARingRR, ARingCCC>(R, S, fR, resultS);
+            case M2::ring_CCi:
+              return RP::promoter<ARingRR, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
@@ -672,6 +685,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingRRR, ARingCC>(R, S, fR, resultS);
             case M2::ring_CCC:
               return RP::promoter<ARingRRR, ARingCCC>(R, S, fR, resultS);
+            case M2::ring_CCi:
+                return RP::promoter<ARingRRR, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
@@ -707,6 +722,24 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
             default:
               return false;
           }
+        case M2::ring_CCi:
+          switch (S->ringID())
+             {
+                case M2::ring_RR:
+                  return RP::promoter<ARingCCi, ARingRR>(R, S, fR, resultS);
+                case M2::ring_RRR:
+                  return RP::promoter<ARingCCi, ARingRRR>(R, S, fR, resultS);
+                case M2::ring_RRi:
+                  return RP::promoter<ARingCCi, ARingRRi>(R, S, fR, resultS);
+                 case M2::ring_CCC:
+                   return RP::promoter<ARingCCi, ARingCCC>(R, S, fR, resultS);
+                 case M2::ring_CC:
+                   return RP::promoter<ARingCCi, ARingCC>(R, S, fR, resultS);
+                 case M2::ring_CCi:
+                   return RP::promoter<ARingCCi, ARingCCi>(R, S, fR, resultS);
+                default:
+                   return false;
+            }
       default:
         break;
     };
@@ -1099,6 +1132,12 @@ inline unsigned long ConcreteRing<ARingRRi>::get_precision() const
 
 template <>
 inline unsigned long ConcreteRing<ARingCCC>::get_precision() const
+{
+  return R->get_precision();
+}
+
+template <>
+inline unsigned long ConcreteRing<ARingCCi>::get_precision() const
 {
   return R->get_precision();
 }

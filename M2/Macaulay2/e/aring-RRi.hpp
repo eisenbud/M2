@@ -97,7 +97,8 @@ class ARingRRi : public SimpleARing<ARingRRi>
   }
   // 'init', 'init_set' functions
 
-  void init(ElementType &result) const { mpfi_init2(&result, mPrecision); }
+  void init(ElementType &result) const {
+      mpfi_init2(&result, mPrecision); }
   void init_set(ElementType &result, const ElementType &a) const
   {
     init(result);
