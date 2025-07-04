@@ -81,7 +81,6 @@ class ARingRRi : public SimpleARing<ARingRRi>
   void to_ring_elem(ring_elem &result, const ElementType &a) const
   {
       mpfi_ptr res = getmemstructtype(mpfi_ptr);
-      std::cout << "mpfi_init2:2\n";
       mpfi_init2(res,mPrecision);
       mpfi_set(res, &a);
       result = ring_elem(moveTo_gmpRRi(res));
@@ -99,7 +98,6 @@ class ARingRRi : public SimpleARing<ARingRRi>
   // 'init', 'init_set' functions
 
   void init(ElementType &result) const {
-      std::cout << "mpfi_init2:1\n";
       mpfi_init2(&result, mPrecision); }
   void init_set(ElementType &result, const ElementType &a) const
   {
