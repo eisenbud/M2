@@ -17,6 +17,15 @@ interval(A,B) := opts -> (N,M) -> (
     if opts.Precision < 0 then toRRi(N,M)
     else toRRi(opts.Precision,N,M))
 
+for A in {ZZ,QQ,RR} do
+interval(A,RRi) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(interval N, M)
+    else toCCi(opts.Precision, interval N, M))
+for A in {ZZ,QQ,RR} do
+interval(RRi,A) := opts -> (N,M) -> (
+    if opts.Precision < 0 then toCCi(N, interval M)
+    else toCCi(opts.Precision, N, interval M))
+
 interval(RRi,RRi) := opts -> (N,M) -> (
     if opts.Precision < 0 then toCCi(N,M)
     else toCCi(opts.Precision,N,M))
@@ -78,12 +87,12 @@ spanCCi = method(Options => {Precision => -1})
 
 for A in {ZZ,QQ,RR,RRi} do (
 spanCCi(CC,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),toRRi imaginaryPart N)
-    else toCCi(opts.Precision,spanRRi(realPart N,M),toRRi imaginaryPart N));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),spanRRi(0, imaginaryPart N))
+    else toCCi(opts.Precision,spanRRi(realPart N,M),spanRRi(0, imaginaryPart N)));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
 spanCCi(A,CC) := opts -> (N,M) -> spanCCi(opts,M,N);
 spanCCi(CCi,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),imaginaryPart N)
-    else toCCi(opts.Precision,spanRRi(realPart N,M),imaginaryPart N));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
+    if opts.Precision < 0 then toCCi(spanRRi(realPart N,M),spanRRi(0, imaginaryPart N))
+    else toCCi(opts.Precision,spanRRi(realPart N,M),spanRRi(0, imaginaryPart N)));--toRRi(opts.Precision,min(left N,M),max(right N,M)));
 spanCCi(A,CCi) := opts -> (N,M) -> spanCCi(opts,M,N))
 
 spanCCi(CC,CC) := opts -> (N,M) -> (
@@ -114,22 +123,41 @@ span ZZ := span QQ := span RR := {Precision => -1} >> opts -> N -> interval(N,op
 
 span RRi := {Precision => -1} >> opts -> N -> interval(left N,right N,opts)
 
-span CC := {Precision => -1} >> opts -> N -> interval(realPart N,imaginaryPart N,opts)
+span CC := {Precision => -1} >> opts -> N -> interval(toRRi realPart N, toRRi imaginaryPart N,opts)
 
-span CCi := {Precision => -1} >> opts -> N -> interval(realPart N,imaginaryPart N,opts)
+span CCi := {Precision => -1} >> opts -> N -> interval(toRRi realPart N, toRRi imaginaryPart N,opts)
 
 span List := span Sequence := {Precision => -1} >> opts -> L -> fold(L, (N, M) -> spanner(N, M, opts))
 
 for A in {ZZ,QQ,RR} do
 isMember(A,RRi) := (N,M) -> subsetRRi(N,M);
+isMember(CC,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N, imaginaryPart M);
+isMember(CC,RRi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N, imaginaryPart M);
 
 isSubset(RRi,RRi) := (N,M) -> subsetRRi(N,M);
+isSubset(CCi,RRi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
+
+for A in {ZZ,QQ,RR} do
+isMember(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
+
+for A in {RRi,CCi} do
+isSubset(A,CCi) := (N,M) -> subsetRRi(realPart N,realPart M) and subsetRRi(imaginaryPart N,imaginaryPart M);
 
 -- intersect is an associative binary method, so it works on arbitrary lists and sequences
 intersect RRi       := RRi => { Precision => -1 } >> opts -> identity
 intersect(RRi, RRi) := RRi => { Precision => -1 } >> opts -> (N, M) -> (
     if opts.Precision < 0 then intersectRRi(N,M)
     else intersectRRi(opts.Precision,N,M))
+
+intersect CCi       := CCi => { Precision => -1 } >> opts -> identity
+intersect(CCi, RRi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
+    if opts.Precision < 0 then interval(intersectRRi(realPart N,M), imaginaryPart N)
+    else interval(intersectRRi(opts.Precision,realPart N,M), imaginaryPart N))
+intersect(RRi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> intersect(M, N)
+intersect(CCi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
+    if opts.Precision < 0 then interval(intersectRRi(realPart N,realPart M), intersectRRi(imaginaryPart N, imaginaryPart M))
+    else interval(intersectRRi(opts.Precision,realPart N, realPart M), intersectRRi(opts.Precision, imaginaryPart N, imaginaryPart M)))
+
 
 isEmpty RRi := Boolean => isEmptyRRi
 isEmpty CCi := x -> isEmptyRRi realPart x or isEmptyRRi imaginaryPart x

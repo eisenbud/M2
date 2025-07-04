@@ -993,7 +993,8 @@ tostringfun(e:Expr):Expr := (
      is x:RRicell do toExpr(tostringRRi(x.v))
      is x:RRbcell do toExpr(tostringRRb(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
-	 is x:CCicell do toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
+	 is x:CCicell do toExpr(tostringCCi(x.v))--toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
+     is x:CCbcell do toExpr(tostringCCb(x.v))
      is Error do toExpr("<<an error message>>")
      is Sequence do toExpr("<<a sequence>>")
      is HashTable do toExpr("<<a hash table>>")
@@ -1369,6 +1370,7 @@ toRRi(e:Expr):Expr := (
 	     is x:QQcell do toExpr(toRRi(x.v))
 	     is x:RRcell do toExpr(toRRi(x.v))
 	     is x:RRicell do e
+	     is x:RRbcell do toExpr(toRRi(x.v, x.prec))
     	 is s:Sequence do (
 	     if length(s) > 3 then WrongNumArgs(1,3) else
 	     if length(s) == 2 then (
@@ -1514,7 +1516,32 @@ toCCi(e:Expr):Expr := (
 			else WrongNumArgs(1,2))
 		 else WrongArg(1,"a pair or triple of integral, rational, or real numbers, with a precision"));
 setupfun("toCCi",toCCi);
-                                                     
+
+toCCb(e:Expr):Expr := (
+    when e
+    -- # typical value: toCCb, ZZ, CCb
+    is x:ZZcell do toExpr(toCCb(x.v, defaultPrecision), defaultPrecision)
+    -- # typical value: toCCb, QQ, CCb
+    is x:QQcell do toExpr(toCCb(x.v, defaultPrecision), defaultPrecision)
+    -- # typical value: toCCb, RR, CCb
+    is x:RRcell do toExpr(toCCb(x.v), precision(x.v))
+    -- # typical value: toCCb, RRb, CCb
+    is x:RRbcell do toExpr(toCCb(x.v), x.prec)
+    -- # typical value: toCCb, CC, CCb
+    is x:CCcell do toExpr(toCCb(x.v), precision(x.v))
+    is a:Sequence do (
+	if length(a) == 2 then (
+	    when a.0
+	    is x:RRbcell do (
+		when a.1
+		-- # typical value: toCCb, RRb, RRb, CCb
+		is y:RRbcell do toExpr(toCCb(x.v, y.v), min(x.prec, y.prec))
+		else WrongArg(2, "a real ball"))
+	    else WrongArg(1, "a real ball"))
+	else WrongNumArgs(1, 2))
+    else WrongArg("a complex number or pair of real numbers"));
+setupfun("toCCb", toCCb);
+
 rightRR(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(rightRR(x.v))
@@ -1527,17 +1554,21 @@ leftRR(e:Expr):Expr := (
         else WrongArg("an interval"));
 setupfun("left",leftRR);
                                                      
-widthRR(e:Expr):Expr := (
+width0(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(widthRR(x.v))
-        else WrongArg("an interval"));
-setupfun("diameter",widthRR).Protected = false;
+		is x:CCicell do toExpr(sqrt(widthRR(realPart(x.v))*widthRR(realPart(x.v))+widthRR(imaginaryPart(x.v))*widthRR(imaginaryPart(x.v))))
+		is x:RRbcell do toExpr(2 * radius(x.v))
+        else WrongArg("an interval or complex interval or ball"));
+setupfun("diameter",width0).Protected = false;
                                                      
-midpointRR(e:Expr):Expr := (
+midpoint0(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(midpointRR(x.v))
-        else WrongArg("an interval"));
-setupfun("midpoint",midpointRR);
+	is x:RRbcell do toExpr(midpoint(x.v, x.prec))
+	is x:CCicell do toExpr(toCC(midpointRR(realPart(x.v)),midpointRR(imaginaryPart(x.v))))
+        else WrongArg("an interval or ball"));
+setupfun("midpoint",midpoint0);
                                                      
 isEmptyRRi(e:Expr):Expr := (
      when e
@@ -1663,6 +1694,7 @@ precision(e:Expr):Expr := (
      is x:RRbcell do toExpr(x.prec)
      is x:CCcell do toExpr(precision(x.v))
 	 is x:CCicell do toExpr(precision(x.v))
+     is x:CCbcell do toExpr(x.prec)
      else WrongArgRR());
 setupfun("precision0",precision);
 

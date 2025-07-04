@@ -52,6 +52,7 @@ document {
 	  TO "RR",
 	  TO "RRi",
 	  TO "CC",
+	  TO "CCi",
 	  },
      "The names of some of these rings are double letters so the corresponding symbols
      with single letters are preserved for use as variables.",
@@ -106,6 +107,7 @@ document {
 	  TO "RR",
 	  TO "RRi",
 	  TO "CC",
+	  TO "CCi",
      }
 }
 
@@ -449,7 +451,7 @@ document {
      results.  That allows numbers of various precisions
      to be used without creating a new ring for each precision.",
      EXAMPLE {"class interval(3.1,3.5)", "ring interval(3.1,3.5)"},
-     "The precision can be specified on input by specifying the precision of both input ", TO "RR", " numbers.",
+     "The precision can be specified on input by specifying the precision of both input ", TO "RR", " numbers. ",
      "Alternatively, the precision can be specified by including the option ", TT "Precision", ".",
      EXAMPLE {"interval(2.5p100,3.2p1000)","interval(2.5,3.2,Precision=>200)"},
      "Intervals can also be created using ", TO (span,Sequence), " to create the smallest interval containing the inputs.",
@@ -465,7 +467,7 @@ document {
      EXAMPLE {"exp(interval(2,4))","cos(interval(1,1.3))","sqrt(interval(2))"},
      "Transcendental functions are available to high precision, with ", TO "numericInterval", ".",
     EXAMPLE {"numericInterval(100,pi)","numericInterval_200 EulerConstant"},
-    SeeAlso => {toRRi, numericInterval, precision, interval, (span,Sequence), (span,List)},
+    SeeAlso => {CCi, toRRi, numericInterval, precision, interval, (span,Sequence), (span,List)},
     Subnodes => {
 	TO toRRi,
 	TO interval,
@@ -481,6 +483,48 @@ document {
 	TO span, -- TODO: perhaps this should be shared
 	TO (span, List),
 	TO (span, Sequence),
+        },
+	  }
+
+undocumented {"CCi_*"}
+
+document {
+     Key => CCi,
+     Headline => "the class of all complex intervals",
+     "A complex interval is entered as a pair of real intervals to the ", TO "interval", " function.  It is stored internally as an arbitrary precision interval using the ", TO "MPFI", " library.",
+     EXAMPLE "interval(interval(3.1415,3.1416), interval(2.7182,2.7183))",
+     "The precision is measured in bits, is visible in the ring displayed on
+     the second of each pair of output lines, and can be recovered using ", TO "precision", ".",
+     EXAMPLE "precision interval(interval(3.1415,3.1416), interval(2.7182,2.7183))",
+     "Complex intervals are objects in ", TO "class", " CCi which is an ", TO "InexactFieldFamily", ".",
+     EXAMPLE {"class interval(interval(3.1,3.5),interval(1.1,1.2))"},
+     "The precision can be specified on input by specifying the precision of both input ", TO "CC", " numbers. ",
+     "Alternatively, the precision can be specified by including the option ", TT "Precision", ".",
+     EXAMPLE {"interval(interval(2.5p1000,3.2p100),interval(2.3,3.1,Precision=>200))"},
+     "Intervals can also be created using ", TO (span,Sequence), " to create the smallest interval containing the inputs.",
+     EXAMPLE {"span(2+3*ii,Precision=>100)","span(2,3*ii,interval(interval(-1.5,-0.5),interval(3,3.1)),73)"},
+     "Operations using intervals are computed as sets so that the resulting intervals contain all possible outputs from pairs of points in input intervals.",
+     EXAMPLE {"	(I, J, K) = (interval(interval(.5,.8),interval(.6,.9)), interval(interval(.54,.78),interval(.65,.89)), interval(interval(.45,.6),interval(.3,.78)));",
+	 	"I + J",
+		"I - J",
+		"I * K",
+		"I / K",
+		"I ^ 3",
+		"2 * I",
+		"(2+3*ii) * I"},
+    SeeAlso => {RRi, toCCi, precision, interval, (span,Sequence), (span,List)},
+    Subnodes => {
+	TO toCCi,
+-*	TO interval,
+--	TO diameter,
+	TO midpoint,
+        TO intersect,
+        TO (isMember, QQ, CCi),
+        TO (isEmpty, CCi),
+        TO (isSubset, RRi,CCi),
+	TO span, -- TODO: perhaps this should be shared
+	TO (span, List),
+	TO (span, Sequence),*-
         },
 	  }
 
