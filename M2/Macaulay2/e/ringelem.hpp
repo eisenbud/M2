@@ -77,6 +77,7 @@ union ring_elem
   explicit ring_elem(mpfr_srcptr a) : mpfr_val(a) {}
   explicit ring_elem(mpfi_srcptr a) : mpfi_val(a) {}
   explicit ring_elem(cc_srcptr a) : cc_val(a) {}
+  explicit ring_elem(cci_srcptr a) : cci_val(a) {}
   explicit ring_elem(cc_doubles_srcptr a) : cc_doubles_val(a) {}
   explicit ring_elem(local_elem* a) : local_val(a) {}
   explicit ring_elem(const void* a) : mPolyVal(a) {} // non-commutative polynomials

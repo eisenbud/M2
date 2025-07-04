@@ -94,14 +94,14 @@ class ARingCCi : public SimpleARing<ARingCCi>
   // Do not take the same element and store it as two different ring_elem's!!
   void to_ring_elem(ring_elem &result, const ElementType &a) const
   {
-      gmp_CCimutable res = getmemstructtype(gmp_CCimutable);
-      res->re = getmemstructtype(gmp_RRimutable);
-      res->im = getmemstructtype(gmp_RRimutable);
-      mpfi_init2(res->re,mPrecision);
-      mpfi_init2(res->im,mPrecision);
-      mpfi_set(res->re,&a.re);
-      mpfi_set(res->im,&a.im);
-      result = ring_elem(moveTo_gmpCCi(res));
+      cci_ptr res = getmemstructtype(cci_ptr);
+      mpfi_init2(&res->re,mPrecision);
+      mpfi_init2(&res->im,mPrecision);
+      mpfi_set(&res->re,&a.re);
+      mpfi_set(&res->im,&a.im);
+      mpfi_reallocate_limbs(&res->re);
+      mpfi_reallocate_limbs(&res->im);
+      result = ring_elem(res);
   }
 
   void from_ring_elem(ElementType &result, const ring_elem &a) const
