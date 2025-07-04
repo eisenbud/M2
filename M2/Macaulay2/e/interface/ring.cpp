@@ -96,7 +96,6 @@ const Ring /* or null */ *IM2_Ring_RRi(unsigned long prec)
 
 const Ring /* or null */ *IM2_Ring_CCi(unsigned long prec)
 {
-    std::cout << "Creating CCi ring\n";
   return M2::ConcreteRing<M2::ARingCCi>::create(prec);
 }
 

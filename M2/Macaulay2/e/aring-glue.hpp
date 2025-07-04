@@ -521,19 +521,15 @@ template <class RingType>
 ConcreteRing<RingType> *ConcreteRing<RingType>::create(
     std::unique_ptr<RingType> R)
 {
-    std::cout << "In createRing\n";
   auto characteristic = R->characteristic();
   ConcreteRing<RingType> *result = new ConcreteRing<RingType>(std::move(R));
   result->initialize_ring(characteristic);
   result->declare_field();
 
-    std::cout << "Before set 0\n";
   result->zeroV = result->from_long(0);
-    std::cout << "After set 0\n";
   result->oneV = result->from_long(1);
   result->minus_oneV = result->from_long(-1);
 
-    std::cout << "End createRing\n";
 
   return result;
 }

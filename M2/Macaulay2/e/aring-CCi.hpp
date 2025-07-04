@@ -41,9 +41,11 @@ class ARingCCi : public SimpleARing<ARingCCi>
 
   unsigned int computeHashValue(const elem &a) const
   {
-      std::cout << "In computeHash\n";
-    double d = 12347. * mpfr_get_d(&(a.re.left), MPFR_RNDN) + 865800. * mpfr_get_d(&(a.re.right), MPFR_RNDN) + 72158 * mpfr_get_d(&(a.im.left), MPFR_RNDN) + 86429 * mpfr_get_d(&(a.im.right), MPFR_RNDN);
-      std::cout << "After computeHash\n";
+      double d1 = mpfr_get_d(&a.re.left, MPFR_RNDN);
+      double d2 = mpfr_get_d(&(a.re.right), MPFR_RNDN);
+      double d3 = mpfr_get_d(&(a.im.left), MPFR_RNDN);
+      double d4 = mpfr_get_d(&(a.im.right), MPFR_RNDN);
+    double d = 12347. * d1 + 865800. * d2 + 72158. * d3 + 86429. * d4;
     return static_cast<unsigned int>(d);
   }
 
@@ -93,9 +95,7 @@ class ARingCCi : public SimpleARing<ARingCCi>
   void to_ring_elem(ring_elem &result, const ElementType &a) const
   {
       cci_ptr res = getmemstructtype(cci_ptr);
-      std::cout << "mpfi_init2:8\n";
       mpfi_init2(&res->re,mPrecision);
-      std::cout << "mpfi_init2:9\n";
       mpfi_init2(&res->im,mPrecision);
       mpfi_set(&res->re,&a.re);
       mpfi_set(&res->im,&a.im);
@@ -117,16 +117,11 @@ class ARingCCi : public SimpleARing<ARingCCi>
   // 'init', 'init_set' functions
 
   void init(ElementType &result) const {
-      std::cout << "In init\n";
-      std::cout << "mpfi_init2:3\n";
       mpfi_init2(&result.re, mPrecision);
-      std::cout << "mpfi_init2:4\n";
       mpfi_init2(&result.im, mPrecision);
-      std::cout << "After init\n";
   }
   void init_set(ElementType &result, const ElementType &a) const
   {
-      std::cout << "In init_set\n";
     init(result);
     mpfi_set(&result.re, &a.re);
     mpfi_set(&result.im, &a.im);
@@ -162,10 +157,8 @@ class ARingCCi : public SimpleARing<ARingCCi>
 
   void set_from_long(ElementType &result, long a) const
   {
-      std::cout << "In set from long\n";
     mpfi_set_si(&result.re, a);
     mpfi_set_si(&result.im, 0);
-      std::cout << "After set from long\n";
   }
 
   void set_var(ElementType &result, int v) const
@@ -283,9 +276,7 @@ class ARingCCi : public SimpleARing<ARingCCi>
   // we silently assume that a != 0.  If it is, result is set to a^0, i.e. 1
   {
     mpfi_t norm, temp;
-      std::cout << "mpfi_init2:5\n";
     mpfi_init2(norm,get_precision());
-      std::cout << "mpfi_init2:6\n";
     mpfi_init2(temp,get_precision());
     mpfi_set(norm,&a.re);
     mpfi_mul(norm,norm,norm);
@@ -343,7 +334,6 @@ class ARingCCi : public SimpleARing<ARingCCi>
             const ElementType &b) const
   {
     mpfi_t temp;
-      std::cout << "mpfi_init2:7\n";
     mpfi_init2(temp,get_precision());
     mpfi_mul(temp,&a.re,&b.re);
     mpfi_mul(&result.re,&a.im,&b.im);

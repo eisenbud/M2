@@ -169,7 +169,6 @@ gmp_RRiorNull IM2_RingElement_to_Interval(const RingElement *a)
     {
        case M2::ring_RR:
           result = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:10\n";
           mpfi_init2(result, 53);
           mpfi_set_d(result, a->get_value().get_double());
           return moveTo_gmpRRi(result);
@@ -177,7 +176,6 @@ gmp_RRiorNull IM2_RingElement_to_Interval(const RingElement *a)
           R1 =
             dynamic_cast<const M2::ConcreteRing<M2::ARingRRi> *>(R);
           result = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:11\n";
           mpfi_init2(result, R1->get_precision());
           mpfi_set_fr(result, a->get_value().get_mpfr());
           return moveTo_gmpRRi(result);
@@ -185,7 +183,6 @@ gmp_RRiorNull IM2_RingElement_to_Interval(const RingElement *a)
           R1 =
           dynamic_cast<const M2::ConcreteRing<M2::ARingRRi> *>(R);
           result = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:12\n";
           mpfi_init2(result, R1->get_precision());
           mpfi_set(result, a->get_value().get_mpfi());
           return moveTo_gmpRRi(result);
@@ -230,9 +227,7 @@ gmp_CCiorNull IM2_RingElement_to_ComplexInterval(const RingElement *a)
           result = getmemstructtype(gmp_CCimutable);
             result->re = getmemstructtype(gmp_RRimutable);
             result->im = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:13\n";
           mpfi_init2(result->re, 53);
-            std::cout << "mpfi_init2:14\n";
           mpfi_init2(result->im, 53);
           mpfi_set_d(result->re, a->get_value().get_double());
           mpfi_set_d(result->im, 0);
@@ -243,9 +238,7 @@ gmp_CCiorNull IM2_RingElement_to_ComplexInterval(const RingElement *a)
            result = getmemstructtype(gmp_CCimutable);
             result->re = getmemstructtype(gmp_RRimutable);
             result->im = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:15\n";
            mpfi_init2(result->re, R1->get_precision());
-            std::cout << "mpfi_init2:16\n";
            mpfi_init2(result->im, R1->get_precision());
            mpfi_set_fr(result->re, a->get_value().get_mpfr());
            mpfi_set_d(result->im, 0);
@@ -256,9 +249,7 @@ gmp_CCiorNull IM2_RingElement_to_ComplexInterval(const RingElement *a)
           result = getmemstructtype(gmp_CCimutable);
             result->re = getmemstructtype(gmp_RRimutable);
             result->im = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:17\n";
           mpfi_init2(result->re, R1->get_precision());
-            std::cout << "mpfi_init2:18\n";
           mpfi_init2(result->im, R1->get_precision());
           mpfi_set(result->re, a->get_value().get_mpfi());
           mpfi_set_d(result->im,0);
@@ -269,9 +260,7 @@ gmp_CCiorNull IM2_RingElement_to_ComplexInterval(const RingElement *a)
             result = getmemstructtype(gmp_CCimutable);
             result->re = getmemstructtype(gmp_RRimutable);
             result->im = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:19\n";
             mpfi_init2(result->re, R1->get_precision());
-            std::cout << "mpfi_init2:20\n";
             mpfi_init2(result->im, R1->get_precision());
             mpfi_set_fr(result->re, &a->get_value().get_cc()->re);
             mpfi_set_fr(result->im, &a->get_value().get_cc()->im);
@@ -282,9 +271,7 @@ gmp_CCiorNull IM2_RingElement_to_ComplexInterval(const RingElement *a)
            result = getmemstructtype(gmp_CCimutable);
             result->re = getmemstructtype(gmp_RRimutable);
             result->im = getmemstructtype(gmp_RRimutable);
-            std::cout << "mpfi_init2:21\n";
            mpfi_init2(result->re, R1->get_precision());
-            std::cout << "mpfi_init2:22\n";
            mpfi_init2(result->im, R1->get_precision());
            mpfi_set(result->re, &a->get_value().get_cci()->re);
            mpfi_set(result->im, &a->get_value().get_cci()->im);
