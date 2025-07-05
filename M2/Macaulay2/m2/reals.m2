@@ -12,12 +12,10 @@ globalAssignment ImmutableType
 
 RR.synonym = "real number"
 RRi.synonym = "real interval"
-RRb.synonym = "real ball"
 CC.synonym = "complex number"
 CCi.synonym = "complex interval"
 RR.texMath = ///{\mathbb R}///
 RRi.texMath = ///{\square\mathbb R}///
-RRb.texMath = ///{\circle\mathbb R}///
 CC.texMath = ///{\mathbb C}///
 CCi.texMath = ///{\square\mathbb C}///
 Number.synonym = "number"
@@ -38,8 +36,6 @@ raw InexactField := R -> R.RawRing
 
 RR.InexactField = RealField    = new Type of InexactField   ; RealField.synonym = "real field"
 RRi.InexactField = RealIntervalField    = new Type of InexactField   ; RealIntervalField.synonym = "real interval field"
-RRb.InexactField = RealBallField = new Type of InexactField
-RealBallField.synonym = "real ball field"
 CC.InexactField = ComplexField = new Type of InexactField; ComplexField.synonym = "complex field"
 CCi.InexactField = ComplexIntervalField = new Type of InexactField; ComplexIntervalField.synonym = "complex interval field"
 
@@ -48,17 +44,14 @@ RingFamily_* := RR -> RR#(symbol _*)
 RingFamily_* := RRi -> RRi#(symbol _*)
 RingFamily_* = (RR,e) -> RR#(symbol _*) = e
 RingFamily_* = (RRi,e) -> RRi#(symbol _*) = e
-RingFamily_* = (RRb,e) -> RRb#(symbol _*) = e
 InexactNumber' = new Type of Nothing'
 RR_* = RR' = new Type of InexactNumber'
 RRi_* = RRi' = new Type of InexactNumber'
-RRb_* = RRb' = new Type of InexactNumber'
 CC_* = CC' = new Type of InexactNumber'
 CCi_* = CCi' = new Type of InexactNumber'
 
 RR'.texMath = ///{\mathbb R}_*///
 RRi'.texMath = ///{\square\mathbb R}_*///
-RRb'.texMath = ///{\circle\mathbb R}_*///
 CC'.texMath = ///{\mathbb C}_*///
 CCi'.texMath = ///{\square\mathbb C}_*///
 
@@ -66,18 +59,15 @@ setAttribute(CC',PrintNet,"CC" | "*"^-1)
 setAttribute(CCi',PrintNet,"CCi" | "*"^-1)
 setAttribute(RR',PrintNet,"RR" | "*"^-1)
 setAttribute(RRi',PrintNet,"RRi" | "*"^-1)
-setAttribute(RRb',PrintNet,"RRb" | "*"^-1)
 setAttribute(CC',PrintNames,"CC_*")
 setAttribute(CCi',PrintNames,"CCi_*")
 setAttribute(RR',PrintNames,"RR_*")
 setAttribute(RRi',PrintNames,"RRi_*")
-setAttribute(RRb',PrintNames,"RRb_*")
 setAttribute(InexactNumber',PrintNet,"InexactNumber" | "*"^-1)
 
 protect back
 RR'.back = RR
 RRi'.back = RRi
-RRb'.back = RRb
 CC'.back = CC
 CCi'.back = CCi
 new RealField of Nothing' from ZZ := memoize (
@@ -116,22 +106,13 @@ new ComplexIntervalField of Nothing' from ZZ := memoize (
            symbol isBasic => true,
            symbol RawRing => rawCCi prec
            }))
-new RealBallField of Nothing' from ZZ := memoize (
-    (RealBallField, Nothing', prec) -> newClass(RealBallField, Nothing',
-	hashTable {
-	    symbol precision => prec,
-	    symbol Engine => true,
-	    symbol baseRings => {ZZ,QQ},
-	    symbol isBasic => true,
-	    symbol RawRing => null -- TODO
-	    }))
 precision InexactField := R -> R.precision
 InexactFieldFamily _ ZZ := (T,prec) -> new T.InexactField of T#(symbol _*) from prec -- oops...
 default InexactFieldFamily := R -> R_defaultPrecision
 
 diameter' = diameter
 diameter = method()
-diameter RRi := diameter RRb := diameter'
+diameter RRi := diameter'
 diameter CCi := diameter'
 
 -- lift and promote between real or complex rings
@@ -250,7 +231,6 @@ lift(RRi,ZZ) := opts -> (r,ZZ) -> (
 
 ring RR := x -> new RealField of RR' from precision x
 ring RRi := x -> new RealIntervalField of RRi' from precision x
-ring RRb := x -> new RealBallField of RRb' from precision x
 ring CC := x -> new ComplexField of CC' from precision x
 ring CCi := x -> new ComplexIntervalField of CCi' from precision x
 
@@ -444,7 +424,6 @@ toString ComplexField := R -> concatenate("CC_",toString R.precision)
 
 expression RealField := R -> new Subscript from {symbol RR, R.precision}
 expression RealIntervalField := R -> new Subscript from {symbol RRi, R.precision}
-expression RealBallField := R -> new Subscript from {symbol RRb, R.precision}
 expression ComplexField := R -> new Subscript from {symbol CC, R.precision}
 expression RR := x -> (
      if x < 0 

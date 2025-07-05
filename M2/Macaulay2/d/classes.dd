@@ -150,10 +150,8 @@ export Class(e:Expr):HashTable := (
      is SymbolBody do symbolBodyClass
      is RRicell do RRiClass
      is RRcell do RRClass
-     is RRbcell do RRbClass
      is CCcell do CCClass
      is CCicell do CCiClass
-     is CCbcell do CCbClass
      is RawComputationCell do rawComputationClass
      is Nothing do nothingClass
      is Database do dbClass

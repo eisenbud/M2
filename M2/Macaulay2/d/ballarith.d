@@ -39,15 +39,6 @@ init(x:RRb) ::= (
 newRRb():RRb := init(GCmalloc(RRb));
 clear(x:RRb) ::= Ccode(void, "arb_clear(", x, ")");
 
-export RRbcell := {+v:RRb, prec:ulong};
-
--- every RRbcell should be constructed using this so that it's finalized
-export toRRbcell(x:RRb, prec:ulong):RRbcell := (
-    y := RRbcell(x, prec);
-    Ccode(void, "GC_REGISTER_FINALIZER(", y,
-	", (GC_finalization_proc)arb_clear, ", y.v, ", 0, 0)");
-    y);
-
 -- clear after using
 export toRRb(x:RR, y:RR, prec:ulong):RRb := (
     z := newRRb();
@@ -55,12 +46,6 @@ export toRRb(x:RR, y:RR, prec:ulong):RRb := (
     z);
 export toRRb(x:RR):RRb := toRRb(x, x, precision(x));
 export toRRb(x:RRi):RRb := toRRb(leftRR(x), rightRR(x), precision(x));
-export toRRb(x:ZZ, prec:ulong):RRb := (
-    y := toRR(x, prec);
-    toRRb(y, y, prec));
-export toRRb(x:QQ, prec:ulong):RRb := (
-    y := toRR(x, prec);
-    toRRb(y, y, prec));
 
 toRR(x:RRb, prec:ulong):RR := (
     y := newRRmutable(prec);
@@ -77,28 +62,6 @@ moveToRRiandclear(x:RRb, prec:ulong):RRi := (
     r := toRRi(x, prec);
     clear(x);
     r);
-
-export midpoint(x:RRb, prec:ulong):RR := (
-    y := newRRmutable(prec);
-    Ccode(void, "arf_get_mpfr(", y, ", arb_midref(", x, "), MPFR_RNDN)");
-    moveToRRandclear(y));
-
-export radius(x:RRb):RR := (
-    y := Ccode(double, "mag_get_d(arb_radref(", x, "))");
-    -- radius is a mag_t, which always has precision 30
-    toRR(y, ulong(30)));
-
-export hash(x:RRb, prec:ulong):hash_t := (
-    953 * hash(midpoint(x, prec)) + 277 * hash(radius(x)));
-
-export tostringRRb(x:RRb):string := tostring(Ccode(charstar,
-    "arb_get_str(", x, ", mpfr_get_str_ndigits(10, arb_bits(", x, ")), 0)"));
-
--- arithmetic
-export RRbadd(x:RRb, y:RRb, prec:ulong):RRb := (
-    z := newRRb();
-    Ccode(void, "arb_add(", z, ", ", x, ", ", y, ", ", prec, ")");
-    z);
 
 -- special functions
 export eint(x:RRi):RRi := (
@@ -235,15 +198,6 @@ init(z:CCb) ::= (
 newCCb():CCb := init(GCmalloc(CCb));
 clear(z:CCb) ::= Ccode(void, "acb_clear(", z, ")");
 
-export CCbcell := {+v:CCb, prec:ulong};
-
--- every CCbcell should be constructed using this so that it's finalized
-export toCCbcell(x:CCb, prec:ulong):CCbcell := (
-    y := CCbcell(x, prec);
-    Ccode(void, "GC_REGISTER_FINALIZER(", y,
-	", (GC_finalization_proc)acb_clear, ", y.v, ", 0, 0)");
-    y);
-
 -- clear after using
 export toCCb(x:RRb, y:RRb):CCb := (
     z := newCCb();
@@ -258,32 +212,6 @@ export toCCb(z:CC):CCb := (
     clear(y);
     w);
 
-export toCCb(x:RRb):CCb := (
-    y := newRRb();
-    Ccode(RRb, "arb_zero(", y, ")");
-    z := toCCb(x, y);
-    clear(y);
-    z);
-
-export toCCb(x:ZZ, prec:ulong):CCb := (
-    y := toRRb(x, prec);
-    z := toCCb(y);
-    clear(y);
-    z);
-
-export toCCb(x:QQ, prec:ulong):CCb := (
-    y := toRRb(x, prec);
-    z := toCCb(y);
-    clear(y);
-    z);
-
-export toCCb(x:RR):CCb := (
-    y := toRRb(x);
-    z := toCCb(y);
-    clear(y);
-    z);
-
-
 toCC(z:CCb, prec:ulong):CC := (
     x := Ccode(RRb, "acb_realref(", z, ")");
     y := Ccode(RRb, "acb_imagref(", z, ")");
@@ -293,22 +221,6 @@ moveToCCandclear(z:CCb, prec:ulong):CC := (
     r := toCC(z, prec);
     clear(z);
     r);
-
-export realPart(x:CCb):RRb := (
-    y := newRRb();
-    Ccode(void, "acb_get_real(", y, ", ", x, ")");
-    y);
-
-export imaginaryPart(x:CCb):RRb := (
-    y := newRRb();
-    Ccode(void, "acb_get_imag(", y, ", ", x, ")");
-    y);
-
-export hash(x:CCb, prec:ulong):hash_t := (
-    761 * hash(realPart(x), prec) + 743 * hash(imaginaryPart(x), prec));
-
-export tostringCCb(x:CCb):string := (
-    tostringRRb(realPart(x)) + "+" + tostringRRb(imaginaryPart(x)) + "*ii");
 
 export eint(z:CC):CC := (
     w := toCCb(z);
