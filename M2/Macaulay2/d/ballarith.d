@@ -317,12 +317,33 @@ export asin(z:CCi):CCi := (
     clear(w);
     moveToCCiandclear(r, precision(z)));
 
+export log1p(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_log1p(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export expm1(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_expm1(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
 export eint(z:CC):CC := (
     w := toCCb(z);
     r := newCCb();
     Ccode(void, "acb_hypgeom_ei(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
+
+export eint(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_ei(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
 
 export Gamma(z:CC):CC := (
     w := toCCb(z);
