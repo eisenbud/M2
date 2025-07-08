@@ -729,6 +729,7 @@ setup(StarS,starfun,timesfun);
 sin(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(sin(x.v))				    -- # typical value: sin, CC, CC
+     is x:CCicell do toExpr(sin(x.v))				    -- # typical value: sin, CCi, CCi
      is x:RRcell do toExpr(sin(x.v))				    -- # typical value: sin, RR, RR
      is x:RRicell do toExpr(sin(x.v))				    -- # typical value: sin, RRi, RRi
      else WrongArgRRorCC()
@@ -737,6 +738,7 @@ setupfun("sin",sin).Protected=false;
 cos(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(cos(x.v))				    -- # typical value: cos, CC, CC
+     is x:CCicell do toExpr(cos(x.v))				    -- # typical value: cos, CCi, CCi
      is x:RRcell do toExpr(cos(x.v))				    -- # typical value: cos, RR, RR
      is x:RRicell do toExpr(cos(x.v))				    -- # typical value: cos, RRi, RRi
      else WrongArgRRorCC()
@@ -745,6 +747,7 @@ setupfun("cos",cos).Protected=false;
 tan(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(tan(x.v))				    -- # typical value: tan, CC, CC
+     is x:CCicell do toExpr(tan(x.v))				    -- # typical value: tan, CCi, CCi
      is x:RRcell do toExpr(tan(x.v))				    -- # typical value: tan, RR, RR
      is x:RRicell do toExpr(tan(x.v))				    -- # typical value: tan, RRi, RRi
      else WrongArgRRorCC()
@@ -753,6 +756,7 @@ setupfun("tan",tan).Protected=false;
 acos(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(acos(x.v))				    -- # typical value: acos, CC, CC
+     is x:CCicell do toExpr(acos(x.v))				    -- # typical value: acos, CCi, CCi
      is x:RRcell do (
 	  if x.v > 1 || x.v < -1
 	  then toExpr(acos(toCC(x.v)))
@@ -769,6 +773,7 @@ setupfun("acos",acos).Protected=false;
 sec(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(sec(x.v))				    -- # typical value: sec, CC, CC
+     is x:CCicell do toExpr(sec(x.v))				    -- # typical value: sec, CCi, CCi
      is x:RRcell do toExpr(sec(x.v))				    -- # typical value: sec, RR, RR
      is x:RRicell do toExpr(sec(x.v))				    -- # typical value: sec, RRi, RRi
      else WrongArgRRorCC()
@@ -777,6 +782,7 @@ setupfun("sec",sec).Protected=false;
 csc(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(csc(x.v))				    -- # typical value: csc, CC, CC
+     is x:CCicell do toExpr(csc(x.v))				    -- # typical value: csc, CCi, CCi
      is x:RRcell do toExpr(csc(x.v))				    -- # typical value: csc, RR, RR
      is x:RRicell do toExpr(csc(x.v))				    -- # typical value: csc, RRi, RRi
      else WrongArgRRorCC()
@@ -785,6 +791,7 @@ setupfun("csc",csc).Protected=false;
 cot(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(cot(x.v))				    -- # typical value: cot, CC, CC
+     is x:CCicell do toExpr(cot(x.v))				    -- # typical value: cot, CCi, CCi
      is x:RRcell do toExpr(cot(x.v))				    -- # typical value: cot, RR, RR
      is x:RRicell do toExpr(cot(x.v))				    -- # typical value: cot, RRi, RRi
      else WrongArgRRorCC()
@@ -793,6 +800,7 @@ setupfun("cot",cot).Protected=false;
 sech(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(sech(x.v))				    -- # typical value: sech, CC, CC
+     is x:CCicell do toExpr(sech(x.v))				    -- # typical value: sech, CCi, CCi
      is x:RRcell do toExpr(sech(x.v))				    -- # typical value: sech, RR, RR
      is x:RRicell do toExpr(sech(x.v))				    -- # typical value: sech, RRi, RRi
      else WrongArgRRorCC()
@@ -801,6 +809,7 @@ setupfun("sech",sech).Protected=false;
 csch(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(csch(x.v))				    -- # typical value: csch, CC, CC
+     is x:CCicell do toExpr(csch(x.v))				    -- # typical value: csch, CCi, CCi
      is x:RRcell do toExpr(csch(x.v))				    -- # typical value: csch, RR, RR
      is x:RRicell do toExpr(csch(x.v))				    -- # typical value: csch, RRi, RRi
      else WrongArgRRorCC()
@@ -809,6 +818,7 @@ setupfun("csch",csch).Protected=false;
 coth(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(coth(x.v))				    -- # typical value: coth, CC, CC
+     is x:CCicell do toExpr(coth(x.v))				    -- # typical value: coth, CCi, CCi
      is x:RRcell do toExpr(coth(x.v))				    -- # typical value: coth, RR, RR
      is x:RRicell do toExpr(coth(x.v))				    -- # typical value: coth, RRi, RRi
      else WrongArgRRorCC()
@@ -817,6 +827,7 @@ setupfun("coth",coth).Protected=false;
 asin(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(asin(x.v))				    -- # typical value: asin, CC, CC
+     is x:CCicell do toExpr(asin(x.v))				    -- # typical value: asin, CCi, CCi
      is x:RRcell do (
 	  if x.v > 1 || x.v < -1
 	  then toExpr(asin(toCC(x.v)))
