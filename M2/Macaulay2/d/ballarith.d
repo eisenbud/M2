@@ -212,6 +212,14 @@ export toCCb(z:CC):CCb := (
     clear(y);
     w);
 
+toCCb(z:CCi):CCb := (
+    x := toRRb(realPart(z));
+    y := toRRb(imaginaryPart(z));
+    w := toCCb(x, y);
+    clear(x);
+    clear(y);
+    w);
+
 toCC(z:CCb, prec:ulong):CC := (
     x := Ccode(RRb, "acb_realref(", z, ")");
     y := Ccode(RRb, "acb_imagref(", z, ")");
@@ -219,6 +227,16 @@ toCC(z:CCb, prec:ulong):CC := (
 
 moveToCCandclear(z:CCb, prec:ulong):CC := (
     r := toCC(z, prec);
+    clear(z);
+    r);
+
+toCCi(z:CCb, prec:ulong):CCi := (
+    x := Ccode(RRb, "acb_realref(", z, ")");
+    y := Ccode(RRb, "acb_imagref(", z, ")");
+    toCCi(toRRi(x, prec), toRRi(y, prec)));
+
+moveToCCiandclear(z:CCb, prec:ulong):CCi := (
+    r := toCCi(z, prec);
     clear(z);
     r);
 
