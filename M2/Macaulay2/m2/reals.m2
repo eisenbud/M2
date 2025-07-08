@@ -418,13 +418,10 @@ Constant ! := c -> (numeric c)!
 
 -- printing
 
-toString RealField := R -> concatenate("RR_",toString R.precision)
-toString RealIntervalField := R -> concatenate("RRi_",toString R.precision)
-toString ComplexField := R -> concatenate("CC_",toString R.precision)
+toString InexactField := R -> concatenate(
+    toString (parent R).back, "_", toString R.precision)
+expression InexactField := R -> Subscript((parent R).back, R.precision)
 
-expression RealField := R -> new Subscript from {symbol RR, R.precision}
-expression RealIntervalField := R -> new Subscript from {symbol RRi, R.precision}
-expression ComplexField := R -> new Subscript from {symbol CC, R.precision}
 expression RR := x -> (
      if x < 0 
      then (
