@@ -870,9 +870,10 @@ eint(e:Expr):Expr := (
 setupfun("eint",eint).Protected=false;
 Gamma(e:Expr):Expr := (
      when e
-     is x:RRcell do toExpr(Gamma(x.v))				    -- # typical value: Gamma, RR, RR
+     is x:RRcell  do toExpr(Gamma(x.v))				    -- # typical value: Gamma, RR, RR
      is x:RRicell do toExpr(Gamma(x.v))				    -- # typical value: Gamma, RRi, RRi
-     is x:CCcell do toExpr(Gamma(x.v))				    -- # typical value: Gamma, CC, CC
+     is x:CCcell  do toExpr(Gamma(x.v))				    -- # typical value: Gamma, CC, CC
+     is x:CCicell do toExpr(Gamma(x.v))				    -- # typical value: Gamma, CCi, CCi
      is a:Sequence do
 	 if length(a) != 2 then WrongNumArgs(1,2)
 	 else (
@@ -882,16 +883,28 @@ Gamma(e:Expr):Expr := (
 		 is x:RRcell  do toExpr(Gamma(      s.v , x.v))	    -- # typical value: Gamma, RR, RR, RR
 		 is x:RRicell do toExpr(Gamma(toRRi(s.v), x.v))	    -- # typical value: Gamma, RR, RRi, RRi
 		 is x:CCcell  do toExpr(Gamma( toCC(s.v), x.v))	    -- # typical value: Gamma, RR, CC, CC
+		 is x:CCicell do toExpr(Gamma(toCCi(s.v), x.v))	    -- # typical value: Gamma, RR, CCi, CCi
 		 else WrongArgRRorCC(2))
 	     is s:RRicell do (
 		 when a.1
-		 is x:RRcell  do toExpr(Gamma(s.v, toRRi(x.v)))	    -- # typical value: Gamma, RRi, RR, RRi
-		 is x:RRicell do toExpr(Gamma(s.v,       x.v ))	    -- # typical value: Gamma, RRi, RRi, RRi
-		 else WrongArgRRorRRi(2))
+		 is x:RRcell  do toExpr(Gamma(      s.v, toRRi(x.v))) -- # typical value: Gamma, RRi, RR, RRi
+		 is x:RRicell do toExpr(Gamma(      s.v,       x.v )) -- # typical value: Gamma, RRi, RRi, RRi
+		 is x:CCcell  do toExpr(Gamma(toCCi(s.v),toCCi(x.v))) -- # typical value: Gamma, RRi, CC, CCi
+		 is x:CCicell do toExpr(Gamma(toCCi(s.v),      x.v))  -- # typical value: Gamma, RRi, CCi, CCi
+		 else WrongArgRRorCC(2))
 	     is s:CCcell do (
 		 when a.1
-		 is x:RRcell do toExpr(Gamma(s.v, toCC(x.v)))	    -- # typical value: Gamma, CC, RR, CC
-		 is x:CCcell do toExpr(Gamma(s.v,      x.v))	    -- # typical value: Gamma, CC, CC, CC
+		 is x:RRcell  do toExpr(Gamma(      s.v,  toCC(x.v))) -- # typical value: Gamma, CC, RR, CC
+		 is x:RRicell do toExpr(Gamma(toCCi(s.v),toCCi(x.v))) -- # typical value: Gamma, CC, RRi, CCi
+		 is x:CCcell  do toExpr(Gamma(      s.v,      x.v))   -- # typical value: Gamma, CC, CC, CC
+		 is x:CCicell do toExpr(Gamma(toCCi(s.v),     x.v))   -- # typical value: Gamma, CC, CCi, CCi
+		 else WrongArgRRorCC(2))
+	     is s:CCicell do (
+		 when a.1
+		 is x:RRcell  do toExpr(Gamma(s.v, toCCi(x.v)))     -- # typical value: Gamma, CCi, RR, CCi
+		 is x:RRicell do toExpr(Gamma(s.v, toCCi(x.v)))     -- # typical value: Gamma, CCi, RRi, CCi
+		 is x:CCcell  do toExpr(Gamma(s.v, toCCi(x.v)))     -- # typical value: Gamma, CCi, CC, CCi
+		 is x:CCicell do toExpr(Gamma(s.v,       x.v))      -- # typical value: Gamma, CCi, CCi, CCi
 		 else WrongArgRRorCC(2))
 	     else WrongArgRRorCC(2))
      else WrongArgRRorCC()

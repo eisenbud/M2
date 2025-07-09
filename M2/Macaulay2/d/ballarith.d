@@ -352,6 +352,13 @@ export Gamma(z:CC):CC := (
     clear(w);
     moveToCCandclear(r, precision(z)));
 
+export Gamma(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_gamma(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
 export Gamma(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
     x := toCCb(z);
@@ -362,6 +369,17 @@ export Gamma(z:CC,w:CC):CC := (
     clear(x);
     clear(y);
     moveToCCandclear(r, prec));
+
+export Gamma(z:CCi,w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_gamma_upper(", r, ", ", x, ", ", y, ", 0, ",
+	prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
 
 export regularizedGamma(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
