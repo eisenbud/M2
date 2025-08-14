@@ -133,9 +133,9 @@ S = ZZ/101[a..d]
             I = ideal(a^2-b, c^3)
             C3 = simplicialModule( I, 7, Degeneracy => true)
             C4 = simplicialModule( (S/I), 8, Degeneracy => true)
-	    assert isSimplicial C2
-	    assert isSimplicial C3
-	    assert isSimplicial C4
+	    assert isSimplicialModule C2
+	    assert isSimplicialModule C3
+	    assert isSimplicialModule C4
 	    C5 = simplicialModule(S^0, 8, Degeneracy => true)
             assert(C5 == 0)
             assert (dd^C5 == 0)
