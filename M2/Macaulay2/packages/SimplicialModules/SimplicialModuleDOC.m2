@@ -6,7 +6,7 @@ doc ///
     Description
         Text
             A simplicial R-module is a presheaf on the so-called Simplex Category, with values in the category of R-modules. Concretely, such objects can be viewed as nonnegatively graded R-modules
-	    equipped with certain face and degeneracy operators satisfying the simplicial identites. As an example, every R-module M can be converted into a simplicial R-module whose degree
+	    equipped with certain face and degeneracy operators satisfying the simplicial identities. As an example, every R-module M can be converted into a simplicial R-module whose degree
 	    n piece is equal to M for all n, and with face/degeneracy operators simply given by the identity.
         Example
             S = simplicialModule(ZZ^2,3,Degeneracy => true) --the integer 3 specifies a top degree, the option Degeneracy specifies whether or not to compute degeneracy maps
@@ -143,7 +143,7 @@ doc ///
     Description
         Text
             A simplicial R-module is a presheaf on the so-called Simplex Category, with values in the category of R-modules. Concretely, such objects can be viewed as nonnegatively graded R-modules
-	    equipped with certain face and degeneracy operators satisfying the simplicial identites. As an example, every R-module M can be converted into a simplicial R-module whose degree
+	    equipped with certain face and degeneracy operators satisfying the simplicial identities. As an example, every R-module M can be converted into a simplicial R-module whose degree
 	    n piece is equal to M for all n, and with face/degeneracy operators simply given by the identity.
         Example
             S = simplicialModule(ZZ^2,3,Degeneracy => true) --the integer 3 specifies a top degree, the option Degeneracy specifies whether or not to compute degeneracy maps
@@ -228,7 +228,7 @@ doc ///
 	    The above computations tell us that the component of the face map $d_{2,0}$ mapping
 	    $$C_{(1,2)} \to  C_{(2)} $$
 	    is given by the differential of the original complex $C$ (we are using the compositions
-	    correponding to the surjection to label the free modules now). The component
+	    corresponding to the surjection to label the free modules now). The component
 	    $$C_{(2,1)} \to C_{(1,1)}$$
 	    is simply the identity map, and the component
 	    $$C_{(1,1,1)} \to C_{(1,1)}$$
@@ -3530,7 +3530,7 @@ doc ///
 	    Q = ZZ/3[a,b];
 	    K = koszulComplex vars Q;
 	    prune HH schurMap({2}, K)
-	    prune HH complex sym2(chainComplex K) --quasi-isomorphic in all other characterisics
+	    prune HH complex sym2(chainComplex K) --quasi-isomorphic in all other characteristics
 	    --S3K = elapsedTime minimize prune schurMap({3}, K) --takes 23 seconds
 	    --S21K = elapsedTime minimize prune schurMap({2,1}, K) --takes 17 seconds
 	    --S21K.dd
