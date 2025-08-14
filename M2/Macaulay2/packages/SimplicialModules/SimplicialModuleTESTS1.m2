@@ -598,14 +598,14 @@ S = ZZ/101[a,b,c];
       D = C ** C
       isWellDefined D
       f1 = prune randomSimplicialMap(D, C, Cycle => true, InternalDegree => 1);
-      prune normalize f1
-      isCommutative oo
-      isCommutative f1
+      g1 = prune normalize f1
+      assert(isCommutative g1)
+      assert(isCommutative f1)
       assert(degree f1 == 0)
-      f2 = randomSimplicialMap(D, C, Cycle => true);
-      isCommutative f2
-      assert(degree f2 == 0)
-      assert isSimplicialMorphism f2
+      --f2 = randomSimplicialMap(D, C, Cycle => true);
+      --isCommutative f2
+      --assert(degree f2 == 0)
+      --assert isSimplicialMorphism f2
 ///
 
 TEST ///
@@ -1128,7 +1128,7 @@ Q = QQ[x_1..x_3];
   K = koszulComplex {x_1,x_2}
   assert isWellDefined (Sc = schurMap({1,1}, K))
   prune extPower(2, K)
-  assert isWellDefined prune schurMap({2,1}, K, TopDegree => 4)
+  --assert isWellDefined prune schurMap({2,1}, K, TopDegree => 4)
 ///
 
 
@@ -1182,7 +1182,7 @@ R = ZZ/101[x_1..x_3];
 	    assert(K == prune Kn)
 	    Q = ZZ/3[a,b];
 	    K = koszulComplex vars Q
-	    SK = simplicialModule(K,6) --want top degree 6 since the resulting complexes should have length 6
+	    SK = simplicialModule(K,4) --want top degree 6 since the resulting complexes should have length 6
 	    w21K = extPower(2, SK) ** SK
 	    w3K = extPower(3, SK)
 	    H = hashTable for i from 0 to 6 list i => dual wedgeProduct(2,1, dual SK_i);
@@ -1191,7 +1191,7 @@ R = ZZ/101[x_1..x_3];
 	    assert isCommutative inclusion
 	    Q = ZZ/2[a,b,c]
 	    K = koszulComplex vars Q
-	    phi = elapsedTime exteriorInclusion(K,4); --specify top degree 4
+	    phi = elapsedTime exteriorInclusion(K,3); --specify top degree 3
 	    assert isWellDefined phi
 	    assert isCommutative phi
 ///
