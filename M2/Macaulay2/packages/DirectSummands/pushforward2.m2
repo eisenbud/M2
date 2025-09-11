@@ -5,9 +5,11 @@
 -- TODO: should this call splitByDegrees?
 decomposePushforwardPresentation = method()
 decomposePushforwardPresentation(List, Matrix) := (d, f) -> (
+    if not isHomogeneous f then error "expected a homogeneous matrix";
     if #d == 1 then decomposePushforwardPresentation(d#0, f)
     else error "not implemented for multigraded maps")
 decomposePushforwardPresentation(ZZ, Matrix) := (d, f) -> (
+    if not isHomogeneous f then error "expected a homogeneous matrix";
     if d <= 0 then error "expected positive degree";
     if d == 1 then return {f};
     tardegrees := degrees target f;
@@ -84,18 +86,31 @@ pushNonLinear = (opts, f, M) -> (
 	-- cache poincare
 	poincare cokernel m1 = hf);
 
-    mapbackdeg := d -> take(d, -deglen);
-    -- that choice of degree map was chosen to make the symmetricPower functor homogeneous, but it doesn't have much
-    -- else to recommend it.
-    -- we should really be *lifting* the result to S along the natural map S ---> G
+    -- that choice of degree map was chosen to make
+    -- the symmetricPower functor homogeneous,
+    -- but it doesn't have much else to recommend it.
+    -- we should really be *lifting* the result
+    -- to S along the natural map S ---> G
     S' := newRing(S, Degrees => take(degrees G, n1 - numgens G));
-    mapback := map(S', G, map(S'^1, S'^n1, 0) | vars S', DegreeMap => mapbackdeg );
+    mapback := map(S', G, map(S'^1, S'^n1, 0) | vars S',
+	DegreeMap => d -> take(d, -deglen));
+    assert isHomogeneous mapback;
 
+    -- TODO: what should this be checking?
     -- let's at least check it splits f's degree map:
-    for i from 0 to numgens S - 1 do (
-	e := degree S'_i;
-	if mapbackdeg f.cache.DegreeMap e =!= e
-	then error "not implemented yet: unexpected degree map of ring map");
+
+    -- old version, checking each standard basis element in degree group
+    -- mapbackdeg := d -> ???
+    -- for i from 0 to deglen-1 do (
+    -- 	e := for j from 0 to deglen-1 list if i === j then 1 else 0;
+    -- 	if mapbackdeg f.cache.DegreeMap e =!= e
+    -- 	then error "not implemented yet: unexpected degree map of ring map");
+
+    -- alternate version, checking the degree of each generator
+    -- for i from 0 to numgens S - 1 do (
+    -- 	e := degree S'_i;
+    -- 	if mapbackdeg f.cache.DegreeMap e =!= e
+    -- 	then error "not implemented yet: unexpected degree map of ring map");
 
     g := gb(m1,
 	StopBeforeComputation => opts.StopBeforeComputation,
