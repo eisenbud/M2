@@ -46,12 +46,21 @@ Headline
 Usage
     x = midpoint I
 Inputs
-    I:RRi
+    I:{RRi,CCi}
 Outputs
-    x:RR
+    x:{RR,CC}
 Description
   Text
     Returns the midpoint (the average of the endpoints) of the input interval.
+  Example
+    interval(2,4)
+    midpoint oo
+  Text
+    For complex intervals, the center of the rectangle in the complex
+    plane is returned.
+  Example
+    interval(2 + 3*ii, 4 + 7*ii)
+    midpoint oo
 SeeAlso
     left
     right

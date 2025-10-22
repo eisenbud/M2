@@ -516,9 +516,9 @@ document {
     Subnodes => {
 	TO toCCi,
 	TO interval,
--*	TO diameter,
+	TO diameter,
 	TO midpoint,
-        TO intersect,
+-*        TO intersect,
         TO (isMember, QQ, CCi),
         TO (isEmpty, CCi),
         TO (isSubset, RRi,CCi),
