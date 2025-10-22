@@ -325,8 +325,9 @@ Description
     interval [7, 8]
   Text
     If given two arguments, at least one of which is a complex number,
-    then the rectangle in the complex plane containing the two
-    arguments is returned.
+    then the rectangle in the complex plane whose lower left hand corner
+    is the first argument and upper right hand corner is the second argument
+    is returned.
   Example
     interval(2 + 3*ii, 5)
   Text
