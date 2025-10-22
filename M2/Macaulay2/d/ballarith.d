@@ -392,12 +392,30 @@ export regularizedGamma(z:CC,w:CC):CC := (
     clear(y);
     moveToCCandclear(r, prec));
 
+export regularizedGamma(z:CCi,w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_gamma_upper(", r, ", ", x, ", ", y, ", 1, ",
+	prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
+
 export Digamma(z:CC):CC := (
     w := toCCb(z);
     r := newCCb();
     Ccode(void, "acb_digamma(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
+
+export Digamma(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_digamma(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
 
 export lgamma(z:CC):CC := (
     w := toCCb(z);
@@ -406,12 +424,26 @@ export lgamma(z:CC):CC := (
     clear(w);
     moveToCCandclear(r, precision(z)));
 
+export lgamma(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_lgamma(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
 export zeta(z:CC):CC := (
     w := toCCb(z);
     r := newCCb();
     Ccode(void, "acb_zeta(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
+
+export zeta(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_zeta(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
 
 export erf(z:CC):CC := (
     w := toCCb(z);
@@ -420,12 +452,26 @@ export erf(z:CC):CC := (
     clear(w);
     moveToCCandclear(r, precision(z)));
 
+export erf(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_erf(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
 export erfc(z:CC):CC := (
     w := toCCb(z);
     r := newCCb();
     Ccode(void, "acb_hypgeom_erfc(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
     moveToCCandclear(r, precision(z)));
+
+export erfc(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_erfc(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
 
 export BesselJ(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
@@ -437,6 +483,16 @@ export BesselJ(z:CC,w:CC):CC := (
     clear(y);
     moveToCCandclear(r, prec));
 
+export BesselJ(z:CCi,w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_bessel_j(", r, ", ", x, ", ", y, ", ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
+
 export BesselY(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
     x := toCCb(z);
@@ -446,6 +502,16 @@ export BesselY(z:CC,w:CC):CC := (
     clear(x);
     clear(y);
     moveToCCandclear(r, prec));
+
+export BesselY(z:CCi,w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_bessel_y(", r, ", ", x, ", ", y, ", ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
 
 export Beta(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
@@ -459,6 +525,18 @@ export Beta(z:CC,w:CC):CC := (
     clear(y);
     moveToCCandclear(r, prec));
 
+export Beta(z:CCi,w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    v := toCCb(toCC(1, prec));
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_beta_lower(", r, ", ", x, ", ", y, ", ", v,
+	 ", 0, ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
+
 export regularizedBeta(u:CC,v:CC,w:CC):CC := (
     prec := min(min(precision(u), precision(v)), precision(w));
     x := toCCb(u);
@@ -471,3 +549,16 @@ export regularizedBeta(u:CC,v:CC,w:CC):CC := (
     clear(y);
     clear(z);
     moveToCCandclear(r, prec));
+
+export regularizedBeta(u:CCi,v:CCi,w:CCi):CCi := (
+    prec := min(min(precision(u), precision(v)), precision(w));
+    x := toCCb(u);
+    y := toCCb(v);
+    z := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_hypgeom_beta_lower(", r, ", ", y, ", ", z, ", ", x,
+	 ", 1, ", prec, ")");
+    clear(x);
+    clear(y);
+    clear(z);
+    moveToCCiandclear(r, prec));
