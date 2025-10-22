@@ -248,24 +248,31 @@ doc ///
 Key
     interval
     (interval,Array)
+    (interval,CC)
+    (interval,CC,CC)
+    (interval,CC,Number)
+    (interval,CCi)
+    (interval,Number,CC)
     (interval,QQ)
     (interval,QQ,QQ)
     (interval,QQ,RR)
+    (interval,QQ,RRi)
     (interval,QQ,ZZ)
     (interval,RR)
-    (interval,RR,CC)
     (interval,RR,QQ)
     (interval,RR,RR)
+    (interval,RR,RRi)
     (interval,RR,ZZ)
+    (interval,RRi)
+    (interval,RRi,QQ)
+    (interval,RRi,RR)
+    (interval,RRi,RRi)
+    (interval,RRi,ZZ)
     (interval,ZZ)
     (interval,ZZ,QQ)
     (interval,ZZ,RR)
+    (interval,ZZ,RRi)
     (interval,ZZ,ZZ)
-    (interval,RRi,RRi)
-    (interval,CC)
-    (interval,CC,RR)
-    (interval,CC,CC)
-    (interval,CCi)
     [interval,Precision]
 Headline
     construct an interval
@@ -286,7 +293,34 @@ Outputs
     I:RRi
 Description
   Text
-    Returns an interval as small as possible containing {\tt n} or from {\tt l} to {\tt r}.  Note that if {\tt l} is to the right of {\tt r}, the constructed interval is empty.
+    If given one argument, returns a real or complex interval as small as possible containing {\tt n}.
+  Example
+    interval 3
+    interval(2 + 5*ii)
+  Text
+    If given two real arguments (or an array with two entries), the interval
+    from {\tt l} to {\tt r}.  Note that if {\tt l} is to the right of
+    {\tt r}, the constructed interval is empty.
+  Example
+    interval(2, 3)
+    interval(5, 4)
+    interval [7, 8]
+  Text
+    If given two arguments, at least one of which is a complex number,
+    then the rectangle in the complex plane containing the two
+    arguments is returned.
+  Example
+    interval(2 + 3*ii, 5)
+  Text
+    If given two arguments, at least one of which is a real interval,
+    then the first argument gives the real part and the second argument
+    the imaginary part of a complex interval.
+  Example
+    interval(interval(3, 4), interval(5, 6))
+  Text
+    The @M2CODE "Precision"@ option sets the precision of the output.
+  Example
+    interval(Precision => 100, 5)
 SeeAlso
     (span, List)
     (span, Sequence)

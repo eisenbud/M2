@@ -515,8 +515,8 @@ document {
     SeeAlso => {RRi, toCCi, precision, interval, (span,Sequence), (span,List)},
     Subnodes => {
 	TO toCCi,
--*	TO interval,
---	TO diameter,
+	TO interval,
+-*	TO diameter,
 	TO midpoint,
         TO intersect,
         TO (isMember, QQ, CCi),
