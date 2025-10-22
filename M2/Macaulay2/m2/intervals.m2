@@ -32,19 +32,13 @@ interval(RRi,RRi) := opts -> (N,M) -> (
 
 interval(CC) := opts -> A -> toCCi A
 
-for A in {ZZ,QQ,RR} do
-interval(CC,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(realPart N, M), interval imaginaryPart N)
-    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
-for A in {ZZ,QQ,RR} do
-interval(A,CC) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(N, realPart M), interval imaginaryPart M)
-    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
-for A in {ZZ,QQ,RR} do
+interval(Number, CC) := opts -> (N, M) -> interval(toCC N, M, opts)
+interval(CC, Number) := opts -> (N, M) -> interval(N, toCC M, opts)
 interval(CC,CC) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(realPart N, realPart M), interval (imaginaryPart N, imaginaryPart M))
-    else toCCi(opts.Precision, interval(realPart N, M), interval imaginaryPart N))
-
+    if opts.Precision < 0 then toCCi(span(realPart N, realPart M), span (imaginaryPart N, imaginaryPart M))
+    else toCCi(opts.Precision,
+	span(realPart N, realPart M, opts),
+	span(imaginaryPart N, imaginaryPart M, opts)))
 
 interval(Array) := opts -> A -> (
     if (length(A) == 0) or (length(A)>2) then error("expected length 2")
