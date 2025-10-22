@@ -329,7 +329,7 @@ Description
     is the first argument and upper right hand corner is the second argument
     is returned.
   Example
-    interval(2 + 3*ii, 5)
+    interval(2 + 3*ii, 5 + 4*ii)
   Text
     If given two arguments, at least one of which is a real interval,
     then the first argument gives the real part and the second argument
