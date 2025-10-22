@@ -101,15 +101,15 @@ spanner = method(Options => {Precision => -1})
 
 for A in {ZZ,QQ,RR,RRi} do
 for B in {ZZ,QQ,RR,RRi} do
-spanner(A,B) := opts -> (N,M) -> (spanRRi(N,M))
+spanner(A,B) := opts -> (N,M) -> spanRRi(N,M,opts)
 
 for A in {ZZ,QQ,RR,RRi,CC,CCi} do
 for B in {CC,CCi} do
-spanner(A,B) := opts -> (N,M) -> (spanCCi(N,M))
+spanner(A,B) := opts -> (N,M) -> spanCCi(N,M,opts)
 
 for A in {CC,CCi} do
 for B in {ZZ,QQ,RR,RRi} do
-spanner(A,B) := opts -> (N,M) -> (spanCCi(N,M))
+spanner(A,B) := opts -> (N,M) -> spanCCi(N,M,opts)
 
 span = method(Dispatch => Thing, Options => true)
 
