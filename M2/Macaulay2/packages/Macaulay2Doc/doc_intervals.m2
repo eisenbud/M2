@@ -74,6 +74,15 @@ Outputs
 Description
   Text
     Returns the diameter (the difference between the endpoints) of the input interval.
+  Example
+    interval (2, 7)
+    diameter oo
+  Text
+    For a complex interval, the length of the diagonal in the complex
+    plane is returned.
+  Example
+    interval (0, 3 + 4*ii)
+    diameter oo
 SeeAlso
     left
     right
