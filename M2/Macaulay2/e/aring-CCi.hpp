@@ -333,14 +333,17 @@ class ARingCCi : public SimpleARing<ARingCCi>
             const ElementType &a,
             const ElementType &b) const
   {
-    mpfi_t temp;
+    mpfi_t temp, retemp, imtemp;
     mpfi_init2(temp,get_precision());
-    mpfi_mul(temp,&a.re,&b.re);
-    mpfi_mul(&result.re,&a.im,&b.im);
-    mpfi_sub(&result.re,&result.re,temp);
+    mpfi_init2(retemp,get_precision());
+    mpfi_init2(imtemp,get_precision());
+    mpfi_mul(retemp,&a.re,&b.re);
+    mpfi_mul(temp,&a.im,&b.im);
+    mpfi_sub(retemp,retemp,temp);
     mpfi_mul(temp,&a.re,&b.im);
-    mpfi_mul(&result.im,&a.im,&b.re);
-    mpfi_add(&result.im,&result.im,temp);
+    mpfi_mul(imtemp,&a.im,&b.re);
+    mpfi_add(&result.im,imtemp,temp);
+    mpfi_set(&result.re,retemp);
   }
 
   void divide(ElementType &result,
@@ -359,17 +362,15 @@ class ARingCCi : public SimpleARing<ARingCCi>
   {
     if (n >= 2)
       {
+          ElementType b;
+          init(b);
           if (n%2 == 0)
           {
-              ElementType b;
-              init(b);
               power(b,a,n/2);
               mult(result,b,b);
           }
           else
           {
-              ElementType b;
-              init(b);
               power(b,a,n-1);
               mult(result,a,b);
           }

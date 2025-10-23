@@ -71,6 +71,8 @@ assert (right atan I == atan 3)
 assert (left sinh I == sinh 1)
 assert (acosh(I) >= 0)
 
+assert (interval(1+2*ii,2+3*ii)*interval (1+3*ii,2+4*ii) == interval(-11 + 5*ii , -2+14*ii))
+
 
 --- TO FIX: ---------------------------------------------
 
