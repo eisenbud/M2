@@ -4,12 +4,19 @@ needs "reals.m2"
 
 interval = method(Options => {Precision => -1})
 
-for A in {ZZ,QQ,RR} do
-interval A := opts -> N -> (
-    if opts.Precision < 0 then toRRi(N)
-    else toRRi(opts.Precision,N,N))
-interval(RRi) := opts -> A -> A
-interval(CCi) := opts -> A -> toCCi A
+interval Number := opts -> N -> interval(numeric N, opts)
+interval RR := opts -> N -> (
+    if opts.Precision < 0 or opts.Precision == precision N then toRRi N
+    else toRRi(opts.Precision, N, N))
+interval RRi := opts -> N -> (
+    if opts.Precision < 0 or opts.Precision == precision N then N
+    else toRRi(opts.Precision, left N, right N))
+interval CC := opts -> N -> (
+    if opts.Precision < 0 or opts.Precision == precision N then toCCi N
+    else toCCi(opts.Precision, realPart N, imaginaryPart N))
+interval CCi := opts -> N -> (
+    if opts.Precision < 0 or opts.Precision == precision N then N
+    else toCCi(opts.Precision, realPart N, imaginaryPart N))
 
 for A in {ZZ,QQ,RR} do
 for B in {ZZ,QQ,RR} do
@@ -29,8 +36,6 @@ interval(RRi,A) := opts -> (N,M) -> (
 interval(RRi,RRi) := opts -> (N,M) -> (
     if opts.Precision < 0 then toCCi(N,M)
     else toCCi(opts.Precision,N,M))
-
-interval(CC) := opts -> A -> toCCi A
 
 interval(Number, CC) := opts -> (N, M) -> interval(toCC N, M, opts)
 interval(CC, Number) := opts -> (N, M) -> interval(N, toCC M, opts)
