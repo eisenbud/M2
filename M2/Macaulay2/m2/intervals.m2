@@ -4,7 +4,9 @@ needs "reals.m2"
 
 interval = method(Options => {Precision => -1})
 
-interval Number := opts -> N -> interval(numeric N, opts)
+interval Number := opts -> N -> (
+    p := if opts.Precision < 0 then defaultPrecision else opts.Precision;
+    interval(numeric(p, N), opts))
 interval RR := opts -> N -> (
     if opts.Precision < 0 or opts.Precision == precision N then toRRi N
     else toRRi(opts.Precision, N, N))
