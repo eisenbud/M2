@@ -270,8 +270,8 @@ Key
     (interval,CC,CC)
     (interval,CC,Number)
     (interval,CCi)
+    (interval,Number)
     (interval,Number,CC)
-    (interval,QQ)
     (interval,QQ,QQ)
     (interval,QQ,RR)
     (interval,QQ,RRi)
@@ -286,7 +286,6 @@ Key
     (interval,RRi,RR)
     (interval,RRi,RRi)
     (interval,RRi,ZZ)
-    (interval,ZZ)
     (interval,ZZ,QQ)
     (interval,ZZ,RR)
     (interval,ZZ,RRi)
@@ -329,7 +328,7 @@ Description
     is the first argument and upper right hand corner is the second argument
     is returned.
   Example
-    interval(2 + 3*ii, 5)
+    interval(2 + 3*ii, 5 + 4*ii)
   Text
     If given two arguments, at least one of which is a real interval,
     then the first argument gives the real part and the second argument
