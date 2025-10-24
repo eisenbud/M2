@@ -530,6 +530,13 @@ export BesselY(z:CCi,w:CCi):CCi := (
     clear(y);
     moveToCCiandclear(r, prec));
 
+export atan(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_atan(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
 export Beta(z:CC,w:CC):CC := (
     prec := min(precision(z), precision(w));
     x := toCCb(z);
@@ -638,6 +645,13 @@ export agm(z:CCi, w:CCi):CCi := (
     clear(x);
     clear(y);
     moveToCCiandclear(r, prec));
+
+export sqrt(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_sqrt(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
 
 export abs(z:CCi):RRi := (
     w := toCCb(z);

@@ -1131,6 +1131,7 @@ atan2(yy:Expr,xx:Expr):Expr := (
 atan(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(atan(x.v))				    -- # typical value: atan, CC, CC
+     is x:CCicell do toExpr(atan(x.v))				    -- # typical value: atan, CCi, CCi
      is x:RRcell do toExpr(atan(x.v))				    -- # typical value: atan, RR, RR
      is x:RRicell do toExpr(atan(x.v))				    -- # typical value: atan, RRi, RRi
      else WrongArgRRorCC()
@@ -1493,6 +1494,7 @@ sqrt(a:Expr):Expr := (
 	  else buildErrorPacket("Not implemented")
 	  )
      is x:CCcell do toExpr(sqrt(x.v))				    -- # typical value: sqrt, CC, CC
+     is x:CCicell do toExpr(sqrt(x.v))				    -- # typical value: sqrt, CCi, CCi
      is Error do a
      else WrongArgRRorCC());
 setupfun("sqrt",sqrt).Protected=false;
