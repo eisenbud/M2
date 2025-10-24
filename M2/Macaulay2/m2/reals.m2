@@ -318,7 +318,7 @@ char InexactField := R -> 0
 pi = new Constant from { symbol pi, pi0, piRRi0 }
 EulerConstant = new Constant from { symbol EulerConstant, mpfrConstantEuler, eRRi0}
 CatalanConstant = new Constant from { symbol CatalanConstant, mpfrConstantCatalan, cRRi0}
-ii = new Constant from { symbol ii, ConstantII}
+ii = new Constant from { symbol ii, ConstantII, p -> toCCi(p, 0, 1)}
 
 ring Constant := ring @@ numeric
 promote(Constant, InexactNumber') :=
