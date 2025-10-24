@@ -610,3 +610,4 @@ export log(z:CCi, w:CCi):CCi := (
     clear(y);
     moveToCCiandclear(r, prec));
 
+export (z:CCi) ^ (w:CCi):CCi := exp(log(z)*w);

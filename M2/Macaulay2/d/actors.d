@@ -722,6 +722,7 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	       else toExpr(toRR(x.v,precision(y.v))^y.v)
 	       )
 	  is y:CCcell do toExpr(toRR(x.v,precision(y.v))^y.v)
+	  is y:CCicell do toExpr(toCCi(x.v,precision(y.v))^y.v)
      	  is Error do rhs
 	  else binarymethod(lhs,rhs,PowerS))
      is x:QQcell do (
@@ -760,6 +761,7 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	       then buildErrorPacket("negative base not implemented")
 	       else toExpr(toRR(x.v,precision(y.v))^y.v))
 	  is y:CCcell do toExpr(toRR(x.v,precision(y.v))^y.v)
+	  is y:CCicell do toExpr(toCCi(x.v,precision(y.v))^y.v)
      	  is Error do rhs
 	  else binarymethod(lhs,rhs,PowerS))
      is x:RRcell do (
@@ -788,6 +790,7 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	       else toExpr(x.v^y.v)
 	       )
 	  is y:CCcell do toExpr(x.v^y.v)
+	  is y:CCicell do toExpr(toCCi(x.v)^y.v)
      	  is Error do rhs
 	  else binarymethod(lhs,rhs,PowerS))
     is x:RRicell do (
@@ -812,6 +815,8 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	       then toExpr(x.v^y.v)
 	       else buildErrorPacket("negative base not implemented")
 	       )
+	   is y:CCcell do toExpr(toCCi(x.v)^toCCi(y.v))
+	   is y:CCicell do toExpr(toCCi(x.v)^y.v)
       else binarymethod(lhs,rhs,PowerS))
      is x:CCcell do (
 	  when rhs
@@ -822,11 +827,17 @@ export (lhs:Expr) ^ (rhs:Expr) : Expr := (
 	       else toExpr(x.v^toRR(y.v,precision(x.v))))
 	  is y:RRcell do toExpr(x.v^y.v)
 	  is y:CCcell do toExpr(x.v^y.v)
+	  is y:CCicell do toExpr(toCCi(x.v)^y.v)
      	  is Error do rhs
 	  else binarymethod(lhs,rhs,PowerS))
 	 is x:CCicell do (
 	  when rhs
 	  is y:ZZcell do toExpr(x.v^y.v)
+	  is y:QQcell do toExpr(x.v^toCCi(y.v,precision(x.v)))
+	  is y:RRcell do toExpr(x.v^toCCi(y.v))
+	  is y:RRicell do toExpr(x.v^toCCi(y.v))
+	  is y:CCcell do toExpr(x.v^toCCi(y.v))
+	  is y:CCicell do toExpr(x.v^y.v)
      	  is Error do rhs
 	  else binarymethod(lhs,rhs,PowerS))
      is x:RawRingElementCell do (
