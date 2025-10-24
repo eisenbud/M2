@@ -187,6 +187,16 @@ export regularizedBeta(u:RRi,v:RRi,w:RRi):RRi := (
     clear(z);
     moveToRRiandclear(r, prec));
 
+export agm(z:RRi, w:RRi):RRi := (
+    prec := min(precision(z), precision(w));
+    x := toRRb(z);
+    y := toRRb(w);
+    r := newRRb();
+    Ccode(void, "arb_agm(", r, ", ", x, ", ", y, ", ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToRRiandclear(r, prec));
+
 ------------
 -- CCBall --
 ------------
@@ -611,3 +621,13 @@ export log(z:CCi, w:CCi):CCi := (
     moveToCCiandclear(r, prec));
 
 export (z:CCi) ^ (w:CCi):CCi := exp(log(z)*w);
+
+export agm(z:CCi, w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_agm(", r, ", ", x, ", ", y, ", ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));

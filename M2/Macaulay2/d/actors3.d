@@ -1399,13 +1399,31 @@ agm(e:Expr):Expr := (
 	  when a.0
 	  is x:CCcell do (
 	       when a.1
-	       is y:CCcell do toExpr(agm(x.v,y.v)) -- # typical value: agm, CC, CC, CC
-	       is y:RRcell do toExpr(agm(x.v,toCC(y.v)))			            -- # typical value: agm, CC, RR, CC
+	       is y:CCcell do toExpr(agm(x.v,y.v))                -- # typical value: agm, CC, CC, CC
+	       is y:CCicell do toExpr(agm(toCCi(x.v), y.v))       -- # typical value: agm, CC, CCi, CCi
+	       is y:RRcell do toExpr(agm(x.v,toCC(y.v)))          -- # typical value: agm, CC, RR, CC
+	       is y:RRicell do toExpr(agm(toCCi(x.v),toCCi(y.v))) -- # typical value: agm, CC, RRi, CCi
+	       else WrongArgRRorCC(2))
+	  is x:CCicell do (
+	       when a.1
+	       is y:CCcell do toExpr(agm(x.v,toCCi(y.v)))         -- # typical value: agm, CCi, CC, CCi
+	       is y:CCicell do toExpr(agm(x.v, y.v))             -- # typical value: agm, CCi, CCi, CCi
+	       is y:RRcell do toExpr(agm(x.v,toCCi(y.v)))         -- # typical value: agm, CCi, RR, CCi
+	       is y:RRicell do toExpr(agm(x.v, toCCi(y.v)))       -- # typical value: agm, CCi, RRi, CCi
 	       else WrongArgRRorCC(2))
 	  is x:RRcell do (
 	       when a.1
-	       is y:CCcell do toExpr(agm(toCC(x.v),y.v)) -- # typical value: agm, RR, CC, CC
-	       is y:RRcell do toExpr(agm(x.v,y.v))			            -- # typical value: agm, RR, RR, RR
+	       is y:CCcell do toExpr(agm(toCC(x.v),y.v))          -- # typical value: agm, RR, CC, CC
+	       is y:CCicell do toExpr(agm(toCCi(x.v), y.v))       -- # typical value: agm, RR, CCi, CCi
+	       is y:RRcell do toExpr(agm(x.v,y.v))                -- # typical value: agm, RR, RR, RR
+	       is y:RRicell do toExpr(agm(toRRi(x.v), y.v))       -- # typical value: agm, RR, RRi, RRi
+	       else WrongArgRRorCC(2))
+	  is x:RRicell do (
+	       when a.1
+	       is y:CCcell do toExpr(agm(toCCi(x.v),toCCi(y.v)))  -- # typical value: agm, RRi, CC, CCi
+	       is y:CCicell do toExpr(agm(toCCi(x.v), y.v))       -- # typical value: agm, RRi, CCi, CCi
+	       is y:RRcell do toExpr(agm(x.v,toRRi(y.v)))         -- # typical value: agm, RRi, RR, RRi
+	       is y:RRicell do toExpr(agm(x.v, y.v))              -- # typical value: agm, RRi, RRi, RRi
 	       else WrongArgRRorCC(2))
 	  else WrongArgRRorCC(1))
      else WrongNumArgs(2)
