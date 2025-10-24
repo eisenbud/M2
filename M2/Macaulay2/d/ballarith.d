@@ -639,12 +639,12 @@ export agm(z:CCi, w:CCi):CCi := (
     clear(y);
     moveToCCiandclear(r, prec));
 
-export abs(z:CCi):CCi := (
+export abs(z:CCi):RRi := (
     w := toCCb(z);
-    r := newCCb();
+    r := newRRb();
     Ccode(void, "acb_abs(", r, ", ", w, ", ", precision(z), ")");
     clear(w);
-    moveToCCiandclear(r, precision(z)));
+    moveToRRiandclear(r, precision(z)));
 
 export sign(z:CCi):CCi := (
     w := toCCb(z);
