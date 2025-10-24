@@ -188,76 +188,38 @@ SeeAlso
     isMember
 ///
 
-undocumented{(isReal, CCi), (span, CCi), (span,RRi), (span, QQ), (span, RR), (span, ZZ)}
+undocumented{(isReal, CCi)}
 
 doc ///
 Key
     span
-Headline
-    construct smallest interval
-Description
-  Text
-    Returns the smallest interval containing the inputs (which can include intervals).  Typically, the returned interval is not empty.  See @TO (span, Sequence)@ and @TO (span, List)@
-SeeAlso
-    interval
-    (span, Sequence)
-    (span, List)
-    toRRi
-    toCCi
-///
-
-doc ///
-Key
-    (span, List)
-    [(span,List),Precision]
+    (span,CCi,CCi)
+    (span,CCi,RRi)
+    (span,List)
+    (span,Number)
+    (span,Number,Number)
+    (span,RRi,CCi)
+    (span,RRi,RRi)
+    (span,Sequence)
 Headline
     construct smallest interval
 Usage
     I = span(L)
     I = span(L,Precision => prec)
 Inputs
-    L:List
-        containing @TO Number@ (including @TO CCi@)
+    L:{List, Sequence}
+        containing @TO Number@ objects
     Precision => ZZ
         specifies the desired precision of the output, a value of {\tt -1} uses the minimum precision of the inputs.
 Outputs
-    I:RRi
-	when input List has only real numbers or intervals
-    I:CCi
+    I:{RRi, CCi}
 Description
   Text
     Returns the smallest interval containing the inputs (which can include intervals).  Typically, the returned interval is not empty.
+  Example
+    span(1 + 3*ii, pi, 4 + ii)
 SeeAlso
     interval
-    (span, Sequence)
-    toRRi
-    toCCi
-///
-
-doc ///
-Key
-    (span, Sequence)
-    [(span,Sequence),Precision]
-Headline
-    construct smallest interval
-Usage
-    I = span(S)
-    I = span(S,Precision => prec)
-Inputs
-    S:Sequence
-        containing @TO Number@ (including @TO CCi@)
-    Precision => ZZ
-        specifies the desired precision of the output, a value of {\tt -1} uses the minimum precision of the inputs.
-Outputs
-    I:RRi
-	when input List has only real numbers or intervals
-    I:CCi
-Description
-  Text
-    Returns the smallest interval containing the inputs (which can include intervals).  Typically, the returned interval is not empty.
-SeeAlso
-    interval
-    (span, List)
     toRRi
     toCCi
 ///
