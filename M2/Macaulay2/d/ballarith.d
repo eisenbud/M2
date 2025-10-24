@@ -197,6 +197,13 @@ export agm(z:RRi, w:RRi):RRi := (
     clear(y);
     moveToRRiandclear(r, prec));
 
+export sign(z:RRi):RRi := (
+    w := toRRb(z);
+    r := newRRb();
+    Ccode(void, "arb_sgn(", r, ", ", w, ")");
+    clear(w);
+    moveToRRiandclear(r, precision(z)));
+
 ------------
 -- CCBall --
 ------------
@@ -631,3 +638,17 @@ export agm(z:CCi, w:CCi):CCi := (
     clear(x);
     clear(y);
     moveToCCiandclear(r, prec));
+
+export abs(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_abs(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export sign(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_sgn(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
