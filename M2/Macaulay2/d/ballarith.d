@@ -562,3 +562,51 @@ export regularizedBeta(u:CCi,v:CCi,w:CCi):CCi := (
     clear(y);
     clear(z);
     moveToCCiandclear(r, prec));
+
+export cosh(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_cosh(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export sinh(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_sinh(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export tanh(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_tanh(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export exp(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_exp(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export log(z:CCi):CCi := (
+    w := toCCb(z);
+    r := newCCb();
+    Ccode(void, "acb_log(", r, ", ", w, ", ", precision(z), ")");
+    clear(w);
+    moveToCCiandclear(r, precision(z)));
+
+export log(z:CCi, w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_log(", x, ", ", x, ", ", prec, ")");
+    Ccode(void, "acb_log(", y, ", ", y, ", ", prec, ")");
+    Ccode(void, "acb_div(", r, ", ", y, ", ", x, ", ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
+

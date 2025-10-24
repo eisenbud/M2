@@ -1317,6 +1317,7 @@ setupfun("regularizedBeta",regularizedBeta).Protected=false;
 cosh(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(cosh(x.v))				    -- # typical value: cosh, CC, CC
+     is x:CCicell do toExpr(cosh(x.v))				    -- # typical value: cosh, CCi, CCi
      is x:RRcell do toExpr(cosh(x.v))				    -- # typical value: cosh, RR, RR
      is x:RRicell do toExpr(cosh(x.v))				    -- # typical value: cosh, RRi, RRi
      else WrongArgRRorCC()
@@ -1325,6 +1326,7 @@ setupfun("cosh",cosh).Protected=false;
 sinh(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(sinh(x.v))				    -- # typical value: sinh, CC, CC
+     is x:CCicell do toExpr(sinh(x.v))				    -- # typical value: sinh, CCi, CCi
      is x:RRcell do toExpr(sinh(x.v))				    -- # typical value: sinh, RR, RR
      is x:RRicell do toExpr(sinh(x.v))				    -- # typical value: sinh, RRi, RRi
      else WrongArgRRorCC()
@@ -1333,6 +1335,7 @@ setupfun("sinh",sinh).Protected=false;
 tanh(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(tanh(x.v))				    -- # typical value: tanh, CC, CC
+     is x:CCicell do toExpr(tanh(x.v))				    -- # typical value: tanh, CCi, CCi
      is x:RRcell do toExpr(tanh(x.v))				    -- # typical value: tanh, RR, RR
      is x:RRicell do toExpr(tanh(x.v))				    -- # typical value: tanh, RRi, RRi
      else WrongArgRRorCC()
@@ -1341,6 +1344,7 @@ setupfun("tanh",tanh).Protected=false;
 exp(e:Expr):Expr := (
      when e
      is x:CCcell do toExpr(exp(x.v))			    -- # typical value: exp, CC, CC
+     is x:CCicell do toExpr(exp(x.v))			    -- # typical value: exp, CCi, CCi
      is x:RRcell do toExpr(exp(x.v))			    -- # typical value: exp, RR, RR
      is x:RRicell do toExpr(exp(x.v))			    -- # typical value: exp, RRi, RRi
      else WrongArgRRorCC()
@@ -1354,6 +1358,7 @@ log(e:Expr):Expr := (
 	  is b:RRcell do (
 	       when a.1
 	       is x:CCcell do toExpr(log(b.v,x.v))			            -- # typical value: log, RR, CC, CC
+	       is x:CCicell do toExpr(log(toCCi(b.v), x.v))		    -- # typical value: log, RR, CCi, CCi
 	       is x:RRcell do (			            -- # typical value: log, RR, RR, CC
      	       	    if b.v>0 && x.v>0 then toExpr(log(b.v,x.v)) else toExpr(logc(b.v,x.v))
 		    )
@@ -1365,6 +1370,8 @@ log(e:Expr):Expr := (
 	       else WrongArgRRorCC(1))
     is b:RRicell do (
 	       when a.1
+	       is x:CCcell do toExpr(log(toCCi(b.v), toCCi(x.v))) -- #typical value: log, RRi, CC, CCi
+	       is x:CCicell do toExpr(log(toCCi(b.v), x.v))       -- # typical value: log, RRi, CCi, CCi
                 is x:RRcell do (    -- # typical value: log, RRi, RR, RRi
      	       	    if b.v>0 && x.v>=0 then toExpr(log(b.v,toRRi(x.v,precision(x.v))))
                                 else
@@ -1378,6 +1385,7 @@ log(e:Expr):Expr := (
 	       else WrongArgRRorRRi(2))
 	  else WrongArgRRorRRi(1))
      is x:CCcell do toExpr(log(x.v))				    -- # typical value: log, CC, CC
+     is x:CCicell do toExpr(log(x.v))				    -- # typical value: log, CCi, CCi
      is x:RRcell do if isNegative(x.v) then toExpr(logc(x.v)) else toExpr(log(x.v))				    -- # typical value: log, RR, RR
      is x:RRicell do if x.v >= 0 then toExpr(log(x.v))  -- # typical value: log, RRi, RRi
                      else buildErrorPacket("Not defined")
