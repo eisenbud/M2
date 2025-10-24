@@ -20,21 +20,14 @@ interval CCi := opts -> N -> (
     if opts.Precision < 0 or opts.Precision == precision N then N
     else toCCi(opts.Precision, realPart N, imaginaryPart N))
 
-for A in {ZZ,QQ,RR} do
-for B in {ZZ,QQ,RR} do
-interval(A,B) := opts -> (N,M) -> (
+interval(Number, Number) := opts -> (N, M) -> (
+    p := if opts.Precision < 0 then defaultPrecision else opts.Precision;
+    interval(numeric(p, N), numeric(p, M), opts))
+interval(RR, RR) := opts -> (N,M) -> (
     if opts.Precision < 0 then toRRi(N,M)
     else toRRi(opts.Precision,N,M))
-
-for A in {ZZ,QQ,RR} do
-interval(A,RRi) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval N, M)
-    else toCCi(opts.Precision, interval N, M))
-for A in {ZZ,QQ,RR} do
-interval(RRi,A) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(N, interval M)
-    else toCCi(opts.Precision, N, interval M))
-
+interval(RR, RRi) := opts -> (N,M) -> interval(toRRi N, M, opts)
+interval(RRi, RR) := opts -> (N,M) -> interval(N, toRRi M, opts)
 interval(RRi,RRi) := opts -> (N,M) -> (
     if opts.Precision < 0 then toCCi(N,M)
     else toCCi(opts.Precision,N,M))
@@ -42,10 +35,19 @@ interval(RRi,RRi) := opts -> (N,M) -> (
 interval(Number, CC) := opts -> (N, M) -> interval(toCC N, M, opts)
 interval(CC, Number) := opts -> (N, M) -> interval(N, toCC M, opts)
 interval(CC,CC) := opts -> (N,M) -> (
-    if opts.Precision < 0 then toCCi(interval(realPart N, realPart M), interval(imaginaryPart N, imaginaryPart M))
+    if opts.Precision < 0
+    then toCCi(
+	interval(realPart N, realPart M),
+	interval(imaginaryPart N, imaginaryPart M))
     else toCCi(opts.Precision,
 	interval(realPart N, realPart M, opts),
 	interval(imaginaryPart N, imaginaryPart M, opts)))
+
+-- the following don't make sense
+interval(RRi, CC)     :=
+interval(CC, RRi)     :=
+interval(CCi, Number) :=
+interval(Number, CCi) := opts -> (N, M) -> error "interval not well-defined"
 
 interval(Array) := opts -> A -> (
     if (length(A) == 0) or (length(A)>2) then error("expected length 2")

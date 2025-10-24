@@ -231,27 +231,20 @@ Key
     (interval,CC)
     (interval,CC,CC)
     (interval,CC,Number)
+    (interval,CC,RRi)
     (interval,CCi)
+    (interval,CCi,Number)
     (interval,Number)
     (interval,Number,CC)
-    (interval,QQ,QQ)
-    (interval,QQ,RR)
-    (interval,QQ,RRi)
-    (interval,QQ,ZZ)
+    (interval,Number,CCi)
+    (interval,Number,Number)
     (interval,RR)
-    (interval,RR,QQ)
     (interval,RR,RR)
     (interval,RR,RRi)
-    (interval,RR,ZZ)
     (interval,RRi)
-    (interval,RRi,QQ)
+    (interval,RRi,CC)
     (interval,RRi,RR)
     (interval,RRi,RRi)
-    (interval,RRi,ZZ)
-    (interval,ZZ,QQ)
-    (interval,ZZ,RR)
-    (interval,ZZ,RRi)
-    (interval,ZZ,ZZ)
     [interval,Precision]
 Headline
     construct an interval
@@ -285,14 +278,14 @@ Description
     interval(5, 4)
     interval [7, 8]
   Text
-    If given two arguments, at least one of which is a complex number,
-    then the rectangle in the complex plane whose lower left hand corner
-    is the first argument and upper right hand corner is the second argument
-    is returned.
+    If given two arguments, at least one of which is a complex number
+    and neither of which is an interval, then the rectangle in the
+    complex plane whose lower left hand corner is the first argument
+    and upper right hand corner is the second argument is returned.
   Example
     interval(2 + 3*ii, 5 + 4*ii)
   Text
-    If given two arguments, at least one of which is a real interval,
+    If given two real arguments, at least one of which is an interval,
     then the first argument gives the real part and the second argument
     the imaginary part of a complex interval.
   Example
