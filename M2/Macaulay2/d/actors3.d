@@ -112,6 +112,7 @@ EqualEqualfun(x:Expr,y:Expr):Expr := (
 	  is yy:RRcell do toExpr(yy.v === xx.v)			    -- # typical value: symbol ==, ZZ, RR, Boolean
       is yy:RRicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, ZZ, RRi, Boolean
 	  is yy:CCcell do toExpr(yy.v === xx.v)			    -- # typical value: symbol ==, ZZ, CC, Boolean
+	  is yy:CCicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, ZZ, CCi, Boolean
 	  else equalmethod(x,y)
 	  )
      is xx:SymbolClosure do (
@@ -125,6 +126,7 @@ EqualEqualfun(x:Expr,y:Expr):Expr := (
 	  is yy:RRcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, QQ, RR, Boolean
       is yy:RRicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, QQ, RRi, Boolean
 	  is yy:CCcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, QQ, CC, Boolean
+	  is yy:CCicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, QQ, CCi, Boolean
 	  else equalmethod(x,y)
 	  )
      is xx:RRcell do (
@@ -134,6 +136,7 @@ EqualEqualfun(x:Expr,y:Expr):Expr := (
 	  is yy:RRcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, RR, RR, Boolean
       is yy:RRicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, RR, RRi, Boolean
 	  is yy:CCcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, RR, CC, Boolean
+	  is yy:CCicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, RR, CCi, Boolean
 	  else equalmethod(x,y)
 	  )
       is xx:RRicell do (
@@ -141,6 +144,7 @@ EqualEqualfun(x:Expr,y:Expr):Expr := (
                  is yy:ZZcell do toExpr(xx.v === yy.v)   -- # typical value: symbol ==, RRi, ZZ, Boolean
                  is yy:QQcell do toExpr(xx.v === yy.v)   -- # typical value: symbol ==, RRi, QQ, Boolean
                  is yy:RRcell do toExpr(xx.v === yy.v)   -- # typical value: symbol ==, RRi, RR, Boolean
+                 is yy:CCicell do toExpr(yy.v === xx.v)	 -- # typical value: symbol ==, RRi, CCi, Boolean
           else buildErrorPacket(EngineError("equality not implemented")))
      is xx:CCcell do (
 	  when y
@@ -148,6 +152,17 @@ EqualEqualfun(x:Expr,y:Expr):Expr := (
 	  is yy:QQcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CC, QQ, Boolean
 	  is yy:RRcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CC, RR, Boolean
 	  is yy:CCcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CC, CC, Boolean
+	  is yy:CCicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, CC, CCi, Boolean
+	  else equalmethod(x,y)
+	  )
+     is xx:CCicell do (
+	  when y
+	  is yy:ZZcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CCi, ZZ, Boolean
+	  is yy:QQcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CCi, QQ, Boolean
+	  is yy:RRcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CCi, RR, Boolean
+      is yy:RRicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, CCi, RRi, Boolean
+	  is yy:CCcell do toExpr(xx.v === yy.v)			    -- # typical value: symbol ==, CCi, CC, Boolean
+	  is yy:CCicell do toExpr(yy.v === xx.v)			-- # typical value: symbol ==, CCi, CCi, Boolean
 	  else equalmethod(x,y)
 	  )
      is xx:Boolean do (

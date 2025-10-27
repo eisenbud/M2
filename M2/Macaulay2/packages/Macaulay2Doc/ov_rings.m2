@@ -480,9 +480,7 @@ document {
         TO (isMember, QQ, RRi),
         TO (isEmpty, RRi),
         TO (isSubset, RRi, RRi),
-	TO span, -- TODO: perhaps this should be shared
-	TO (span, List),
-	TO (span, Sequence),
+	TO span
         },
 	  }
 
