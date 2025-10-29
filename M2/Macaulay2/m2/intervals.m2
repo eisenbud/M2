@@ -32,8 +32,8 @@ interval(RRi,RRi) := opts -> (N,M) -> (
     if opts.Precision < 0 then toCCi(N,M)
     else toCCi(opts.Precision,N,M))
 
-interval(Number, CC) := opts -> (N, M) -> interval(toCC N, M, opts)
-interval(CC, Number) := opts -> (N, M) -> interval(N, toCC M, opts)
+interval(RR,CC) := opts -> (N, M) -> interval(toCC N, M, opts)
+interval(CC,RR) := opts -> (N, M) -> interval(N, toCC M, opts)
 interval(CC,CC) := opts -> (N,M) -> (
     if opts.Precision < 0
     then toCCi(
