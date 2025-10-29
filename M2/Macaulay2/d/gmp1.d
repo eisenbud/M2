@@ -188,7 +188,7 @@ export tostringRRiforCCi(x:RRi):string := concatenate(
 
 export tostringCCi(x:CCi):string := (
      if isZero(x.im) then tostringRRi(x.re) 
-     else if isZero(x.re) then concatenate(array(string)(tostringRRi(x.im),"*ii"))
+     else if isZero(x.re) then concatenate(array(string)(tostringRRiforCCi(x.im),"*ii", " (an empty interval)"))
      else if isEmpty(x) then concatenate(array(string)(tostringRRiforCCi(x.re),"+",tostringRRiforCCi(x.im),"*ii", " (an empty interval)"))
      else concatenate(array(string)(tostringRRiforCCi(x.re),"+",tostringRRiforCCi(x.im),"*ii"))
 );
