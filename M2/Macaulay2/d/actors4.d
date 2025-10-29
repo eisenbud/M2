@@ -1428,6 +1428,7 @@ toCCi(e:Expr):Expr := (
                              is y:RRcell do toExpr(toCCi(toRRi(x.v, precision(y.v)),toRRi(y.v)))
 					    is y:RRicell do toExpr(toCCi(toRRi(x.v,precision(y.v)),y.v))
 					    is y:CCcell do toExpr(toCCi(toRRi(realPart(y.v), toULong(x.v)),toRRi(imaginaryPart(y.v), toULong(x.v))))
+					    is y:CCicell do toExpr(toCCi(toRRi(realPart(y.v), toULong(x.v)),toRRi(imaginaryPart(y.v), toULong(x.v))))
                     else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
 				is x:QQcell do (
 					when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v), toRRi(y.v)))
