@@ -21,7 +21,9 @@ interval CCi := opts -> N -> (
     else toCCi(opts.Precision, realPart N, imaginaryPart N))
 
 interval(Number, Number) := opts -> (N, M) -> (
-    p := if opts.Precision < 0 then defaultPrecision else opts.Precision;
+    p := opts.Precision;
+    if p < 0 then p = min(precision N, precision M);
+    if isInfinite p then p = defaultPrecision;
     interval(numeric(p, N), numeric(p, M), opts))
 interval(RR, RR) := opts -> (N,M) -> (
     if opts.Precision < 0 then toRRi(N,M)
