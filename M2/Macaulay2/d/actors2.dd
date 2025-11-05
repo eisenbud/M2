@@ -704,6 +704,7 @@ exponent(e:Expr):Expr := (
      is x:RRcell do toExpr(exponent(x.v))	      -- # typical value: size2, RR, ZZ
      is x:RRicell do toExpr(exponent(x.v))	      -- # typical value: size2, RRi, ZZ
      is z:CCcell do toExpr(exponent(z.v))	      -- # typical value: size2, CC, ZZ
+     is z:CCicell do toExpr(exponent(z.v))            -- # typical value: size2, CCi, ZZ
      else WrongArg("a number"));
 setupfun("size2",exponent);
 
