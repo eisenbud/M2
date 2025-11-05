@@ -153,6 +153,7 @@ doc ///
   Key
     log1p
     (log1p,CC)
+    (log1p,CCi)
     (log1p,RR)
     (log1p,RRi)
   Headline
@@ -166,7 +167,7 @@ doc ///
   Outputs
     :{RR,CC}
       the logarithm of @TT "1+x"@
-    :{RRi}
+    :{RRi,CCi}
       an interval containing logarithm of 1 plus the points of @TT "I"@
   Description
     Example
@@ -178,6 +179,7 @@ doc ///
   Key
     expm1
     (expm1,CC)
+    (expm1,CCi)
     (expm1,RR)
     (expm1,RRi)
   Headline
@@ -191,7 +193,7 @@ doc ///
   Outputs
     :{RR,CC}
       the quantity @TT "exp(x)-1"@
-    :RRi
+    :{RRi,CCi}
       an interval containing the exponential of the points of @TT "I"@ minus one
   Description
     Example
@@ -199,7 +201,7 @@ doc ///
       exp(1p100e-10)-1
 ///
 
-document { Key => {eint,(eint, RR),(eint,CC),(eint,RRi)},
+document { Key => {eint,(eint, RR),(eint,CC),(eint,RRi),(eint,CCi)},
      Usage => "eint x",
      Headline => "exponential integral",
      Inputs => { "x" },
@@ -210,7 +212,7 @@ document { Key => {eint,(eint, RR),(eint,CC),(eint,RRi)},
      PARA {"See ", wikipedia "Exponential integral", "."}
      }
 
-document { Key => {Digamma,(Digamma, RR),(Digamma,CC),(Digamma,RRi)},
+document { Key => {Digamma,(Digamma, RR),(Digamma,CC),(Digamma,RRi),(Digamma,CCi)},
      Usage => "Digamma x",
      Headline => "Digamma function",
      Inputs => { "x" },
@@ -222,7 +224,7 @@ document { Key => {Digamma,(Digamma, RR),(Digamma,CC),(Digamma,RRi)},
      SeeAlso => {Gamma}
      }
 
-document { Key => {zeta,(zeta, RR),(zeta,CC),(zeta,RRi)},
+document { Key => {zeta,(zeta, RR),(zeta,CC),(zeta,RRi),(zeta,CCi)},
      Usage => "zeta x",
      Headline => "Riemann zeta function",
      Inputs => { "x" },
@@ -235,7 +237,7 @@ document { Key => {zeta,(zeta, RR),(zeta,CC),(zeta,RRi)},
 
 document {
      --- author(s): L. Gold, Dan Grayson
-     Key => {acos,(acos,RR),(acos,CC),(acos, RRi)},
+     Key => {acos,(acos,RR),(acos,CC),(acos, RRi),(acos,CCi)},
      Headline => "arccosine",
      Usage => "acos x\nacos I",
      Inputs => { "x", "I" => RRi },
@@ -249,7 +251,7 @@ document {
 
 document {
      --- author(s): L. Gold, Dan Grayson
-     Key => {asin,(asin,RR),(asin,CC),(asin, RRi)},
+     Key => {asin,(asin,RR),(asin,CC),(asin, RRi),(asin,CCi)},
      Headline => "arcsine",
      Usage => "asin x\nasin I",
      Inputs => { "x", "I" => RRi },
@@ -265,7 +267,7 @@ document {
 
 document {
      --- author(s): L. Gold
-     Key => {cosh, (cosh,RR),(cosh,CC),(cosh,RRi)},
+     Key => {cosh, (cosh,RR),(cosh,CC),(cosh,RRi),(cosh,CCi)},
      Headline => "compute the hyperbolic cosine",
      Usage => "cosh x\ncosh I",
      Inputs => { "x", "I"=>RRi},
@@ -301,7 +303,7 @@ document {
      PARA {"See ", wikipedia "Hyperbolic function", "."}
      }
 
-document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi)},
+document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi),(sec,CCi)},
      Usage => "sec x\nsec I",
      Headline => "secant",
      Inputs => { "x", "I" => RRi },
@@ -314,7 +316,7 @@ document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi)},
      PARA {"See ", wikipedia "Trigonometric function", "."}
      }
 
-document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi)},
+document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi),(csc,CCi)},
      Usage => "csc x\ncsc I",
      Headline => "cosecant",
      Inputs => { "x","I"=>RRi },
@@ -327,7 +329,7 @@ document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi)},
      PARA {"See ", wikipedia "Trigonometric function", "."}
      }
 
-document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi)},
+document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi),(cot,CCi)},
      Usage => "cot x\ncot I",
      Headline => "cotangent",
      Inputs => { "x", "I"=>RRi },
@@ -340,7 +342,7 @@ document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi)},
      PARA {"See ", wikipedia "Trigonometric function", "."}
      }
 
-document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi)},
+document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi),(sech,CCi)},
      Usage => "sech x\nsech I",
      Headline => "hyperbolic secant",
      Inputs => { "x", "I" => RRi },
@@ -353,7 +355,7 @@ document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi)},
      PARA {"See ", wikipedia "Hyperbolic function", "."}
      }
 
-document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi)},
+document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi),(csch,CCi)},
      Usage => "csch x\ncsch I",
      Headline => "hyperbolic cosecant",
      Inputs => { "x", "I"=>RRi },
@@ -366,7 +368,7 @@ document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi)},
      PARA {"See ", wikipedia "Hyperbolic function", "."}
      }
 
-document { Key => {coth,(coth,CC),(coth, RR),(coth,RRi)},
+document { Key => {coth,(coth,CC),(coth, RR),(coth,RRi),(coth,CCi)},
      Usage => "coth x\ncoth I",
      Headline => "hyperbolic cotangent",
      Inputs => { "x","I"=>RRi},
@@ -415,7 +417,19 @@ document { Key => {BesselY,(BesselY, ZZ, Number),(BesselY,Number,Number)},
      SeeAlso => { BesselJ }
      }
 
-document { Key => {agm, (agm, RR, RR), (agm,CC,CC), (agm,CC,RR), (agm,RR,CC)},
+document { Key => {
+	agm,
+	(agm, RR, RR),
+	(agm,CC,CC),
+	(agm,CC,CCi),
+	(agm,CC,RR),
+	(agm,CCi,CC),
+	(agm,CCi,CCi),
+	(agm,CCi,RR),
+	(agm,CCi,RRi),
+	(agm,RR,CC),
+	(agm,RR,CCi),
+	(agm,RRi,CCi)},
      Usage => "agm(x,y)",
      Inputs => { "x" => "a number", "y" => "a number" },
      Outputs => { {"the arithmetic-geometric mean of ", TT "x", " and ", TT "y"}},
@@ -427,7 +441,8 @@ document { Key => {agm, (agm, RR, RR), (agm,CC,CC), (agm,CC,RR), (agm,RR,CC)},
      }
 
 -- TODO: find a better place for these
-document { Key => {size2, (size2,CC), (size2,RR), (size2,ZZ), (size2,RRi)},
+document { Key => {size2, (size2,CC), (size2,RR), (size2,ZZ), (size2,RRi),
+	(size2,CCi)},
      Usage => "size2 x",
      Headline => "number of binary digits to the left of the point",
      Inputs => {"x" => Number},
@@ -444,7 +459,7 @@ document { Key => {size2, (size2,CC), (size2,RR), (size2,ZZ), (size2,RRi)},
      size2 (1/0.-1/0.)
      ///}
 
-document { Key => {isReal,(isReal,CC),(isReal,QQ),(isReal,RR),(isReal,ZZ),
+document { Key => {isReal,(isReal,CC),(isReal,CCi),(isReal,QQ),(isReal,RR),(isReal,ZZ),
 	(isReal, RRi), (isReal, Constant), (isReal, InfiniteNumber)},
      Usage => "isReal x",
      Headline => "whether a number is real",

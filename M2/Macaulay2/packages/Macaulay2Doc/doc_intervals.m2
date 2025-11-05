@@ -102,6 +102,10 @@ doc ///
 Key
     (intersect, RRi)
     (intersect, RRi, RRi)
+    (intersect, CCi)
+    (intersect, CCi, CCi)
+    (intersect, CCi, RRi)
+    (intersect, RRi, CCi)
     [(intersect, RRi), Precision]
     [(intersect, RRi, RRi), Precision]
 Headline
@@ -187,8 +191,6 @@ Description
 SeeAlso
     isMember
 ///
-
-undocumented{(isReal, CCi)}
 
 doc ///
 Key

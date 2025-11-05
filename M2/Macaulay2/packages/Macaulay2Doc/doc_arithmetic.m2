@@ -33,8 +33,8 @@ document {
 document {
      Key => {numeric,(numeric,Matrix),(numeric,ZZ,Matrix),
 	  (numeric, Vector),(numeric, ZZ, Vector),
-	  (numeric, ZZ, CC), (numeric, RR), (numeric, RRi),
-      (numeric, ZZ, RRi),
+	  (numeric, ZZ, CC), (numeric, RR), (numeric, RRi), (numeric, CCi),
+      (numeric, ZZ, RRi), (numeric, ZZ, CCi),
         (numeric, CC), (numeric, ZZ, VisibleList),
 	  (numeric, VisibleList), (numeric, ZZ, Constant), (numeric, Constant),
 	  (numeric, InfiniteNumber, Constant),

@@ -68,7 +68,7 @@ document {
      }
 
 document {
-     Key => {exp,(exp,RR),(exp,CC),(exp,RRi)},
+     Key => {exp,(exp,RR),(exp,CC),(exp,RRi),(exp,CCi)},
      Headline => "exponential function",
      Usage => "exp x\nexp I",
      Inputs => { "x" => RR ,"I"=>RRi},
@@ -81,8 +81,20 @@ document {
      }
 
 document {
-     Key => {log,(log, RR),(log,CC),(log, RRi),(log, RR, RR),(log, RRi, RRi),
-	 (log,RR,CC),(log,RR,RRi),(log,RRi,RR)},
+     Key => {
+	 log,
+	 (log, RR),
+	 (log,CC),
+	 (log,CCi),
+	 (log,RR,CCi),
+	 (log,RR,RR),
+	 (log,RR,RRi),
+	 (log,RRi),
+	 (log,RRi,CCi),
+	 (log,RRi,RR),
+	 (log,RRi,RRi),
+	 (log,RR,CC)
+	 },
      Headline => "logarithm function",
      Usage => "log x\nlog(b,x)\nlog_b x\nlog I\nlog(b,I)\nlog_b I\nlog(J,x)\nlog_J x\nlog(J,I)\nlog_J I",
 Inputs => { "x" => RR, "b" => RR => {"the base for the logarithm"}, "I" => RRi, "J" => RRi => {"an interval of bases for the logarithm"} },
@@ -94,7 +106,7 @@ Outputs => { { "the logarithm of ", TT "x"}, RRi => {"an interval containing the
      ///
      }
 document {
-     Key => {sqrt,(sqrt, CC),(sqrt, RR), (sqrt, RRi)},
+     Key => {sqrt,(sqrt, CC),(sqrt, RR), (sqrt, RRi),(sqrt,CCi)},
      Headline => "square root function",
 Usage => "sqrt x\nsqrt I",
      Inputs => { "x" => RR, "I" => RRi },

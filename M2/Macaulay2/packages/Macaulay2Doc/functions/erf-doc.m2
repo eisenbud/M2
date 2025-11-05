@@ -2,6 +2,7 @@ doc ///
   Key
     erf
    (erf,CC)
+   (erf,CCi)
    (erf,RR)
    (erf,RRi)
   Headline
@@ -27,6 +28,7 @@ doc ///
   Key
     erfc
    (erfc,CC)
+   (erfc,CCi)
    (erfc,RR)
    (erfc,RRi)
   Headline

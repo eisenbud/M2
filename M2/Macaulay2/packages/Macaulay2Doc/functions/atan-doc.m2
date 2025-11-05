@@ -22,7 +22,7 @@ document {
      }
 
 document { 
-     Key => {atan,(atan,RR),(atan,CC),(atan, RRi)},
+     Key => {atan,(atan,RR),(atan,CC),(atan, RRi),(atan,CCi)},
      Headline => "compute the arctangent of a number",
      Usage => "atan x\natan I",
      Inputs => { "x" => RR, "I" => RRi},

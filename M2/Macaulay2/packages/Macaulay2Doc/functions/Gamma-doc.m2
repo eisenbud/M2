@@ -11,6 +11,14 @@ doc ///
    (Gamma,RRi)
    (Gamma,RRi,RR)
    (Gamma,RRi,RRi)
+   (Gamma,CC,CCi)
+   (Gamma,CCi)
+   (Gamma,CCi,CC)
+   (Gamma,CCi,CCi)
+   (Gamma,CCi,RR)
+   (Gamma,CCi,RRi)
+   (Gamma,RR,CCi)
+   (Gamma,RRi,CCi)
   Headline
     Gamma function
   Usage
@@ -42,10 +50,17 @@ doc ///
   Key
     regularizedGamma
    (regularizedGamma,CC,CC)
+   (regularizedGamma,CC,CCi)
    (regularizedGamma,CC,RR)
+   (regularizedGamma,CCi,CC)
+   (regularizedGamma,CCi,CCi)
+   (regularizedGamma,CCi,RR)
+   (regularizedGamma,CCi,RRi)
    (regularizedGamma,RR,CC)
+   (regularizedGamma,RR,CCi)
    (regularizedGamma,RR,RR)
    (regularizedGamma,RR,RRi)
+   (regularizedGamma,RRi,CCi)
    (regularizedGamma,RRi,RR)
    (regularizedGamma,RRi,RRi)
   Headline
@@ -99,6 +114,7 @@ doc ///
     lngamma
     (lngamma, RR)
     (lngamma, CC)
+    (lngamma, CCi)
     (lngamma, RRi)
     (lngamma, Number)
   Headline
