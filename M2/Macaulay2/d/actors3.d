@@ -1380,8 +1380,7 @@ log(e:Expr):Expr := (
 		    )
 	       is x:RRicell do (                     -- # typical value: log, RR, RRi, RRi
      	       	    if b.v>0 && x.v>=0 then toExpr(log(toRRi(b.v,precision(b.v)),x.v))
-                    else
-                        buildErrorPacket("Not defined")
+                    else toExpr(log(toCCi(b.v), toCCi(x.v)))
 		    )
 	       else WrongArgRRorCC(1))
     is b:RRicell do (
@@ -1390,16 +1389,28 @@ log(e:Expr):Expr := (
 	       is x:CCicell do toExpr(log(toCCi(b.v), x.v))       -- # typical value: log, RRi, CCi, CCi
                 is x:RRcell do (    -- # typical value: log, RRi, RR, RRi
      	       	    if b.v>0 && x.v>=0 then toExpr(log(b.v,toRRi(x.v,precision(x.v))))
-                                else
-                        buildErrorPacket("Not defined")
+		    else toExpr(log(toCCi(b.v), toCCi(x.v)))
 		         )
 	       is x:RRicell do (        -- # typical value: log, RRi, RRi, RRi
      	       	    if b.v>0 && x.v>=0 then toExpr(log(b.v,x.v))
-                    else
-                        buildErrorPacket("Not defined")
+		    else toExpr(log(toCCi(b.v), toCCi(x.v)))
 		    )
 	       else WrongArgRRorRRi(2))
-	  else WrongArgRRorRRi(1))
+     is b:CCcell do (
+	 when a.1
+	 is x:CCcell do toExpr(log(b.v, x.v))                       -- # typical value: log, CC, CC, CC
+	 is x:CCicell do toExpr(log(toCCi(b.v), x.v))               -- # typical value: log, CC, CCi, CCi
+	 is x:RRcell do toExpr(log(b.v, x.v))                       -- # typical value: log, CC, RR, CC
+	 is x:RRicell do toExpr(log(toCCi(b.v), toCCi(x.v)))        -- # typical value: log, CC, RRi, CCi
+	 else WrongArgRRorCC(2))
+     is b:CCicell do (
+	 when a.1
+	 is x:CCcell do toExpr(log(b.v, toCCi(x.v)))                -- # typical value: log, CCi, CC, CCi
+	 is x:CCicell do toExpr(log(b.v, x.v))                      -- # typical value: log, CCi, CCi, CCi
+	 is x:RRcell do toExpr(log(b.v, toCCi(x.v)))                -- # typical value: log, CCi, RR, CCi
+	 is x:RRicell do toExpr(log(b.v, toCCi(x.v)))               -- # typical value: log, CCi, RRi, CCi
+	 else WrongArgRRorCC(2))
+     else WrongArgRRorCC(1))
      is x:CCcell do toExpr(log(x.v))				    -- # typical value: log, CC, CC
      is x:CCicell do toExpr(log(x.v))				    -- # typical value: log, CCi, CCi
      is x:RRcell do if isNegative(x.v) then toExpr(logc(x.v)) else toExpr(log(x.v))				    -- # typical value: log, RR, RR
