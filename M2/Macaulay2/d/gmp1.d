@@ -187,10 +187,14 @@ export tostringRRiforCCi(x:RRi):string := concatenate(
 --tostringRRiforCCipointer = tostringRRiforCCi;  
 
 export tostringCCi(x:CCi):string := (
-     if isZero(x.im) then tostringRRi(x.re) 
-     else if isZero(x.re) then concatenate(array(string)(tostringRRiforCCi(x.im),"*ii"))
-     else if isEmpty(x) then concatenate(array(string)(tostringRRiforCCi(x.re),"+",tostringRRiforCCi(x.im),"*ii", " (an empty interval)"))
-     else concatenate(array(string)(tostringRRiforCCi(x.re),"+",tostringRRiforCCi(x.im),"*ii"))
+     re := tostringRRiforCCi(x.re);
+     im := tostringRRiforCCi(x.im) + "*ii";
+     r := (
+	 if isZero(x.im) then re
+	 else if isZero(x.re) then im
+	 else re + "+" + im);
+     if isEmpty(x) then r = r + " (an empty interval)";
+     r
 );
 tostringCCipointer = tostringCCi;  
 
