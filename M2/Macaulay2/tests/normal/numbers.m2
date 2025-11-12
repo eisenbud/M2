@@ -68,6 +68,7 @@ assert ch( +ii*.73249827349273948274398273498273p100e0)
 assert ch( +ii*.92837938475938759387539847539847p100e0)
 assert ch( -ii*.73249827349273948274398273498273p100e0)
 assert ch( -ii*.92837938475938759387539847539847p100e0)
+assert ch toCCi(2, 3)
 
 assert( 1. === 1. )
 assert( 1. =!= .1 )
@@ -280,6 +281,8 @@ assert( isReal (1/1) )
 assert( isReal pi )
 assert( not isReal ii )
 assert( not isReal infinity )
+assert isReal toCCi(1, 0)
+assert not isReal toCCi(0, 1)
 
 assert( instance(log(3.), RR) )
 assert( instance(log(3/1), RR) )
@@ -287,6 +290,8 @@ assert( instance(log(3), RR) )
 assert( instance(log(-3.), CC) )
 assert( instance(log(-3/1), CC) )
 assert( instance(log(-3), CC) )
+assert( instance(log toRRi(-3), CCi) )
+assert( instance(log toCCi(-3), CCi) )
 
 assert( instance(log(3.,2), RR) )
 assert( instance(log(3/1,2), RR) )
@@ -294,6 +299,8 @@ assert( instance(log(3,2), RR) )
 assert( instance(log(-3.,2), CC) )
 assert( instance(log(-3/1,2), CC) )
 assert( instance(log(-3,2), CC) )
+assert( instance(log(-3, toRRi 2), CCi) )
+assert( instance(log(-3, toCCi 2), CCi) )
 
 assert( instance(log(3.,-2), CC) )
 assert( instance(log(3/1,-2), CC) )
@@ -301,6 +308,8 @@ assert( instance(log(3,-2), CC) )
 assert( instance(log(-3.,-2), CC) )
 assert( instance(log(-3/1,-2), CC) )
 assert( instance(log(-3,-2), CC) )
+assert( instance(log(-3, toRRi(-2)), CCi) )
+assert( instance(log(-3, toCCii(-2)), CCi) )
 
 assert( instance(log(3.,2.), RR) )
 assert( instance(log(3/1,2.), RR) )
@@ -308,6 +317,8 @@ assert( instance(log(3,2.), RR) )
 assert( instance(log(-3.,2.), CC) )
 assert( instance(log(-3/1,2.), CC) )
 assert( instance(log(-3,2.), CC) )
+assert( instance(log(toRRi(-3), 2.), CCi) )
+assert( instance(log(toCCi(-3), 2.), CCi) )
 
 assert( instance(log(3.,-2.), CC) )
 assert( instance(log(3/1,-2.), CC) )
@@ -315,6 +326,8 @@ assert( instance(log(3,-2.), CC) )
 assert( instance(log(-3.,-2.), CC) )
 assert( instance(log(-3/1,-2.), CC) )
 assert( instance(log(-3,-2.), CC) )
+assert( instance(log(toRRi(-3), -2.), CCi) )
+assert( instance(log(toCCi(-3), -2.), CCi) )
 
 assert( instance(log(3.,2/1), RR) )
 assert( instance(log(3/1,2/1), RR) )
@@ -322,6 +335,8 @@ assert( instance(log(3,2/1), RR) )
 assert( instance(log(-3.,2/1), CC) )
 assert( instance(log(-3/1,2/1), CC) )
 assert( instance(log(-3,2/1), CC) )
+assert( instance(log(toRRi(-3), 2/1), CCi) )
+assert( instance(log(toCCi(-3), 2/1), CCi) )
 
 assert( instance(log(3.,-2/1), CC) )
 assert( instance(log(3/1,-2/1), CC) )
@@ -329,16 +344,16 @@ assert( instance(log(3,-2/1), CC) )
 assert( instance(log(-3.,-2/1), CC) )
 assert( instance(log(-3/1,-2/1), CC) )
 assert( instance(log(-3,-2/1), CC) )
+assert( instance(log(toRRi(-3), -2/1), CCi) )
+assert( instance(log(toCCi(-3), -2/1), CCi) )
 
-scan(((3.), (3/1), (3), (-3.), (-3/1), (-3)), x -> assert( abs(exp(log(x)) - x) < 1e-10) )
-scan((
-(3.,2), (3/1,2), (3,2), (-3.,2),
-(-3/1,2), (-3,2), (3.,-2), (3/1,-2), (3,-2), (-3.,-2), (-3/1,-2), (-3,-2),
-(3.,2.), (3/1,2.), (3,2.), (-3.,2.), (-3/1,2.), (-3,2.), (3.,-2.), (3/1,-2.),
-(3,-2.), (-3.,-2.), (-3/1,-2.), (-3,-2.), (3.,2/1), (3/1,2/1), (3,2/1),
-(-3.,2/1), (-3/1,2/1), (-3,2/1), (3.,-2/1), (3/1,-2/1), (3,-2/1), (-3.,-2/1),
-(-3/1,-2/1), (-3,-2/1)
-), (b,x) -> assert(abs(log(b,x)-log x/log b)<1e-10))
+scan(((3.), (3/1), (3), (-3.), (-3/1), (-3), toRRi 3, toCCi 3, toRRi(-3),
+	toCCi(-3)), x -> assert( abs(exp(log(x)) - x) < 1e-10) )
+funcs = {identity, x -> x/1, toRR, toCC, toRRi, toCCi}
+scan(apply(funcs ** funcs, (f, g) -> (f 3, f 2)),
+    (b, x) -> assert(abs(log(b,x) - log x/log b) < 1e-10))
+scan(apply(funcs ** funcs, (f, g) -> (f 3, f(-2))),
+    (b, x) -> assert(abs(log(b,x) - log x/log b) < 1e-10))
 
 assert( format_10 .00044448888 === ".00044448888" )
 assert( format_9 .00044448888 === ".00044448888" )
@@ -438,7 +453,7 @@ toExternalString (0 *(1-ii))
 toExternalString (0.*(1-ii))
 assert( 0*(1-ii) === 0.*(1-ii) )
 
-epsilon = 10 * 2.^-defaultPrecision
+epsilon = 1e-14
 small = z -> abs z < epsilon
 see = z -> (<< "see: " << z << endl; z)
 scan( {exp,log,sin,cos,sinh,cosh,tanh,coth,asin,acos,asinh,acosh,atan,acot,cot,tan,csc,sec}, 
@@ -449,7 +464,8 @@ scan( {exp,log,sin,cos,sinh,cosh,tanh,coth,asin,acos,asinh,acosh,atan,acot,cot,t
 	  )
      )
 
-scan({.2, 1.2, .2 + .3*ii,  1.2 - .13*ii}, z -> (
+scan({.2, 1.2, .2 + .3*ii,  1.2 - .13*ii, toRRi .2, toRRi 1.2,
+	toCCi(.2, .3), toCCi(1.2, .13)}, z -> (
      	  assert small(z - acosh cosh z);
 	  assert small(z - acos cos z);
 	  assert small(z - asinh sinh z);
@@ -463,11 +479,15 @@ assert( class asin .3 === RR )
 assert( class asin 1.3 === CC )
 assert( class acos .3 === RR )
 assert( class acos 1.3 === CC )
+assert( class acos toRRi .3 === RRi )
+assert( class acos toRRi 1.3 === CCi )
 
 assert( class acot .3 === RR )
 assert( class acot 1.3 === RR )
 assert( class acot (-.3) === RR )
 assert( class acot (-1.3) === RR )
+assert( class acos toRRi(-.3) === RRi )
+assert( class acos toRRi(-1.3) === CCi )
 
 assert( class asinh .3 === RR )
 assert( class asinh 1.3 === RR )
