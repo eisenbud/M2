@@ -135,6 +135,7 @@ Key
     (isMember, QQ, RRi)
     (isMember, ZZ, RRi)
     (isMember, RR, RRi)
+    (isMember, CC, RRi)
 Headline
     membership test in an interval
 Usage

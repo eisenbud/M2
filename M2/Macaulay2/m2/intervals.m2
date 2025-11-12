@@ -103,6 +103,19 @@ intersect(CCi, CCi) := CCi => { Precision => -1 } >> opts -> (N, M) -> (
     if opts.Precision < 0 then interval(intersectRRi(realPart N,realPart M), intersectRRi(imaginaryPart N, imaginaryPart M))
     else interval(intersectRRi(opts.Precision,realPart N, realPart M), intersectRRi(opts.Precision, imaginaryPart N, imaginaryPart M)))
 
+CCi ? CCi := (x, y) -> (
+    if (r := realPart x ? realPart y) =!= symbol == then r
+    else imaginaryPart x ? imaginaryPart y)
+CCi ? Number := (x, y) -> x ? toCCi numeric y
+Number ? CCi := (x, y) -> toCCi numeric x ? y
+
+-- need to define these or we get "comparison not implemented" from the
+-- interpeter
+ZZ  ? CCi :=
+QQ  ? CCi :=
+RR  ? CCi :=
+RRi ? CCi :=
+CC  ? CCi := (x, y) -> toCCi x ? y
 
 isEmpty RRi := Boolean => isEmptyRRi
 isEmpty CCi := x -> isEmptyRRi realPart x or isEmptyRRi imaginaryPart x
