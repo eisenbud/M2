@@ -1403,8 +1403,9 @@ log(e:Expr):Expr := (
      is x:CCcell do toExpr(log(x.v))				    -- # typical value: log, CC, CC
      is x:CCicell do toExpr(log(x.v))				    -- # typical value: log, CCi, CCi
      is x:RRcell do if isNegative(x.v) then toExpr(logc(x.v)) else toExpr(log(x.v))				    -- # typical value: log, RR, RR
-     is x:RRicell do if x.v >= 0 then toExpr(log(x.v))  -- # typical value: log, RRi, RRi
-                     else buildErrorPacket("Not defined")
+     is x:RRicell do (
+	 if x.v >= 0 then toExpr(log(x.v))  -- # typical value: log, RRi, RRi
+	 else toExpr(log(toCCi(x.v))))
      else WrongArgRRorCC()
      );
 setupfun("log",log).Protected=false;
