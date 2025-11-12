@@ -780,7 +780,7 @@ acos(e:Expr):Expr := (
      is x:RRicell do (
 	  if x.v <= 1 && x.v >= -1
 	  then toExpr(acos(x.v))                    -- # typical value: acos, RRi, RRi
-      else buildErrorPacket("Must be between -1 and 1")
+	  else toExpr(acos(toCCi(x.v)))
 	  )
      else WrongArgRRorCC()
      );
@@ -851,7 +851,7 @@ asin(e:Expr):Expr := (
      is x:RRicell do (
 	  if x.v <= 1 && x.v >= -1
 	  then toExpr(asin(x.v))                                    -- # typical value: asin, RRi, RRi
-	  else buildErrorPacket("Must be between -1 and 1")
+	  else toExpr(asin(toCCi(x.v)))
 	  )
      else WrongArgRRorCC()
      );
