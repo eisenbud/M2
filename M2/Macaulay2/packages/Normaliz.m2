@@ -212,7 +212,7 @@ doWriteNmzData List := matrices -> (
 	for i from 0 to numRows sgr - 1 do (
 	    s := "";
 	    for j from 0 to numColumns sgr - 1
-	    do s = s | sgr_(i,j) | " ";
+	    do s = s | toString(sgr_(i,j)) | " ";
 	    outf << s << endl;
 	    );
 	-- Until version 3.9.4, input type normal_toric_ideal was called lattice_ideal
