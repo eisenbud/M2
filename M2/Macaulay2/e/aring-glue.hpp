@@ -709,6 +709,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingCC, ARingCC>(R, S, fR, resultS);
             case M2::ring_CCC:
               return RP::promoter<ARingCC, ARingCCC>(R, S, fR, resultS);
+            case M2::ring_CCi:
+              return RP::promoter<ARingCC, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
@@ -719,6 +721,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingCCC, ARingCCC>(R, S, fR, resultS);
             case M2::ring_CC:
               return RP::promoter<ARingCCC, ARingCC>(R, S, fR, resultS);
+            case M2::ring_CCi:
+              return RP::promoter<ARingCCC, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
