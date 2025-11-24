@@ -1287,6 +1287,11 @@ TEST ///
 {1, 0, 2, 2, 1, 0, 0, 2, 1}}) )
     rmNmzFiles();
      ///,
+TEST ///
+-- check that normaliz works with rational polytopes
+V = matrix "1/2,0;-1/2,0;1,0;-1,0";
+C = normaliz(V, "polytope");
+///,
 }
 
 document{
