@@ -1077,7 +1077,7 @@ document {
      PARA{},"This function creates an input file for ", TT "Normaliz", " containing one or several matrices, whose rows are considered according to the type:",
      UL {
          "integral closure, normalization: generators of a rational cone",
-         "polytope:   lattice points spanning a polytope",
+         "polytope:   lattice points or rational points spanning a polytope",
          "rees_algebra:   exponent vectors of monomials generating an ideal",
          "inequalities, equations, congruences:   constraints defining the cone to be computed",
          "inhom_inequalities, inhom_equations, inhom_congruences:   inhomogeneous constraints defining the cone to be computed",
