@@ -18,9 +18,8 @@
 --  for more details.
 --
 --  You should have received a copy of the GNU General
---  Public License along with this program; if not, write
---  to the Free Software Foundation, Inc.,  51 Franklin
---  Street, Fifth Floor, Boston, MA 02110-1301 USA.
+--  Public License along with this program; if not, see
+--  <https://www.gnu.org/licenses/>.
 --
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --
@@ -186,11 +185,11 @@ iCite Package := P -> (
     -- bibtex howpublished content
     bibPackageSource :=
         if isInternalPackage and isInternalSource
-            then "\\url{https://github.com/Macaulay2/M2/tree/master/M2/Macaulay2/packages}"
+            then "\\url{https://github.com/Macaulay2/M2/tree/stable/M2/Macaulay2/packages}"
         else if isInternalPackage and not isInternalSource
             then if P#Options#HomePage =!= null
                 then concatenate("\"", toString (P#Options#HomePage), "\"")
-            else "\\url{https://github.com/Macaulay2/M2/tree/master/M2/Macaulay2/packages}"
+            else "\\url{https://github.com/Macaulay2/M2/tree/stable/M2/Macaulay2/packages}"
         else if P#Options#HomePage === null
             then (print concatenate ("Warning: The \"", T, "\" package provides insufficient citation data: howpublished."))
         else concatenate("\\url{" ,toString (P#Options#HomePage), "}");
@@ -311,6 +310,10 @@ doc ///
             user is urged to check for correct spelling and grammar.
       Example
           cite "Bruns"
+      Text
+          To override the automatically generated citation, package authors
+          may provide a @TO "Macaulay2Doc::Citation"@ entry in the main
+          documentation node for a package.
     SeeAlso
         PackageCitations
 ///
