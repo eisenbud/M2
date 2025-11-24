@@ -76,12 +76,12 @@ class ARingCCi : public SimpleARing<ARingCCi>
 
     bool is_empty(const ElementType &f) const { return mpfi_is_empty(&f.re)>0 || mpfi_is_empty(&f.im)>0; }
     bool is_member(const ARingCCC::ElementType &a, const ElementType &f) const { return mpfi_cmp_fr(&f.re,&a.re) == 0 && mpfi_cmp_fr(&f.im,&a.im) == 0; }
-    bool is_member(const ARingRRi::ElementType &a, const ElementType &f) const { return mpfi_cmp(&f.re,&a) == 0; }
-    bool is_member(const ARingRRR::ElementType &a, const ElementType &f) const { return mpfi_cmp_fr(&f.re,&a) == 0; }
-    bool is_member(mpq_srcptr a, const ElementType &f) const { return mpfi_cmp_q(&f.re,a) == 0; }
-    bool is_member(mpz_srcptr a, const ElementType &f) const { return mpfi_cmp_z(&f.re,a) == 0; }
-    bool is_member(long a, const ElementType &f) const { return mpfi_cmp_si(&f.re,a) == 0; }
-    bool is_member(double a, const ElementType &f) const { return mpfi_cmp_d(&f.re,a) == 0; }
+    bool is_member(const ARingRRi::ElementType &a, const ElementType &f) const { return mpfi_cmp(&f.re,&a) == 0 && mpfi_cmp_si(&f.im,0); }
+    bool is_member(const ARingRRR::ElementType &a, const ElementType &f) const { return mpfi_cmp_fr(&f.re,&a) == 0 && mpfi_cmp_si(&f.im,0); }
+    bool is_member(mpq_srcptr a, const ElementType &f) const { return mpfi_cmp_q(&f.re,a) == 0 && mpfi_cmp_si(&f.im,0); }
+    bool is_member(mpz_srcptr a, const ElementType &f) const { return mpfi_cmp_z(&f.re,a) == 0 && mpfi_cmp_si(&f.im,0); }
+    bool is_member(long a, const ElementType &f) const { return mpfi_cmp_si(&f.re,a) == 0 && mpfi_cmp_si(&f.im,0); }
+    bool is_member(double a, const ElementType &f) const { return mpfi_cmp_d(&f.re,a) == 0 && mpfi_cmp_si(&f.im,0); }
     
     bool is_subset(const ElementType &g, const ElementType &f) const { return mpfi_cmp_fr(&f.re,&(g.re.left)) == 0 and mpfi_cmp_fr(&f.re,&(g.re.right)) == 0 and mpfi_cmp_fr(&f.im,&(g.im.left)) == 0 and mpfi_cmp_fr(&f.im,&(g.im.right)) == 0; }
 

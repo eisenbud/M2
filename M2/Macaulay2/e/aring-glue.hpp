@@ -699,6 +699,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
                 return RP::promoter<ARingRRi, ARingRRR>(R, S, fR, resultS);
               case M2::ring_RRi:
                 return RP::promoter<ARingRRi, ARingRRi>(R, S, fR, resultS);
+               case M2::ring_CCi:
+                   return RP::promoter<ARingRRi,ARingCCi>(R, S, fR, resultS);
               default:
                  return false;
           }
@@ -709,6 +711,8 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingCC, ARingCC>(R, S, fR, resultS);
             case M2::ring_CCC:
               return RP::promoter<ARingCC, ARingCCC>(R, S, fR, resultS);
+              case M2::ring_CCi:
+                  return RP::promoter<ARingCC, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
@@ -719,22 +723,14 @@ bool ConcreteRing<RingType>::promote(const Ring *R,
               return RP::promoter<ARingCCC, ARingCCC>(R, S, fR, resultS);
             case M2::ring_CC:
               return RP::promoter<ARingCCC, ARingCC>(R, S, fR, resultS);
+              case M2::ring_CCi:
+                return RP::promoter<ARingCCC, ARingCCi>(R, S, fR, resultS);
             default:
               return false;
           }
         case M2::ring_CCi:
           switch (S->ringID())
              {
-                case M2::ring_RR:
-                  return RP::promoter<ARingCCi, ARingRR>(R, S, fR, resultS);
-                case M2::ring_RRR:
-                  return RP::promoter<ARingCCi, ARingRRR>(R, S, fR, resultS);
-                case M2::ring_RRi:
-                  return RP::promoter<ARingCCi, ARingRRi>(R, S, fR, resultS);
-                 case M2::ring_CCC:
-                   return RP::promoter<ARingCCi, ARingCCC>(R, S, fR, resultS);
-                 case M2::ring_CC:
-                   return RP::promoter<ARingCCi, ARingCC>(R, S, fR, resultS);
                  case M2::ring_CCi:
                    return RP::promoter<ARingCCi, ARingCCi>(R, S, fR, resultS);
                 default:
@@ -906,7 +902,6 @@ inline bool ConcreteRing<ARingGFM2>::promote(const Ring *Rf,
   // Rf = Z/p[x]/F(x) ---> GF(p,n)
   // promotion: need to be able to know the value of 'x'.
   // lift: need to compute (primite_element)^e
-
   ElementType a;
   bool retval = R->promote(Rf, f, a);
   R->to_ring_elem(result, a);

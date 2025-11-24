@@ -414,6 +414,16 @@ inline bool mypromote(const ARingRR& R,
   S.set_from_double(fS, fR);
   return true;
 }
+
+inline bool mypromote(const ARingRRi& R,
+                      const ARingCCi& S,
+                      const ARingRRi::ElementType& fR,
+                      ARingCCi::ElementType& fS)
+{
+  S.set_from_Interval(fS, &fR);
+  return true;
+}
+
 inline bool mypromote(const ARingRRR& R,
                       const ARingCCi& S,
                       const ARingRRR::ElementType& fR,
