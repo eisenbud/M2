@@ -39,12 +39,11 @@ RRi.InexactField = RealIntervalField    = new Type of InexactField   ; RealInter
 CC.InexactField = ComplexField = new Type of InexactField; ComplexField.synonym = "complex field"
 CCi.InexactField = ComplexIntervalField = new Type of InexactField; ComplexIntervalField.synonym = "complex interval field"
 
-Nothing' = Nothing					    -- maybe we'll want to rename it later...
 RingFamily_* := RR -> RR#(symbol _*)
 RingFamily_* := RRi -> RRi#(symbol _*)
 RingFamily_* = (RR,e) -> RR#(symbol _*) = e
 RingFamily_* = (RRi,e) -> RRi#(symbol _*) = e
-InexactNumber' = new Type of Nothing'
+InexactNumber' = new Type of Number
 RR_* = RR' = new Type of InexactNumber'
 RRi_* = RRi' = new Type of InexactNumber'
 CC_* = CC' = new Type of InexactNumber'
@@ -70,8 +69,8 @@ RR'.back = RR
 RRi'.back = RRi
 CC'.back = CC
 CCi'.back = CCi
-new RealField of Nothing' from ZZ := memoize (
-     (RealField,Nothing',prec) -> newClass(RealField,Nothing',
+new RealField of Number from ZZ := memoize (
+     (RealField,Number,prec) -> newClass(RealField,Number,
 	  hashTable { 
 	       symbol precision => prec,
 	       symbol Engine => true,
@@ -79,8 +78,8 @@ new RealField of Nothing' from ZZ := memoize (
 	       symbol isBasic => true,
 	       symbol RawRing => rawRR prec
 	       }))
-new ComplexField of Nothing' from ZZ := memoize(
-     (ComplexField,Nothing',prec) -> newClass(ComplexField,Nothing',
+new ComplexField of Number from ZZ := memoize(
+     (ComplexField,Number,prec) -> newClass(ComplexField,Number,
 	  hashTable {
 	       symbol precision => prec,
 	       symbol Engine => true,
@@ -88,8 +87,8 @@ new ComplexField of Nothing' from ZZ := memoize(
 	       symbol baseRings => {ZZ,QQ,RR_prec},
 	       symbol RawRing => rawCC prec
 	       }))
-new RealIntervalField of Nothing' from ZZ := memoize (
-     (RealIntervalField,Nothing',prec) -> newClass(RealIntervalField,Nothing',
+new RealIntervalField of Number from ZZ := memoize (
+     (RealIntervalField,Number,prec) -> newClass(RealIntervalField,Number,
 	  hashTable {
 	       symbol precision => prec,
 	       symbol Engine => true,
@@ -97,8 +96,8 @@ new RealIntervalField of Nothing' from ZZ := memoize (
 	       symbol isBasic => true,
 	       symbol RawRing => rawRRi prec
 	       }))
-new ComplexIntervalField of Nothing' from ZZ := memoize (
-     (ComplexIntervalField,Nothing',prec) -> newClass(ComplexIntervalField,Nothing',
+new ComplexIntervalField of Number from ZZ := memoize (
+     (ComplexIntervalField,Number,prec) -> newClass(ComplexIntervalField,Number,
       hashTable {
            symbol precision => prec,
            symbol Engine => true,
