@@ -1289,7 +1289,7 @@ TEST ///
      ///,
 TEST ///
 -- check that normaliz works with rational polytopes
-V = matrix "1/2,0;-1/2,0;1,0;-1,0";
+V = matrix "1/2,0;-1/2,0;0,1;0,-1";
 C = normaliz(V, "polytope");
 ///,
 }
