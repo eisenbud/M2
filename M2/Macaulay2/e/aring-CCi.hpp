@@ -204,7 +204,7 @@ class ARingCCi : public SimpleARing<ARingCCi>
   bool set_from_BigComplex(ElementType &result, gmp_CC a) const
   {
     mpfi_set_fr(&result.re, a->re);
-    mpfi_set_fr(&result.im, a->re);
+    mpfi_set_fr(&result.im, a->im);
     return true;
   }
 
