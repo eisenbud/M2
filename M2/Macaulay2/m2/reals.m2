@@ -275,6 +275,7 @@ imaginaryPart InexactNumber := imaginaryPart0
 imaginaryPart Number := imaginaryPart0 @@ numeric
 
 conjugate CC := z -> toCC(precision z, realPart z, - imaginaryPart z)
+conjugate CCi := z -> toCCi(precision z, realPart z, - imaginaryPart z)
 conjugate Constant := conjugate @@ numeric
 
 isConstant Number := i -> true

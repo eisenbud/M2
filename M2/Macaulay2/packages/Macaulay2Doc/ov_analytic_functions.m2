@@ -173,6 +173,8 @@ doc ///
     Example
       log1p 1p100e-10
       log(1 + 1p100e-10)
+      log1p interval(2,3)
+      log1p interval(1+2*ii,3+4*ii)
 ///
 
 doc ///
@@ -199,13 +201,18 @@ doc ///
     Example
       expm1 1p100e-10
       exp(1p100e-10)-1
+      expm1 interval(2,3)
+      expm1 interval(1+2*ii,3+4*ii)
 ///
 
 document { Key => {eint,(eint, RR),(eint,CC),(eint,RRi),(eint,CCi)},
      Usage => "eint x",
      Headline => "exponential integral",
      Inputs => { "x" },
-     Outputs => { RR => { "the exponential integral of ", TT "x" }},
+     Outputs => { RR => { "the exponential integral of ", TT "x" },
+             RRi => { "an interval containing the exponential integral of the points of ", TT "x" },
+             CCi => { "a complex interval containing the exponential integral of the points of ", TT "x" }
+},
      EXAMPLE lines ///
      	  eint 2
      ///,
@@ -216,7 +223,10 @@ document { Key => {Digamma,(Digamma, RR),(Digamma,CC),(Digamma,RRi),(Digamma,CCi
      Usage => "Digamma x",
      Headline => "Digamma function",
      Inputs => { "x" },
-     Outputs => { RR => { "the digamma function (logarithmic derivative of the gamma function) of ", TT "x" }},
+     Outputs => { RR => { "the digamma function (logarithmic derivative of the gamma function) of ", TT "x" },
+          RRi => { "an interval containing the digamma function (logarithmic derivative of the gamma function) of the points of ", TT "x" },
+          CCi => { "a complex interval containing the digamma function (logarithmic derivative of the gamma function) of the points of ", TT "x" }
+},
      EXAMPLE lines ///
 	  Digamma 6
      ///,
@@ -228,7 +238,10 @@ document { Key => {zeta,(zeta, RR),(zeta,CC),(zeta,RRi),(zeta,CCi)},
      Usage => "zeta x",
      Headline => "Riemann zeta function",
      Inputs => { "x" },
-     Outputs => { RR => { "the zeta function of ", TT "x" }},
+     Outputs => { RR => { "the zeta function of ", TT "x" },
+          RRi => { "an interval containing the the zeta function of the points of ", TT "x" },
+          CCi => { "a complex interval containing the the zeta function of the points of ", TT "x" }
+},
      EXAMPLE lines ///
      	  zeta 2
      ///,
@@ -240,9 +253,11 @@ document {
      Key => {acos,(acos,RR),(acos,CC),(acos, RRi),(acos,CCi)},
      Headline => "arccosine",
      Usage => "acos x\nacos I",
-     Inputs => { "x", "I" => RRi },
+     Inputs => { "x" => RR, "x" => CC, "I" => RRi, "I" => CCi },
      Outputs => { Number => { "the arccosine (in radians) of ", TT "x"},
-                  RRi => { "an interval containing the arccosines of the points of ", TT "I" }},
+                  RRi => { "an interval containing the arccosines of the points of ", TT "I" },
+                  CCi => { "a complex interval containing the arccosines of the points of ", TT "I" }
+},
      EXAMPLE lines ///
      acos 0.5
      ///,
@@ -254,10 +269,11 @@ document {
      Key => {asin,(asin,RR),(asin,CC),(asin, RRi),(asin,CCi)},
      Headline => "arcsine",
      Usage => "asin x\nasin I",
-     Inputs => { "x", "I" => RRi },
+     Inputs => { "x" => RR, "x" => CC, "I" => RRi, "I" => CCi },
      Outputs => {
 	  Number => {"the arcsine (in radians) of ", TT "x"},
-      RRi => { "an interval containing the arcsines of the points of ", TT "I" }
+      RRi => { "an interval containing the arcsines of the points of ", TT "I" },
+      CCi => { "a complex interval containing the arcsines of the points of ", TT "I" }
 	  },
      EXAMPLE {
 	  "asin 1"
@@ -270,9 +286,11 @@ document {
      Key => {cosh, (cosh,RR),(cosh,CC),(cosh,RRi),(cosh,CCi)},
      Headline => "compute the hyperbolic cosine",
      Usage => "cosh x\ncosh I",
-     Inputs => { "x", "I"=>RRi},
+     Inputs => { "x"=>RR, "x"=>CC, "I"=>RRi, "I"=>CCi},
      Outputs => { Number => { "the hyperbolic cosine of ", TT "x" },
-         RRi => { "an interval containing the hyerbolic cosines of the points of ", TT "I" } },
+         RRi => { "an interval containing the hyerbolic cosines of the points of ", TT "I" },
+        CCi => { "a complex interval containing the hyerbolic cosines of the points of ", TT "I" }
+},
      EXAMPLE lines ///
      cosh .2
      ///,
@@ -306,9 +324,10 @@ document {
 document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi),(sec,CCi)},
      Usage => "sec x\nsec I",
      Headline => "secant",
-     Inputs => { "x", "I" => RRi },
+     Inputs => { "x" => RR, "x" => CC, "I" => RRi, "I" => CCi },
      Outputs => { RR => { "the secant of ", TT "x" },
-	 RRi => { "an interval containing the secants of the points of ", TT "I" }
+	 RRi => { "an interval containing the secants of the points of ", TT "I" },
+     CCi => { "a complex interval containing the secants of the points of ", TT "I" }
      },
      EXAMPLE lines ///
      	  sec(pi/3)
@@ -319,9 +338,10 @@ document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi),(sec,CCi)},
 document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi),(csc,CCi)},
      Usage => "csc x\ncsc I",
      Headline => "cosecant",
-     Inputs => { "x","I"=>RRi },
+     Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
      Outputs => { RR => { "the cosecant of ", TT "x" },
-        RRi => { "an interval containing the cosecants of the points of ", TT "I" }
+        RRi => { "an interval containing the cosecants of the points of ", TT "I" },
+        CCi => { "a complex interval containing the cosecants of the points of ", TT "I" }
     },
      EXAMPLE lines ///
      	  csc(pi/3)
@@ -332,9 +352,10 @@ document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi),(csc,CCi)},
 document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi),(cot,CCi)},
      Usage => "cot x\ncot I",
      Headline => "cotangent",
-     Inputs => { "x", "I"=>RRi },
+     Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
      Outputs => { RR => { "the cotangent of ", TT "x" },
-            RRi => { "an interval containing the cotangents of points of ", TT "I"}
+            RRi => { "an interval containing the cotangents of points of ", TT "I"},
+            CCi => { "a complex interval containing the cotangents of points of ", TT "I"}
     },
      EXAMPLE lines ///
      	  cot(pi/3)
@@ -345,9 +366,10 @@ document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi),(cot,CCi)},
 document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi),(sech,CCi)},
      Usage => "sech x\nsech I",
      Headline => "hyperbolic secant",
-     Inputs => { "x", "I" => RRi },
+     Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
      Outputs => { RR => { "the hyperbolic secant of ", TT "x" },
-	 RRi => { "an interval containing the hyerbolic secants of the points of ", TT "I" }
+	 RRi => { "an interval containing the hyerbolic secants of the points of ", TT "I" },
+     CCi => { "a complex interval containing the hyerbolic secants of the points of ", TT "I" }
      },
      EXAMPLE lines ///
      	  sech(pi/3)
@@ -358,9 +380,10 @@ document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi),(sech,CCi)},
 document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi),(csch,CCi)},
      Usage => "csch x\ncsch I",
      Headline => "hyperbolic cosecant",
-     Inputs => { "x", "I"=>RRi },
+     Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
      Outputs => { RR => { "the hyperbolic cosecant of ", TT "x" },
-	 RRi => { "an interval containing the hyperbolic cosecants of the points of ", TT "I" }
+	 RRi => { "an interval containing the hyperbolic cosecants of the points of ", TT "I" },
+     CCi => { "a complex interval containing the hyperbolic cosecants of the points of ", TT "I" }
      },
      EXAMPLE lines ///
      	  csch(pi/3)
@@ -371,9 +394,10 @@ document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi),(csch,CCi)},
 document { Key => {coth,(coth,CC),(coth, RR),(coth,RRi),(coth,CCi)},
      Usage => "coth x\ncoth I",
      Headline => "hyperbolic cotangent",
-     Inputs => { "x","I"=>RRi},
+     Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
      Outputs => { RR => { "the hyperbolic cotangent of ", TT "x" },
-        RRi => { "an interval containing the hyperbolic cotangents of the points of ", TT "I" }
+        RRi => { "an interval containing the hyperbolic cotangents of the points of ", TT "I" },
+        CCi => { "a complex interval containing the hyperbolic cotangents of the points of ", TT "I" }
         },
      EXAMPLE lines ///
      	  coth(pi/3)

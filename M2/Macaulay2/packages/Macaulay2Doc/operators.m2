@@ -53,7 +53,7 @@ doc ///
     :RR
       the absolute value of @TT "x"@
     :RRi
-      an interval containing the absolute values of all the points of @TT "x"@
+      an interval containing the absolute values of all the points of @TT "I"@
   Description
     Example
       abs(-pi)
@@ -93,7 +93,7 @@ doc ///
     :{RR,CC}
       the exponential of @TT "x"@
     :{RRi,CCi}
-      an interval containing the exponentials of all the points of @TT "x"@
+      an interval containing the exponentials of all the points of @TT "I"@
   Description
     Example
       exp 1p300
@@ -102,52 +102,91 @@ doc ///
       exp(interval(1+2*ii,3+4*ii))
 ///
 
-document {
-     Key => {
-	 log,
-	 (log, RR),
-	 (log,CC),
-	 (log,CC,CC),
-	 (log,CC,CCi),
-	 (log,CC,RR),
-	 (log,CC,RRi),
-	 (log,CCi),
-	 (log,CCi,CC),
-	 (log,CCi,CCi),
-	 (log,CCi,RR),
-	 (log,CCi,RRi),
-	 (log,RR,CCi),
-	 (log,RR,RR),
-	 (log,RR,RRi),
-	 (log,RRi),
-	 (log,RRi,CCi),
-	 (log,RRi,RR),
-	 (log,RRi,RRi),
-	 (log,RR,CC)
-	 },
-     Headline => "logarithm function",
-     Usage => "log x\nlog(b,x)\nlog_b x\nlog I\nlog(b,I)\nlog_b I\nlog(J,x)\nlog_J x\nlog(J,I)\nlog_J I",
-Inputs => { "x" => RR, "b" => RR => {"the base for the logarithm"}, "I" => RRi, "J" => RRi => {"an interval of bases for the logarithm"} },
-Outputs => { { "the logarithm of ", TT "x"}, RRi => {"an interval containing the logarithms of points of ", TT "I"}, RRi => {"an interval containing the logarithms for bases in ", TT "J"} },
-     EXAMPLE lines ///
-	  log 10
-	  log_2 10
-	  log_10 2p100
-     ///
-     }
-document {
-     Key => {sqrt,(sqrt, CC),(sqrt, RR), (sqrt, RRi),(sqrt,CCi)},
-     Headline => "square root function",
-Usage => "sqrt x\nsqrt I",
-     Inputs => { "x" => RR, "I" => RRi },
-     Outputs => { { "the square root of ", TT "x"},
-RRi => { "an interval containing the square roots of the points of ", TT "I" }
-},
-     EXAMPLE lines ///
-     sqrt 2p200
-     sqrt (+ii)
-     ///
-     }
+doc ///
+  Key
+    log
+    (log, RR)
+    (log,CC)
+    (log,CC,CC)
+    (log,CC,CCi)
+    (log,CC,RR)
+    (log,CC,RRi)
+    (log,CCi)
+    (log,CCi,CC)
+    (log,CCi,CCi)
+    (log,CCi,RR)
+    (log,CCi,RRi)
+    (log,RR,CCi)
+    (log,RR,RR)
+    (log,RR,RRi)
+    (log,RRi)
+    (log,RRi,CCi)
+    (log,RRi,RR)
+    (log,RRi,RRi)
+    (log,RR,CC)
+  Headline
+    logarithm function
+  Usage
+    log x
+    log(b,x)
+    log_b x
+    log I
+    log(b,I)
+    log_b I
+    log(J,x)
+    log_J x
+    log(J,I)
+    log_J I
+  Inputs
+    x:{RR,CC}
+    b:RR
+      the base for the logarithm
+    I:{RRi,CCi}
+    J:RRi
+      an interval of bases for the logarithm
+  Outputs
+    :{RR,CC}
+      the logarithm of @TT "x"@
+    :{RRi,CCi}
+      an interval containing the logarithms of all the points of @TT "I"@
+    :{RR,CC,RRi,CCi}
+      an interval containing the logarithms for bases in @TT "J"@
+  Description
+    Example
+      log 10
+      log_2 10
+      log_10 2p100
+      log interval(2,3)
+      log interval(1+2*ii,3+4*ii)
+///
+
+doc ///
+  Key
+    sqrt
+    (sqrt, RR)
+    (sqrt, CC)
+    (sqrt, RRi)
+    (sqrt, CCi)
+  Headline
+    square root function
+  Usage
+    sqrt x
+    sqrt I
+  Inputs
+    x:{RR,CC}
+    I:{RRi,CCi}
+  Outputs
+    :{RR,CC}
+      the square root of @TT "x"@
+    :{RRi,CCi}
+      an interval containing the square roots of all the points of @TT "I"@
+  Description
+    Example
+      sqrt 2p200
+      sqrt(+ii)
+      sqrt(interval(2,3))
+      sqrt(interval(1+2*ii,3+4*ii))
+///
 
 document {
      Key => {gcd,

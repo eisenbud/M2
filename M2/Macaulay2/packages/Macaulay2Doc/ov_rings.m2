@@ -467,6 +467,8 @@ document {
      EXAMPLE {"exp(interval(2,4))","cos(interval(1,1.3))","sqrt(interval(2))"},
      "Transcendental functions are available to high precision, with ", TO "numericInterval", ".",
     EXAMPLE {"numericInterval(100,pi)","numericInterval_200 EulerConstant"},
+    "The left and right endpoints of an interval can be accessed with ", TO "left", " and ", TO "right", ".  Similarly, the midpoint and the length of an interval can be found with ", TO "midpoint", " and ", TO "diameter", ".",
+    EXAMPLE {"left interval(1,5)","right interval(1,5)","midpoint interval(1,5)","diameter interval(1,5)"},
     SeeAlso => {CCi, toRRi, numericInterval, precision, interval, (span,Sequence), (span,List)},
     Subnodes => {
 	TO toRRi,
@@ -512,6 +514,8 @@ document {
 		"I ^ 3",
 		"2 * I",
 		"(2+3*ii) * I"},
+    "The real and imaginary parts of a complex interval can be accessed with ", TO "realPart", " and ", TO "imaginaryPart", ".  These are real intervals of class ", TO "RRi", ".  The ", TO "diameter", " of a complex interval is the (rounded) approximation to the length of its diagonal, while its ", TO "midpoint", " is the complex midpoint of its real and imaginary parts",
+    EXAMPLE {"realPart interval(1+2*ii,3+4*ii)","imaginaryPart interval(1+2*ii,3+4*ii)","realPart diameter(1+2*ii,3+4*ii)","midpoint interval(1+2*ii,3+4*ii)"},
     SeeAlso => {
 	RRi,
 	toCCi,
@@ -528,11 +532,6 @@ document {
     },
     Subnodes => {
 	TO toCCi,
-    --TO (intersect, CCi, CCi),
-    --TO (isMember, QQ, CCi),
-    --TO (isEmpty, CCi),
-    --TO (isSubset, RRi, CCi),
-	--TO span,
         },
 	  }
 

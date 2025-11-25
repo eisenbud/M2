@@ -12,6 +12,8 @@ doc ///
   Description
     Text
       Returns the left endpoint of the input interval.
+    Example
+      left interval(2,3)
   SeeAlso
     right
     midpoint
@@ -32,6 +34,8 @@ Outputs
 Description
   Text
     Returns the right endpoint of the input interval.
+  Example
+    right interval(2,3)
 SeeAlso
     left
     midpoint
@@ -122,6 +126,9 @@ Outputs
 Description
   Text
     Returns the intersection of any number of input intervals.
+  Example
+    intersect(interval(1,3),interval(2,4))
+    intersect(interval(1,2+3*ii),interval(2*ii,3+2*ii))
 SeeAlso
     intersect
 ///
@@ -148,6 +155,10 @@ Outputs
 Description
   Text
     Returns true if the input number is in the interval.
+  Example
+    isMember(1,interval(2,3))
+    isMember(2,interval(1,3))
+    isMember(1+2*ii,interval(0,2+3*ii))
 SeeAlso
     isEmpty
 ///
@@ -167,6 +178,10 @@ Outputs
 Description
   Text
     Returns true if the input interval is empty, i.e., the left endpoint is to the right of the right endpoint.
+  Example
+    isEmpty interval(1,2)
+    isEmpty interval(2,1)
+    isEmpty interval(1,2*ii)
 SeeAlso
     isMember
 ///
@@ -189,6 +204,10 @@ Outputs
 Description
   Text
     Returns true if interval I is a subset of interval J.
+  Example
+    isSubset(interval(2,3),interval(1,4))
+    isSubset(interval(1,3),interval(2,4))
+    isSubset(interval(0,4+4*ii),interval(1+ii,2+3*ii))
 SeeAlso
     isMember
 ///
@@ -220,6 +239,7 @@ Description
   Text
     Returns the smallest interval containing the inputs (which can include intervals).  Typically, the returned interval is not empty.
   Example
+    span(1,4,interval(2,5),interval(-3))
     span(1 + 3*ii, pi, 4 + ii)
 SeeAlso
     interval
@@ -326,6 +346,8 @@ SeeAlso
     (span, List)
     (span, Sequence)
     interval
+    left
+    right
 ///
 
 doc ///
