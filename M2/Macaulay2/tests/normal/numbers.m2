@@ -309,7 +309,7 @@ assert( instance(log(-3.,-2), CC) )
 assert( instance(log(-3/1,-2), CC) )
 assert( instance(log(-3,-2), CC) )
 assert( instance(log(-3, toRRi(-2)), CCi) )
-assert( instance(log(-3, toCCii(-2)), CCi) )
+assert( instance(log(-3, toCCi(-2)), CCi) )
 
 assert( instance(log(3.,2.), RR) )
 assert( instance(log(3/1,2.), RR) )
