@@ -515,7 +515,7 @@ document {
 		"2 * I",
 		"(2+3*ii) * I"},
     "The real and imaginary parts of a complex interval can be accessed with ", TO "realPart", " and ", TO "imaginaryPart", ".  These are real intervals of class ", TO "RRi", ".  The ", TO "diameter", " of a complex interval is the (rounded) approximation to the length of its diagonal, while its ", TO "midpoint", " is the complex midpoint of its real and imaginary parts",
-    EXAMPLE {"realPart interval(1+2*ii,3+4*ii)","imaginaryPart interval(1+2*ii,3+4*ii)","diameter(1+2*ii,3+4*ii)","midpoint interval(1+2*ii,3+4*ii)"},
+    EXAMPLE {"realPart interval(1+2*ii,3+4*ii)","imaginaryPart interval(1+2*ii,3+4*ii)","diameter interval(1+2*ii,3+4*ii)","midpoint interval(1+2*ii,3+4*ii)"},
     SeeAlso => {
 	RRi,
 	toCCi,
