@@ -489,19 +489,21 @@ undocumented {"CCi_*"}
 document {
      Key => CCi,
      Headline => "the class of all complex intervals",
-     "A complex interval is entered as a pair of real intervals to the ", TO "interval", " function.  It is stored internally as an arbitrary precision interval using the ", TO "MPFI", " library.",
+     "A complex interval is entered as a pair of real intervals to the ", TO "interval", " function.  It is stored internally as a pair of arbitrary precision intervals using the ", TO "MPFI", " library.",
      EXAMPLE "interval(interval(3.1415,3.1416), interval(2.7182,2.7183))",
      "The precision is measured in bits, is visible in the ring displayed on
      the second of each pair of output lines, and can be recovered using ", TO "precision", ".",
      EXAMPLE "precision interval(interval(3.1415,3.1416), interval(2.7182,2.7183))",
-     "Complex intervals are objects in ", TO "class", " CCi which is an ", TO "InexactFieldFamily", ".",
+     "Complex intervals are objects in ", TO "class", " CCi which is an ", TO "InexactFieldFamily", ".", "For complex intervals, the functions ", TO "class", " and ", TO "ring", " yield different
+     results.  That allows numbers of various precisions
+     to be used without creating a new ring for each precision.",
      EXAMPLE {"class interval(interval(3.1,3.5),interval(1.1,1.2))"},
      "The precision can be specified on input by specifying the precision of both input ", TO "CC", " numbers. ",
      "Alternatively, the precision can be specified by including the option ", TT "Precision", ".",
      EXAMPLE {"interval(interval(2.5p1000,3.2p100),interval(2.3,3.1,Precision=>200))"},
-     "Intervals can also be created using ", TO (span,Sequence), " to create the smallest interval containing the inputs.",
+     "Complex intervals can also be created using ", TO (span,Sequence), " to create the smallest complex axis-aligned rectangle containing the inputs.",
      EXAMPLE {"span(2+3*ii,Precision=>100)","span(2,3*ii,interval(interval(-1.5,-0.5),interval(3,3.1)),73)"},
-     "Operations using intervals are computed as sets so that the resulting intervals contain all possible outputs from pairs of points in input intervals.",
+     "Operations using complex intervals are computed as sets so that the resulting intervals contain all possible outputs from pairs of points in input intervals.",
      EXAMPLE {"	(I, J, K) = (interval(interval(.5,.8),interval(.6,.9)), interval(interval(.54,.78),interval(.65,.89)), interval(interval(.45,.6),interval(.3,.78)));",
 	 	"I + J",
 		"I - J",
@@ -517,17 +519,20 @@ document {
 	interval,
 	midpoint,
 	diameter,
-	(span,Sequence),
-	(span,List)},
+    realPart,
+    imaginaryPart,
+    intersect,
+    isEmpty,
+    isSubset,
+    span,
+    },
     Subnodes => {
 	TO toCCi,
--*        TO intersect,
-        TO (isMember, QQ, CCi),
-        TO (isEmpty, CCi),
-        TO (isSubset, RRi,CCi),
-	TO span, -- TODO: perhaps this should be shared
-	TO (span, List),
-	TO (span, Sequence),*-
+    --TO (intersect, CCi, CCi),
+    --TO (isMember, QQ, CCi),
+    --TO (isEmpty, CCi),
+    --TO (isSubset, RRi, CCi),
+	--TO span,
         },
 	  }
 

@@ -150,11 +150,12 @@ document {
 	  "isHomogeneous N"
 	  },
      HEADER3 "Intervals",
-     PARA { "If one of the factors is an ", TO "RRi", ", the output is an interval containing all products of pairs in the factors." },
+     PARA { "If one of the factors is an ", TO "RRi", " or a ", TO "CCi", ", the output is an interval containing all products of pairs in the factors." },
     EXAMPLE {
     "2*interval(1,3)",
     "interval(1,3)*interval(-1,2)",
-    "interval(-1,1)*interval(-1,1)"
+    "interval(-1,1)*interval(-1,1)",
+    "interval(1,2+2*ii)*interval(2+3*ii,4+3*ii)"
     },
      SeeAlso =>{ "times", "product"}
      }

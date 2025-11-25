@@ -41,8 +41,12 @@ CCi.InexactField = ComplexIntervalField = new Type of InexactField; ComplexInter
 
 RingFamily_* := RR -> RR#(symbol _*)
 RingFamily_* := RRi -> RRi#(symbol _*)
+RingFamily_* := CC -> CC#(symbol _*)
+RingFamily_* := CCi -> CCi#(symbol _*)
 RingFamily_* = (RR,e) -> RR#(symbol _*) = e
 RingFamily_* = (RRi,e) -> RRi#(symbol _*) = e
+RingFamily_* = (CC,e) -> CC#(symbol _*) = e
+RingFamily_* = (CCi,e) -> CCi#(symbol _*) = e
 InexactNumber' = new Type of Number
 RR_* = RR' = new Type of InexactNumber'
 RRi_* = RRi' = new Type of InexactNumber'

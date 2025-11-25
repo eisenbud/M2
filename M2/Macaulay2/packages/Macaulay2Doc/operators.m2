@@ -36,24 +36,31 @@ document {
      ///
      }
 
-document {
-     Key => {abs,(abs, Number),(abs, Constant)},
-     Headline => "absolute value function",
-	Usage => "abs x\nabs I",
-	Inputs => {
-		"x" => "a number",
-        "I" => RRi
-		},
-	Outputs => {
-		{"the absolute value of ", TT "x"},
-    RRi => {"an interval containing the absolute values of all the point of ", TT "I"}
-		},
-     TT "abs x", " computes the absolute value of ", TT "x", ".",
-	EXAMPLE {
-		"abs(-pi)",
-		"abs(1+ii)"
-		},
-     }
+doc ///
+  Key
+    abs
+    (abs, Number)
+    (abs, Constant)
+  Headline
+    absolute value function
+  Usage
+    abs x
+    abs I
+  Inputs
+    x:{RR,CC}
+    I:{RRi,CCi}
+  Outputs
+    :RR
+      the absolute value of @TT "x"@
+    :RRi
+      an interval containing the absolute values of all the points of @TT "x"@
+  Description
+    Example
+      abs(-pi)
+      abs(1+ii)
+      abs(interval(1,2))
+      abs(interval(1+2*ii,3+4*ii))
+///
 
 document {
      Key => (exp,RingElement),
@@ -67,18 +74,33 @@ document {
      ///
      }
 
-document {
-     Key => {exp,(exp,RR),(exp,CC),(exp,RRi),(exp,CCi)},
-     Headline => "exponential function",
-     Usage => "exp x\nexp I",
-     Inputs => { "x" => RR ,"I"=>RRi},
-    Outputs => { { "the exponential of ", TT "x" },
-        RRi=>{"an interval containing the exponentials of points of ", TT "I"} } ,
-     EXAMPLE lines ///
-     exp 1p300
-     exp(pi*ii)
-     ///
-     }
+doc ///
+  Key
+    exp
+    (exp, RR)
+    (exp, CC)
+    (exp, RRi)
+    (exp, CCi)
+  Headline
+    exponential function
+  Usage
+    exp x
+    exp I
+  Inputs
+    x:{RR,CC}
+    I:{RRi,CCi}
+  Outputs
+    :{RR,CC}
+      the exponential of @TT "x"@
+    :{RRi,CCi}
+      an interval containing the exponentials of all the points of @TT "x"@
+  Description
+    Example
+      exp 1p300
+      exp(pi*ii)
+      exp(interval(1,2))
+      exp(interval(1+2*ii,3+4*ii))
+///
 
 document {
      Key => {

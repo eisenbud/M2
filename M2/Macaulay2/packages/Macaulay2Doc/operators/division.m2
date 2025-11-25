@@ -79,11 +79,12 @@ document {
      2./3
      ///,
      HEADER3 "Intervals",
-     PARA { "If one of the inputs is an ", TO "RRi", ", the output is an interval containing all quotients of pairs in the inputs." },
+     PARA { "If one of the inputs is an ", TO "RRi", " or a ", TO "CCi", ", the output is an interval containing all quotients of pairs in the inputs." },
      EXAMPLE {
          "2/interval(1,3)",
          "interval(-1,2)/interval(1,3)",
-         "interval(1,2)/interval(1,2)"
+         "interval(1,2)/interval(1,2)",
+         "interval(1,2+3*ii)/(1+2*ii)"
      },
      SeeAlso => { "//"}
      }

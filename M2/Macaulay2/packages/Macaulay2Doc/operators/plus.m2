@@ -107,11 +107,12 @@ document {
 	  M+1, M+2
      ///,
     HEADER3 "Intervals",
-    PARA { "If one of the addends is an ", TO "RRi", ", the output is an interval containing all sums of pairs in the addends." },
+    PARA { "If one of the addends is an ", TO "RRi", " or a ", TO "CCi", ", the output is an interval containing all sums of pairs in the addends." },
     EXAMPLE {
         "2+interval(1,3)",
         "interval(1,3)+interval(-1,2)",
-        "interval(-1,1)+interval(-1,1)"
+        "interval(-1,1)+interval(-1,1)",
+        "interval(1,1+2*ii)+interval(2+3*ii,3+5*ii)"
     },
      SeeAlso =>{ "plus", "sum"}
      }

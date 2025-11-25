@@ -162,8 +162,8 @@ doc ///
     log1p x
     log1p I
   Inputs
-    x:{CC,RR}
-    I:RRi
+    x:{RR,CC}
+    I:{RRi,CCi}
   Outputs
     :{RR,CC}
       the logarithm of @TT "1+x"@
