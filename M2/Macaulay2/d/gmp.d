@@ -1203,19 +1203,19 @@ export nanCCi(prec:ulong):CCi := (x := nanRR(prec); toCCi(x,x));
 
 export infinityCCi(prec:ulong):CCi := (x := infinityRR(prec,1); toCCi(x,x));
 
-export toCC(x:RR):CC := CC(x,toRR(0,precision0(x)));
+export toCC(x:RR):CC := toCC(x,toRR(0,precision0(x)));
 
 export toCCi(x:RRi):CCi := CCi(x,toRRi(0,precision0(x)));
 
 export toCCi(x:RR):CCi := CCi(toRRi(x),toRRi(0,precision0(x)));
 
-export toCC(x:int,y:RR):CC := CC(toRR(x,precision0(y)),y);
+export toCC(x:int,y:RR):CC := toCC(toRR(x,precision0(y)),y);
 
 export toCCi(x:int,y:RRi):CCi := CCi(toRRi(x,precision0(y)),y);
 
 export toCCi(x:int,y:RR):CCi := CCi(toRRi(x,precision0(y)),toRRi(y));
 
-export toCC(x:RR,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
+export toCC(x:RR,prec:ulong):CC := toCC(toRR(x,prec),toRR(0,prec));
 
 export toCCi(x:RRi,prec:ulong):CCi := CCi(toRRi(x,prec),toRRi(0,prec));
 
@@ -1233,7 +1233,7 @@ export toCCi(x:CC,prec:ulong):CCi := (
      if precision0(x.re) == prec then CCi(toRRi(x.re,prec),toRRi(x.im,prec))
      else CCi(toRRi(x.re,prec),toRRi(x.im,prec)));
 
-export toCC(x:RR,y:RR,prec:ulong):CC := CC(toRR(x,prec),toRR(y,prec));
+export toCC(x:RR,y:RR,prec:ulong):CC := toCC(toRR(x,prec),toRR(y,prec));
 
 
 export toCC(x:QQ,prec:ulong):CC := CC(toRR(x,prec),toRR(0,prec));
