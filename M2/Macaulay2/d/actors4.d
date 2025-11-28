@@ -1413,71 +1413,73 @@ setupfun("toRRi",toRRi);
 
 toCCi(e:Expr):Expr := (
     when e
-		 is x:ZZcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
-		 is x:QQcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
-		 is x:RRcell do toExpr(toCCi(toRRi(x.v),toRRi(0, precision(x.v))))
-		 is x:RRicell do toExpr(toCCi(x.v,toRRi(0, precision(x.v))))
-         is x:CCcell do toExpr(toCCi(toRRi(realPart(x.v)),toRRi(imaginaryPart(x.v))))
-		 is x:CCicell do e
-    	 is s:Sequence do (
-            if length(s) > 3 then WrongNumArgs(1,3) else
-			if length(s) == 2 then (
-				when s.0 is x:ZZcell do (
-					when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v)))
-					    is y:QQcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v)))
-                             is y:RRcell do toExpr(toCCi(toRRi(x.v, precision(y.v)),toRRi(y.v)))
-					    is y:RRicell do toExpr(toCCi(toRRi(x.v,precision(y.v)),y.v))
-					    is y:CCcell do toExpr(toCCi(toRRi(realPart(y.v), toULong(x.v)),toRRi(imaginaryPart(y.v), toULong(x.v))))
-					    is y:CCicell do toExpr(toCCi(toRRi(realPart(y.v), toULong(x.v)),toRRi(imaginaryPart(y.v), toULong(x.v))))
-                    else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-				is x:QQcell do (
-					when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v), toRRi(y.v)))
-			                 is y:QQcell do toExpr(toCCi(toRRi(x.v), toRRi(y.v)))
-						  is y:RRcell do toExpr(toCCi(toRRi(x.v, precision(y.v)),toRRi(y.v)))
-						  is y:RRicell do toExpr(toCCi(toRRi(x.v,precision(y.v)),y.v))
-					else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-				is x:RRcell do (
-					when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v,precision(x.v))))
-							is y:QQcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v,precision(x.v))))
-							is y:RRcell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
-							is y:RRicell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
-					else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-				is x:RRicell do (
-					when s.1 is y:ZZcell do toExpr(toCCi(x.v,toRRi(y.v,precision(x.v))))
-						is y:QQcell do toExpr(toCCi(x.v,toRRi(y.v,precision(x.v))))
-						is y:RRcell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
-						is y:RRicell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
-					else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-				else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-
-			else when s.0 is prec:ZZcell do (
-					when s.1 is x:ZZcell do (
-						when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-						is x:QQcell do (
-							when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-							 		 is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-						is x:RRcell do (
-							when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-						is x:RRicell do (
-							when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
-									 else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
-					else WrongArg(1,"a pair or triple of integral, rational, or real numbers, with a precision"))
-			else WrongNumArgs(1,2))
-		 else WrongArg(1,"a pair or triple of integral, rational, or real numbers, with a precision"));
+    is x:ZZcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
+    is x:QQcell do toExpr(toCCi(toRRi(x.v,defaultPrecision),toRRi(0,defaultPrecision)))
+    is x:RRcell do toExpr(toCCi(toRRi(x.v),toRRi(0, precision(x.v))))
+    is x:RRicell do toExpr(toCCi(x.v,toRRi(0, precision(x.v))))
+    is x:CCcell do toExpr(toCCi(toRRi(realPart(x.v)),toRRi(imaginaryPart(x.v))))
+    is x:CCicell do e
+    is s:Sequence do (
+	if length(s) > 3 then WrongNumArgs(1,3) else
+	if length(s) == 2 then (
+	    when s.0
+	    is x:ZZcell do (
+		when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v)))
+		is y:QQcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v)))
+		is y:RRcell do toExpr(toCCi(toRRi(x.v, precision(y.v)),toRRi(y.v)))
+		is y:RRicell do toExpr(toCCi(toRRi(x.v,precision(y.v)),y.v))
+		is y:CCcell do toExpr(toCCi(toRRi(realPart(y.v), toULong(x.v)),toRRi(imaginaryPart(y.v), toULong(x.v))))
+		is y:CCicell do toExpr(toCCi(toRRi(realPart(y.v), toULong(x.v)),toRRi(imaginaryPart(y.v), toULong(x.v))))
+		else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+	    is x:QQcell do (
+		when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v), toRRi(y.v)))
+		is y:QQcell do toExpr(toCCi(toRRi(x.v), toRRi(y.v)))
+		is y:RRcell do toExpr(toCCi(toRRi(x.v, precision(y.v)),toRRi(y.v)))
+		is y:RRicell do toExpr(toCCi(toRRi(x.v,precision(y.v)),y.v))
+		else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+	    is x:RRcell do (
+		when s.1 is y:ZZcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v,precision(x.v))))
+		is y:QQcell do toExpr(toCCi(toRRi(x.v),toRRi(y.v,precision(x.v))))
+		is y:RRcell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
+		is y:RRicell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
+		else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+	    is x:RRicell do (
+		when s.1 is y:ZZcell do toExpr(toCCi(x.v,toRRi(y.v,precision(x.v))))
+		is y:QQcell do toExpr(toCCi(x.v,toRRi(y.v,precision(x.v))))
+		is y:RRcell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
+		is y:RRicell do toExpr(toCCi(toRRi(x.v,min(precision(x.v),precision(y.v))),toRRi(y.v,min(precision(x.v),precision(y.v)))))
+		else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+	    else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+	else (
+	    when s.0
+	    is prec:ZZcell do (
+		when s.1 is x:ZZcell do (
+		    when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+		is x:QQcell do (
+		    when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+		is x:RRcell do (
+		    when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+		is x:RRicell do (
+		    when s.2 is y:ZZcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:QQcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRcell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    is y:RRicell do toExpr(toCCi(toRRi(x.v,toULong(prec.v)),toRRi(y.v,toULong(prec.v)),toULong(prec.v)))
+		    else WrongArg(1,"a pair of intervals, rational, real numbers, or interval"))
+		else WrongArg(1,"a pair or triple of integral, rational, or real numbers, with a precision"))
+	    else WrongNumArgs(1,2)))
+    else WrongArg(1,"a pair or triple of integral, rational, or real numbers, with a precision"));
 setupfun("toCCi",toCCi);
 
 rightRR(e:Expr):Expr := (
