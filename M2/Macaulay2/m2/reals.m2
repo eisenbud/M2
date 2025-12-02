@@ -274,31 +274,19 @@ imaginaryPart QQ :=
 imaginaryPart InexactNumber := imaginaryPart0
 imaginaryPart Number := imaginaryPart0 @@ numeric
 
-lowerLeft ZZ :=
-lowerLeft QQ :=
-lowerLeft RR :=
-lowerLeft CC := identity
+lowerLeft Number := identity
 lowerLeft RRi := left
 lowerLeft CCi := z -> (left realPart z) + (left imaginaryPart z)*ii
 
-lowerRight ZZ :=
-lowerRight QQ :=
-lowerRight RR :=
-lowerRight CC := identity
+lowerRight Number := identity
 lowerRight RRi := right
 lowerRight CCi := z -> (right realPart z) + (left imaginaryPart z)*ii
 
-upperLeft ZZ :=
-upperLeft QQ :=
-upperLeft RR :=
-upperLeft CC := identity
+upperLeft Number := identity
 upperLeft RRi := left
 upperLeft CCi := z -> (left realPart z) + (right imaginaryPart z)*ii
 
-upperRight ZZ :=
-upperRight QQ :=
-upperRight RR :=
-upperRight CC := identity
+upperRight Number := identity
 upperRight RRi := right
 upperRight CCi := z -> (right realPart z) + (right imaginaryPart z)*ii
 
