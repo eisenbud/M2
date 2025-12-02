@@ -45,7 +45,7 @@ class ARingCCi : public SimpleARing<ARingCCi>
       double d2 = mpfr_get_d(&(a.re.right), MPFR_RNDN);
       double d3 = mpfr_get_d(&(a.im.left), MPFR_RNDN);
       double d4 = mpfr_get_d(&(a.im.right), MPFR_RNDN);
-    double d = 12347. * d1 + 865800. * d2 + 72158. * d3 + 86429. * d4;
+      double d = 12347. * d1 + 865800. * d2 + 72158. * d3 + 86429. * d4;
     return static_cast<unsigned int>(d);
   }
 

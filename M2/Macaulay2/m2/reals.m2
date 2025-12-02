@@ -274,6 +274,30 @@ imaginaryPart QQ :=
 imaginaryPart InexactNumber := imaginaryPart0
 imaginaryPart Number := imaginaryPart0 @@ numeric
 
+lowerLeft ZZ :=
+lowerLeft QQ :=
+lowerLeft RR := identity
+lowerLeft RRi := left
+lowerLeft CCi := z -> (left realPart z) + (left imaginaryPart z)*ii
+
+lowerRight ZZ :=
+lowerRight QQ :=
+lowerRight RR := identity
+lowerRight RRi := right
+lowerRight CCi := z -> (right realPart z) + (left imaginaryPart z)*ii
+
+upperLeft ZZ :=
+upperLeft QQ :=
+upperLeft RR := identity
+upperLeft RRi := left
+upperLeft CCi := z -> (left realPart z) + (right imaginaryPart z)*ii
+
+upperRight ZZ :=
+upperRight QQ :=
+upperRight RR := identity
+upperRight RRi := right
+upperRight CCi := z -> (right realPart z) + (right imaginaryPart z)*ii
+
 conjugate CC := z -> toCC(precision z, realPart z, - imaginaryPart z)
 conjugate CCi := z -> toCCi(precision z, realPart z, - imaginaryPart z)
 conjugate Constant := conjugate @@ numeric
