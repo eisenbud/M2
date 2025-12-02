@@ -276,25 +276,29 @@ imaginaryPart Number := imaginaryPart0 @@ numeric
 
 lowerLeft ZZ :=
 lowerLeft QQ :=
-lowerLeft RR := identity
+lowerLeft RR :=
+lowerLeft CC := identity
 lowerLeft RRi := left
 lowerLeft CCi := z -> (left realPart z) + (left imaginaryPart z)*ii
 
 lowerRight ZZ :=
 lowerRight QQ :=
-lowerRight RR := identity
+lowerRight RR :=
+lowerRight CC := identity
 lowerRight RRi := right
 lowerRight CCi := z -> (right realPart z) + (left imaginaryPart z)*ii
 
 upperLeft ZZ :=
 upperLeft QQ :=
-upperLeft RR := identity
+upperLeft RR :=
+upperLeft CC := identity
 upperLeft RRi := left
 upperLeft CCi := z -> (left realPart z) + (right imaginaryPart z)*ii
 
 upperRight ZZ :=
 upperRight QQ :=
-upperRight RR := identity
+upperRight RR :=
+upperRight CC := identity
 upperRight RRi := right
 upperRight CCi := z -> (right realPart z) + (right imaginaryPart z)*ii
 
