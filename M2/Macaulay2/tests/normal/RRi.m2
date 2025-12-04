@@ -119,6 +119,14 @@ assert isSubset(K^2,K*K)
 assert not isSubset(K*K,K^2)
 assert isSubset(toCCi(interval(-14,17),interval(-10,24)),L*K)
 
+A = matrix{{interval(1,3), interval(3,5)}, {interval(5,7), interval(7,9)}}
+assert(midpoint A == matrix(RR, {{2, 4}, {6, 8}}))
+
+R = RRi[x,y,z]
+f = interval(1,3)*x + interval(3,5)*y + interval(5,7)*z
+use ring midpoint f
+assert(midpoint f == 2*x + 4*y + 6*z)
+
 --- TO FIX: ---------------------------------------------
 
 -*

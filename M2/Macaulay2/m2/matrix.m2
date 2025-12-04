@@ -781,6 +781,8 @@ leadComponent = method()
 leadComponent Matrix := List => m -> nonnull for c to numColumns m - 1 list position(numRows m, r -> m_(r,c) != 0, Reverse => true)
 leadComponent Vector := ZZ   => v -> try first leadComponent matrix v else null
 
+midpoint Matrix := f -> matrix apply(entries f, row -> midpoint \ row)
+
 -- Local Variables:
 -- compile-command: "make -C $M2BUILDDIR/Macaulay2/m2 "
 -- End:

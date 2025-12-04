@@ -46,8 +46,10 @@ doc ///
 Key
      midpoint
     (midpoint, CCi)
+    (midpoint, Matrix)
     (midpoint, Number)
     (midpoint, RRi)
+    (midpoint, RingElement)
 Headline
     midpoint of an interval
 Usage
@@ -68,6 +70,19 @@ Description
   Example
     interval(2 + 3*ii, 4 + 7*ii)
     midpoint oo
+  Text
+    The midpoint of a matrix is the matrix containing the midpoints of
+    its entries.
+  Example
+    A = matrix{{interval(1,3), interval(3,5)}, {interval(5,7), interval(7,9)}}
+    midpoint A
+  Text
+    The midpoint of a polynomial is obtained by taking the midpoints of the
+    coefficients.
+  Example
+    R = RRi[x,y,z]
+    f = interval(1,3)*x + interval(3,5)*y + interval(5,7)*z
+    midpoint f
 SeeAlso
     left
     right
