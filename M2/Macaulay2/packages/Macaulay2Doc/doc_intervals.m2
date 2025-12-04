@@ -44,7 +44,10 @@ SeeAlso
 
 doc ///
 Key
-    midpoint
+     midpoint
+    (midpoint, CCi)
+    (midpoint, Number)
+    (midpoint, RRi)
 Headline
     midpoint of an interval
 Usage

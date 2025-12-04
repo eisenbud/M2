@@ -120,5 +120,9 @@ CC  ? CCi := (x, y) -> toCCi x ? y
 isEmpty RRi := Boolean => isEmptyRRi
 isEmpty CCi := x -> isEmptyRRi realPart x or isEmptyRRi imaginaryPart x
 
+midpoint = method()
+midpoint Number := identity
+midpoint RRi := midpoint CCi := midpoint0
+
 toExternalString RRi := x -> "interval" | toExternalString (left x, right x)
 toExternalString CCi := x -> "interval" | toExternalString (left realPart x+(left imaginaryPart x)*ii,right realPart x+(right imaginaryPart x)*ii)

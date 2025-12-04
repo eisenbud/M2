@@ -1506,7 +1506,7 @@ midpoint0(e:Expr):Expr := (
         is x:RRicell do toExpr(midpointRR(x.v))
 	is x:CCicell do toExpr(toCC(midpointRR(realPart(x.v)),midpointRR(imaginaryPart(x.v))))
         else WrongArg("an interval or ball"));
-setupfun("midpoint",midpoint0);
+setupfun("midpoint0",midpoint0);
                                                      
 isEmptyRRi(e:Expr):Expr := (
      when e
