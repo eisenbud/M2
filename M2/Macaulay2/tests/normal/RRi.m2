@@ -127,6 +127,13 @@ f = interval(1,3)*x + interval(3,5)*y + interval(5,7)*z
 use ring midpoint f
 assert(midpoint f == 2*x + 4*y + 6*z)
 
+R = RRi[x]/x^2
+assert(promote(toRRi 2, R) == 2)
+
+R = CCi[x]/x^2
+assert(promote(toRRi 2, R) == 2)
+assert(promote(toCCi 2, R) == 2)
+
 --- TO FIX: ---------------------------------------------
 
 -*
