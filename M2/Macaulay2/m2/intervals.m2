@@ -123,16 +123,16 @@ isEmpty CCi := x -> isEmptyRRi realPart x or isEmptyRRi imaginaryPart x
 midpoint = method()
 midpoint Number := identity
 midpoint RRi := midpoint CCi := midpoint0
+
+midpoint Ring := R -> (
+    if instance(R, RealIntervalField) then RR_(precision R)
+    else if instance(R, ComplexIntervalField) then CC_(precision R)
+    else R)
+
 midpoint RingElement := f -> (
-    R := ring f;
-    kk := coefficientRing R;
-    S := R.cache#"midpoint ring" ??= (
-	if instance(kk, RealIntervalField)
-	then RR_(precision kk) monoid R
-	else if instance(kk, ComplexIntervalField)
-	then CC_(precision kk) monoid R
-	else R);
-    sum(listForm f, (m, c) -> midpoint c * product(#m, i -> S_i^(m#i))))
+    R := midpoint ring f;
+    if R === ring f then f
+    else sum(listForm f, (m, c) -> midpoint c * product(#m, i -> R_i^(m#i))))
 
 toExternalString RRi := x -> "interval" | toExternalString (left x, right x)
 toExternalString CCi := x -> "interval" | toExternalString (left realPart x+(left imaginaryPart x)*ii,right realPart x+(right imaginaryPart x)*ii)

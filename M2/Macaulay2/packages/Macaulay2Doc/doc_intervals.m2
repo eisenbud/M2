@@ -42,6 +42,9 @@ SeeAlso
     diameter
 ///
 
+-- helper methods not intended to be called by the user
+undocumented {(midpoint, Ring), (midpoint, PolynomialRing)}
+
 doc ///
 Key
      midpoint
