@@ -1552,7 +1552,7 @@ sqrt(a:Expr):Expr := (
      is x:RRicell do (
 	  if leftRR(x.v) >= 0
 	  then toExpr(sqrt(x.v))
-	  else buildErrorPacket("Not implemented")
+	  else toExpr(sqrt(toCCi(x.v)))
 	  )
      is x:CCcell do toExpr(sqrt(x.v))
      is x:CCicell do toExpr(sqrt(x.v))
