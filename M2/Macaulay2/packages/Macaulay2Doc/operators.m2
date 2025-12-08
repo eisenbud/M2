@@ -77,10 +77,7 @@ document {
 doc ///
   Key
     exp
-    (exp, RR)
-    (exp, CC)
-    (exp, RRi)
-    (exp, CCi)
+    (exp, InexactNumber)
   Headline
     exponential function
   Usage
@@ -105,25 +102,8 @@ doc ///
 doc ///
   Key
     log
-    (log, RR)
-    (log,CC)
-    (log,CC,CC)
-    (log,CC,CCi)
-    (log,CC,RR)
-    (log,CC,RRi)
-    (log,CCi)
-    (log,CCi,CC)
-    (log,CCi,CCi)
-    (log,CCi,RR)
-    (log,CCi,RRi)
-    (log,RR,CCi)
-    (log,RR,RR)
-    (log,RR,RRi)
-    (log,RRi)
-    (log,RRi,CCi)
-    (log,RRi,RR)
-    (log,RRi,RRi)
-    (log,RR,CC)
+    (log,InexactNumber)
+    (log,InexactNumber,InexactNumber)
   Headline
     logarithm function
   Usage
@@ -163,10 +143,7 @@ doc ///
 doc ///
   Key
     sqrt
-    (sqrt, RR)
-    (sqrt, CC)
-    (sqrt, RRi)
-    (sqrt, CCi)
+    (sqrt, InexactNumber)
   Headline
     square root function
   Usage

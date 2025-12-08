@@ -1,10 +1,7 @@
 doc ///
   Key
     erf
-   (erf,CC)
-   (erf,CCi)
-   (erf,RR)
-   (erf,RRi)
+   (erf,InexactNumber)
   Headline
     error function
   Usage
@@ -27,10 +24,7 @@ doc ///
 doc ///
   Key
     erfc
-   (erfc,CC)
-   (erfc,CCi)
-   (erfc,RR)
-   (erfc,RRi)
+   (erfc,InexactNumber)
   Headline
     complementary error function
   Usage

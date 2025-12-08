@@ -1,26 +1,8 @@
 doc ///
   Key
     Gamma
-   (Gamma,CC)
-   (Gamma,CC,CC)
-   (Gamma,CC,RR)
-   (Gamma,CC,RRi)
-   (Gamma,RR)
-   (Gamma,RR,CC)
-   (Gamma,RR,RR)
-   (Gamma,RR,RRi)
-   (Gamma,RRi)
-   (Gamma,RRi,CC)
-   (Gamma,RRi,RR)
-   (Gamma,RRi,RRi)
-   (Gamma,CC,CCi)
-   (Gamma,CCi)
-   (Gamma,CCi,CC)
-   (Gamma,CCi,CCi)
-   (Gamma,CCi,RR)
-   (Gamma,CCi,RRi)
-   (Gamma,RR,CCi)
-   (Gamma,RRi,CCi)
+   (Gamma,InexactNumber)
+   (Gamma,InexactNumber,InexactNumber)
   Headline
     Gamma function
   Usage
@@ -51,22 +33,7 @@ doc ///
 doc ///
   Key
     regularizedGamma
-   (regularizedGamma,CC,CC)
-   (regularizedGamma,CC,CCi)
-   (regularizedGamma,CC,RR)
-   (regularizedGamma,CC,RRi)
-   (regularizedGamma,CCi,CC)
-   (regularizedGamma,CCi,CCi)
-   (regularizedGamma,CCi,RR)
-   (regularizedGamma,CCi,RRi)
-   (regularizedGamma,RR,CC)
-   (regularizedGamma,RR,CCi)
-   (regularizedGamma,RR,RR)
-   (regularizedGamma,RR,RRi)
-   (regularizedGamma,RRi,CC)
-   (regularizedGamma,RRi,CCi)
-   (regularizedGamma,RRi,RR)
-   (regularizedGamma,RRi,RRi)
+   (regularizedGamma,InexactNumber,InexactNumber)
   Headline
     upper regularized gamma function
   Usage

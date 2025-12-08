@@ -152,10 +152,7 @@ document { Key => {CatalanConstant},
 doc ///
   Key
     log1p
-    (log1p,CC)
-    (log1p,CCi)
-    (log1p,RR)
-    (log1p,RRi)
+    (log1p,InexactNumber)
   Headline
     logarithm of 1+x
   Usage
@@ -180,10 +177,7 @@ doc ///
 doc ///
   Key
     expm1
-    (expm1,CC)
-    (expm1,CCi)
-    (expm1,RR)
-    (expm1,RRi)
+    (expm1,InexactNumber)
   Headline
     exponential minus 1
   Usage
@@ -205,7 +199,7 @@ doc ///
       expm1 interval(1+2*ii,3+4*ii)
 ///
 
-document { Key => {eint,(eint, RR),(eint,CC),(eint,RRi),(eint,CCi)},
+document { Key => {eint,(eint, InexactNumber)},
      Usage => "eint x",
      Headline => "exponential integral",
      Inputs => { "x" },
@@ -219,7 +213,7 @@ document { Key => {eint,(eint, RR),(eint,CC),(eint,RRi),(eint,CCi)},
      PARA {"See ", wikipedia "Exponential integral", "."}
      }
 
-document { Key => {Digamma,(Digamma, RR),(Digamma,CC),(Digamma,RRi),(Digamma,CCi)},
+document { Key => {Digamma,(Digamma, InexactNumber)},
      Usage => "Digamma x",
      Headline => "Digamma function",
      Inputs => { "x" },
@@ -234,7 +228,7 @@ document { Key => {Digamma,(Digamma, RR),(Digamma,CC),(Digamma,RRi),(Digamma,CCi
      SeeAlso => {Gamma}
      }
 
-document { Key => {zeta,(zeta, RR),(zeta,CC),(zeta,RRi),(zeta,CCi)},
+document { Key => {zeta,(zeta, InexactNumber)},
      Usage => "zeta x",
      Headline => "Riemann zeta function",
      Inputs => { "x" },
@@ -250,7 +244,7 @@ document { Key => {zeta,(zeta, RR),(zeta,CC),(zeta,RRi),(zeta,CCi)},
 
 document {
      --- author(s): L. Gold, Dan Grayson
-     Key => {acos,(acos,RR),(acos,CC),(acos, RRi),(acos,CCi)},
+     Key => {acos,(acos, InexactNumber)},
      Headline => "arccosine",
      Usage => "acos x\nacos I",
      Inputs => { "x" => RR, "x" => CC, "I" => RRi, "I" => CCi },
@@ -266,7 +260,7 @@ document {
 
 document {
      --- author(s): L. Gold, Dan Grayson
-     Key => {asin,(asin,RR),(asin,CC),(asin, RRi),(asin,CCi)},
+     Key => {asin,(asin,InexactNumber)},
      Headline => "arcsine",
      Usage => "asin x\nasin I",
      Inputs => { "x" => RR, "x" => CC, "I" => RRi, "I" => CCi },
@@ -283,7 +277,7 @@ document {
 
 document {
      --- author(s): L. Gold
-     Key => {cosh, (cosh,RR),(cosh,CC),(cosh,RRi),(cosh,CCi)},
+     Key => {cosh, (cosh,InexactNumber)},
      Headline => "compute the hyperbolic cosine",
      Usage => "cosh x\ncosh I",
      Inputs => { "x"=>RR, "x"=>CC, "I"=>RRi, "I"=>CCi},
@@ -321,7 +315,7 @@ document {
      PARA {"See ", wikipedia "Hyperbolic function", "."}
      }
 
-document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi),(sec,CCi)},
+document { Key => {sec,(sec,InexactNumber)},
      Usage => "sec x\nsec I",
      Headline => "secant",
      Inputs => { "x" => RR, "x" => CC, "I" => RRi, "I" => CCi },
@@ -335,7 +329,7 @@ document { Key => {sec,(sec,CC),(sec, RR),(sec, RRi),(sec,CCi)},
      PARA {"See ", wikipedia "Trigonometric function", "."}
      }
 
-document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi),(csc,CCi)},
+document { Key => {csc,(csc,InexactNumber)},
      Usage => "csc x\ncsc I",
      Headline => "cosecant",
      Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
@@ -349,7 +343,7 @@ document { Key => {csc,(csc,CC),(csc, RR),(csc,RRi),(csc,CCi)},
      PARA {"See ", wikipedia "Trigonometric function", "."}
      }
 
-document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi),(cot,CCi)},
+document { Key => {cot,(cot, InexactNumber)},
      Usage => "cot x\ncot I",
      Headline => "cotangent",
      Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
@@ -363,7 +357,7 @@ document { Key => {cot,(cot, RR),(cot,CC),(cot,RRi),(cot,CCi)},
      PARA {"See ", wikipedia "Trigonometric function", "."}
      }
 
-document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi),(sech,CCi)},
+document { Key => {sech,(sech,InexactNumber)},
      Usage => "sech x\nsech I",
      Headline => "hyperbolic secant",
      Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
@@ -377,7 +371,7 @@ document { Key => {sech,(sech,CC),(sech, RR),(sech, RRi),(sech,CCi)},
      PARA {"See ", wikipedia "Hyperbolic function", "."}
      }
 
-document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi),(csch,CCi)},
+document { Key => {csch,(csch,InexactNumber)},
      Usage => "csch x\ncsch I",
      Headline => "hyperbolic cosecant",
      Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
@@ -391,7 +385,7 @@ document { Key => {csch,(csch,CC),(csch, RR),(csch,RRi),(csch,CCi)},
      PARA {"See ", wikipedia "Hyperbolic function", "."}
      }
 
-document { Key => {coth,(coth,CC),(coth, RR),(coth,RRi),(coth,CCi)},
+document { Key => {coth,(coth,InexactNumber)},
      Usage => "coth x\ncoth I",
      Headline => "hyperbolic cotangent",
      Inputs => { "x"=>RR, "x" => CC, "I"=>RRi, "I"=>CCi },
@@ -443,22 +437,7 @@ document { Key => {BesselY,(BesselY, ZZ, Number),(BesselY,Number,Number)},
 
 document { Key => {
 	agm,
-	(agm, RR, RR),
-	(agm,CC,CC),
-	(agm,CC,CCi),
-	(agm,CC,RR),
-	(agm,CC,RRi),
-	(agm,CCi,CC),
-	(agm,CCi,CCi),
-	(agm,CCi,RR),
-	(agm,CCi,RRi),
-	(agm,RR,CC),
-	(agm,RR,CCi),
-	(agm,RR,RRi),
-	(agm,RRi,CC),
-	(agm,RRi,CCi),
-	(agm,RRi,RR),
-	(agm,RRi,RRi)},
+	(agm,InexactNumber,InexactNumber)},
      Usage => "agm(x,y)",
      Inputs => { "x" => "a number", "y" => "a number" },
      Outputs => { {"the arithmetic-geometric mean of ", TT "x", " and ", TT "y"}},
