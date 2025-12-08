@@ -860,7 +860,7 @@ log1p(e:Expr):Expr := (
      when e
      is x:RRcell do toExpr(log1p(x.v))				    -- # typical value: log1p, RR, RR
      is x:RRicell do toExpr(log1p(x.v))				    -- # typical value: log1p, RRi, RRi
-     is x:CCcell do toExpr(log(1 + x.v))                            -- # typical value: log1p, CC, CC
+     is x:CCcell do toExpr(log1p(x.v))				    -- # typical value: log1p, CC, CC
      is x:CCicell do toExpr(log1p(x.v))				    -- # typical value: log1p, CCi, CCi
      else WrongArgRRorCC()
      );
@@ -869,7 +869,7 @@ expm1(e:Expr):Expr := (
      when e
      is x:RRcell do toExpr(expm1(x.v))				    -- # typical value: expm1, RR, RR
      is x:RRicell do toExpr(expm1(x.v))				    -- # typical value: expm1, RRi, RRi
-     is x:CCcell do toExpr(exp(x.v) - 1)                            -- # typical value: expm1, CC, CC
+     is x:CCcell do toExpr(expm1(x.v))                            -- # typical value: expm1, CC, CC
      is x:CCicell do toExpr(expm1(x.v))				    -- # typical value: expm1, CCi, CCi
      else WrongArgRRorCC()
      );
