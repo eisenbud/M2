@@ -58,7 +58,7 @@ doc ///
 doc ///
   Key
     inverseRegularizedGamma
-   (inverseRegularizedGamma,RR,RR)
+   (inverseRegularizedGamma,InexactNumber,InexactNumber)
   Headline
     inverse of the upper regularized gamma function
   Usage

@@ -51,7 +51,7 @@ doc ///
 doc ///
   Key
     inverseRegularizedBeta
-   (inverseRegularizedBeta,RR,RR,RR)
+   (inverseRegularizedBeta,InexactNumber,InexactNumber,InexactNumber)
   Headline
     inverse of the regularized beta function
   Usage
