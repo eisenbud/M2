@@ -1037,8 +1037,9 @@ erfc(e:Expr):Expr := (
 setupfun("erfc",erfc).Protected=false;
 inverseErf(e:Expr):Expr := (
      when e
-     is x:RRcell do toExpr(midpointRR(inverseErf(toRRi(x.v))))	    -- # typical value: inverseErf, RR, RR
-     is x:RRicell do toExpr(inverseErf(x.v))			    -- # typical value: inverseErf, RRi, RRi
+     -- # typical value: inverseErf, InexactNumber, InexactNumber
+     is x:RRcell do toExpr(midpointRR(inverseErf(toRRi(x.v))))
+     is x:RRicell do toExpr(inverseErf(x.v))
      else WrongArgRRorRRi());
 setupfun("inverseErf",inverseErf).Protected=false;
 BesselJ(n:long,x:RR):RR := (

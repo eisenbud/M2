@@ -47,8 +47,7 @@ doc ///
 doc ///
   Key
     inverseErf
-   (inverseErf,RR)
-   (inverseErf,RRi)
+   (inverseErf,InexactNumber)
   Headline
     inverse error function
   Usage
