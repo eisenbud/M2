@@ -1486,34 +1486,34 @@ rightRR(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(rightRR(x.v))
         else WrongArg("an interval"));
-setupfun("right",rightRR);
-                                                     
+setupfun("right0",rightRR);
+
 leftRR(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(leftRR(x.v))
         else WrongArg("an interval"));
-setupfun("left",leftRR);
-                                                     
+setupfun("left0",leftRR);
+
 width0(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(widthRR(x.v))
 	is x:CCicell do toExpr(sqrt(widthRR(realPart(x.v))*widthRR(realPart(x.v))+widthRR(imaginaryPart(x.v))*widthRR(imaginaryPart(x.v))))
         else WrongArg("an interval or complex interval or ball"));
 setupfun("diameter",width0).Protected = false;
-                                                     
+
 midpoint0(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(midpointRR(x.v))
 	is x:CCicell do toExpr(toCC(midpointRR(realPart(x.v)),midpointRR(imaginaryPart(x.v))))
         else WrongArg("an interval or ball"));
 setupfun("midpoint0",midpoint0);
-                                                     
+
 isEmptyRRi(e:Expr):Expr := (
      when e
         is x:RRicell do toExpr(isEmpty(x.v))
         else WrongArg("an interval"));
 setupfun("isEmptyRRi",isEmptyRRi);
-                                                     
+
 subsetRRi(e:Expr):Expr := (
      when e is s:Sequence do (
 	    if length(s) > 3 then WrongNumArgs(1,3) else

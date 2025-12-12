@@ -135,8 +135,8 @@ intervalPolyHelper := (func, f) -> (
     else sum(listForm f, (m, c) -> func c * product(#m, i -> R_i^(m#i))))
 
 midpoint   RingElement := f -> intervalPolyHelper(midpoint,   f)
--- left       RingElement := f -> intervalPolyHelper(left,       f)
--- right      RingElement := f -> intervalPolyHelper(right,      f)
+left       RingElement := f -> intervalPolyHelper(left,       f)
+right      RingElement := f -> intervalPolyHelper(right,      f)
 lowerLeft  RingElement := f -> intervalPolyHelper(lowerLeft,  f)
 lowerRight RingElement := f -> intervalPolyHelper(lowerRight, f)
 upperLeft  RingElement := f -> intervalPolyHelper(upperLeft,  f)

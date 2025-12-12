@@ -782,8 +782,8 @@ leadComponent Matrix := List => m -> nonnull for c to numColumns m - 1 list posi
 leadComponent Vector := ZZ   => v -> try first leadComponent matrix v else null
 
 midpoint   Matrix := f -> matrix apply(entries f, row -> midpoint   \ row)
--- left       Matrix := f -> matrix apply(entries f, row -> left       \ row)
--- right      Matrix := f -> matrix apply(entries f, row -> right      \ row)
+left       Matrix := f -> matrix apply(entries f, row -> left       \ row)
+right      Matrix := f -> matrix apply(entries f, row -> right      \ row)
 lowerLeft  Matrix := f -> matrix apply(entries f, row -> lowerLeft  \ row)
 lowerRight Matrix := f -> matrix apply(entries f, row -> lowerRight \ row)
 upperLeft  Matrix := f -> matrix apply(entries f, row -> upperLeft  \ row)

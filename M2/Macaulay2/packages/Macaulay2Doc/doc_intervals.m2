@@ -1,6 +1,11 @@
 doc ///
   Key
-    left
+     left
+    (left, CCi)
+    (left, Matrix)
+    (left, Number)
+    (left, RRi)
+    (left, RingElement)
   Headline
     left endpoint of an interval
   Usage
@@ -22,7 +27,12 @@ doc ///
 
 doc ///
   Key
-    right
+     right
+    (right, CCi)
+    (right, Matrix)
+    (right, Number)
+    (right, RRi)
+    (right, RingElement)
 Headline
     right endpoint of an interval
 Usage

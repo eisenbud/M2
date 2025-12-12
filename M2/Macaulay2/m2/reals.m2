@@ -274,6 +274,14 @@ imaginaryPart QQ :=
 imaginaryPart InexactNumber := imaginaryPart0
 imaginaryPart Number := imaginaryPart0 @@ numeric
 
+left Number := identity
+left RRi := left0
+left CCi := x -> error "use lowerLeft or upperLeft"
+
+right Number := identity
+right RRi := right0
+right CCi := x -> error "use lowerRight or upperRight"
+
 lowerLeft Number := identity
 lowerLeft RRi := left
 lowerLeft CCi := z -> (left realPart z) + (left imaginaryPart z)*ii
