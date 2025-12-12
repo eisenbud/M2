@@ -130,7 +130,7 @@ midpoint Ring := R -> (
     else R)
 
 intervalPolyHelper := (func, f) -> (
-    R := midpoing ring f;
+    R := midpoint ring f;
     if R === ring f then f
     else sum(listForm f, (m, c) -> func c * product(#m, i -> R_i^(m#i))))
 
