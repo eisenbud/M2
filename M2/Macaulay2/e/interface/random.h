@@ -58,6 +58,11 @@ gmp_CC rawRandomCC(unsigned long prec);
 
 void randomMpfr(mpfr_t result);
 
+gmp_RRi rawRandomRRi(unsigned long prec);
+void rawSetRandomRRi(mpfi_ptr result);
+/* returns an interval with the given precision containing two random
+ * variates from the uniform distribution on [0, 1] */
+
 double randomDouble();
 
 int system_randomint();

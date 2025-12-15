@@ -322,6 +322,7 @@ random RR := RR => opts -> x -> x * rawRandomRRUniform precision x
 random(RR,RR) := opts -> (x,y) -> x + random(y-x)
 RR'.random = opts -> R -> rawRandomRRUniform R.precision
 CC'.random = opts -> C -> rawRandomCC C.precision
+RRi'.random = opts -> R -> rawRandomRRi R.precision
 random RingFamily := opts -> R -> random(default R,opts)
 
 random QQ := QQ => opts -> x -> rawFareyApproximation(

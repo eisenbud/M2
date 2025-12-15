@@ -87,6 +87,12 @@ export rawRandomCC(e:Expr):Expr := (
      else toExpr(Ccode(CC, "rawRandomCC(", toULong(prec.v), ")"))
      else WrongArgZZ());
 setupfun("rawRandomCC",rawRandomCC);
+export rawRandomRRi(e:Expr):Expr := (
+    when e
+    is prec:ZZcell do if !isULong(prec.v) then WrongArgSmallUInteger()
+    else toExpr(Ccode(RRi, "rawRandomRRi(", toULong(prec.v), ")"))
+    else WrongArgZZ());
+setupfun("rawRandomRRi", rawRandomRRi);
 
 -----------------------------------------------------------------------------
 -- monomials
