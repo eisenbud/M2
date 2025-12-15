@@ -53,7 +53,8 @@ SeeAlso
 ///
 
 -- helper methods not intended to be called by the user
-undocumented {(midpoint, Ring), (midpoint, PolynomialRing)}
+undocumented {(midpoint, Ring), (midpoint, PolynomialRing),
+    (midpoint, QuotientRing), (midpoint, Module)}
 
 doc ///
 Key
