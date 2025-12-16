@@ -278,6 +278,14 @@ gmp_RRi rawRandomRRi(unsigned long precision)
   return moveTo_gmpRRi(result);
 }
 
+gmp_CCi rawRandomCCi(unsigned long precision)
+{
+  gmp_CCimutable result = getmemstructtype(gmp_CCimutable);
+  result->re = const_cast<gmp_RRimutable>(rawRandomRRi(precision));
+  result->im = const_cast<gmp_RRimutable>(rawRandomRRi(precision));
+  return reinterpret_cast<gmp_CCi>(result);
+}
+
 
 int system_randomint()
 {
