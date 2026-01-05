@@ -1,0 +1,10 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/js/dist/collapse';
+import '@fortawesome/fontawesome-free/css/fontawesome.css';
+import '@fortawesome/fontawesome-free/css/solid.css';
+import ClipboardJS from 'clipboard';
+import 'jquery';
+import '@macaulay2/boot-side-menu';
+import '@macaulay2/boot-side-menu/css/BootSideMenu.css';
+import noUiSlider from 'nouislider/dist/nouislider.js';
+import 'nouislider/dist/nouislider.css';

@@ -123,7 +123,7 @@ TateOnProducts
 LatticePolytopes
 FiniteFittingIdeals
 HigherCIOperators
-LieTypes
+LieAlgebraRepresentations
 ConformalBlocks
 M0nbar
 AnalyzeSheafOnP1
@@ -169,6 +169,7 @@ ReflexivePolytopesDB
 AbstractToricVarieties
 TestIdeals
 FrobeniusThresholds
+NonPrincipalTestIdeals
 Seminormalization
 AlgebraicSplines
 TriangularSets
@@ -290,3 +291,4 @@ Tableaux
 CpMackeyFunctors
 JSONRPC
 MatrixFactorizations
+PathSignatures

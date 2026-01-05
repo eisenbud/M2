@@ -47,8 +47,8 @@ setupfun("testCatch",testCatch);
 
 export rawRandomZZ(e:Expr):Expr := (
      when e
-     is Nothing do toExpr(Ccode(ZZ, "rawRandomInteger(", "NULL)"))
-     is maxN:ZZcell do toExpr(Ccode(ZZ, "rawRandomInteger(", maxN.v, ")"))
+     is Nothing do toExpr(Ccode(ZZorNull, "rawRandomInteger(", "NULL)"))
+     is maxN:ZZcell do toExpr(Ccode(ZZorNull, "rawRandomInteger(", maxN.v, ")"))
      else WrongArgZZ());
 setupfun("rawRandomZZ",rawRandomZZ);
 export rawFareyApproximation(e:Expr):Expr := (
@@ -2261,6 +2261,13 @@ export rawPfaffians(e:Expr):Expr := (
      else WrongNumArgs(2)
      );
 setupfun("rawPfaffians",rawPfaffians);
+
+export rawPfaffian(e:Expr):Expr := (
+    when e
+    is M:RawMatrixCell do toExpr(Ccode(RawRingElementOrNull,
+	    "IM2_Matrix_pfaffian(", M.p, ")"))
+    else WrongArgMatrix());
+setupfun("rawPfaffian", rawPfaffian);
 
 export rawTensor(e:Expr):Expr := (
      when e is s:Sequence do

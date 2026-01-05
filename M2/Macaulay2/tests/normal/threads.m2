@@ -17,6 +17,8 @@ assert( 4 === taskResult t )
 t = schedule ( x -> x+2, 2 )
 assert( 4 === taskResult t )
 
+assert(hash schedule(() -> null) != hash schedule(() -> null))
+
 -- check whether thread local variables have separate values in separate threads
 threadVariable aaa
 assert( aaa === null )
@@ -84,6 +86,10 @@ setIOExclusive f
 assert Equation(getIOThreadMode f, 2)
 
 removeFile fn
+
+-- issue #3358
+Foo = taskResult schedule(() -> new Type of HashTable)
+assert BinaryOperation(symbol ===, youngest(Foo, Matrix), Foo)
 
 -- Local Variables:
 -- compile-command: "make -C $M2BUILDDIR/Macaulay2/packages/Macaulay2Doc/test threads.out"

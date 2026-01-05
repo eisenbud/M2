@@ -147,8 +147,8 @@ else()
   set(EIGEN_BUILD_TYPE Release)
 endif()
 ExternalProject_Add(build-eigen
-  URL               https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2
-  URL_HASH          SHA256=b4c198460eba6f28d34894e3a5710998818515104d6e74e5cc331ce31e46e626
+  URL               https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.1.tar.bz2
+  URL_HASH          SHA256=f1148db76cba8df51c9624195e5f36bedc2d1eca6c6e4f77b576635c79f9668c
   PREFIX            libraries/eigen
   BINARY_DIR        libraries/eigen/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -157,6 +157,7 @@ ExternalProject_Add(build-eigen
                     -DBUILD_TESTING=${BUILD_TESTING}
                     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                     -DCMAKE_CXX_FLAGS=${CXXFLAGS}
+                    -DINCLUDE_INSTALL_DIR:PATH=include
   INSTALL_COMMAND   ${CMAKE_COMMAND} --install . ${strip_setting}
           COMMAND   ${CMAKE_COMMAND} -E make_directory ${M2_INSTALL_LICENSESDIR}/eigen
           COMMAND   ${CMAKE_COMMAND} -E copy_if_different ../src/build-eigen/COPYING.MPL2 ${M2_INSTALL_LICENSESDIR}/eigen
@@ -485,8 +486,8 @@ endif()
 
 # https://github.com/algebraic-solving/msolve
 ExternalProject_Add(build-msolve
-  URL               https://github.com/algebraic-solving/msolve/archive/refs/tags/v0.9.0.tar.gz
-  URL_HASH          SHA256=742e84cf4d11eeadf62002623ecb7658e5d6d8c838fcf571fac06acf44252983
+  URL               https://github.com/algebraic-solving/msolve/archive/refs/tags/v0.9.4.tar.gz
+  URL_HASH          SHA256=02572df81596ff1d06b5d841e3fa7652f7d7976ef021c80728bcf0b08824e30c
   PREFIX            libraries/msolve
   SOURCE_DIR        libraries/msolve/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -511,20 +512,24 @@ ExternalProject_Add(build-msolve
   TEST_EXCLUDE_FROM_MAIN ON
   STEP_TARGETS      install test
   )
-_ADD_COMPONENT_DEPENDENCY(programs msolve "gmp;mpfr;flint" MSOLVE_FOUND)
+_ADD_COMPONENT_DEPENDENCY(programs msolve "gmp;mpfr;flint" MSOLVE)
 
 
 # https://numpi.dm.unipi.it/software/mpsolve
 # Known issue: tests don't work with static library
 ExternalProject_Add(build-mpsolve
-  URL               ${M2_SOURCE_URL}/mpsolve-3.2.1.tar.gz
-  URL_HASH          SHA256=3d11428ae9ab2e020f24cabfbcd9e4d9b22ec572cf70af0d44fe8dae1d51e78e
+  URL               https://numpi.dm.unipi.it/wp-content/uploads/2025/08/mpsolve-3.2.3.tar.bz2
+  URL_HASH          SHA256=1f2e239c698c783b63a5e6903e76316c0335a01d71c466a8551e8a3f790b3971
   PREFIX            libraries/mpsolve
   SOURCE_DIR        libraries/mpsolve/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/mpsolve/patch-3.2.1
   CONFIGURE_COMMAND autoreconf -vif
+            # yacc-generated files shipped in 3.2.3 tarball result in
+            # errors when using newer compilers, so we remove them so
+            # bison can regenerate them
+            COMMAND rm src/libmps/monomial/yacc-parser.c
+            COMMAND rm src/libmps/monomial/yacc-parser.h
             COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
                       ${shared_setting}
@@ -767,8 +772,8 @@ set(4ti2_PROGRAMS
   qsolve rays walk zbasis zsolve hilbert graver ppi genmodel gensymm output)
 list(TRANSFORM 4ti2_PROGRAMS PREPEND ${M2_HOST_PREFIX}/bin/ OUTPUT_VARIABLE 4ti2_PROGRAMS)
 ExternalProject_Add(build-4ti2
-  URL               https://github.com/4ti2/4ti2/releases/download/Release_1_6_13/4ti2-1.6.13.tar.gz
-  URL_HASH          SHA256=f59e1ea5563d2188b0e8ff61a8584845a899e3e54a570305f6f99b26c9b1e6b5
+  URL               https://github.com/4ti2/4ti2/releases/download/Release_1_6_14/4ti2-1.6.14.tar.gz
+  URL_HASH          SHA256=1bc340173f93ca4abd30ea962118bd5057fdedf7e79c71d2a0c4cc9569f8b0b1
   PREFIX            libraries/4ti2
   SOURCE_DIR        libraries/4ti2/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -931,13 +936,13 @@ set(nauty_BINARIES
   genspecialg gentourng gentreeg hamheuristic labelg linegraphg listg multig newedgeg pickg
   planarg ranlabg shortg showg subdivideg twohamg vcolg watercluster2)
 ExternalProject_Add(build-nauty
-  URL               https://pallini.di.uniroma1.it/nauty2_9_0.tar.gz
-  URL_HASH          SHA256=7b38834c7cefe17d25e05eef1ef3882fa9cd1933f582b9eb9de7477411956053
+  URL               https://pallini.di.uniroma1.it/nauty2_9_1.tar.gz
+  URL_HASH          SHA256=488fa906d10a372c72d2364c5dee48e0f7307004fbe52c2bce50c52de8cd873e
   PREFIX            libraries/nauty
   SOURCE_DIR        libraries/nauty/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  CONFIGURE_COMMAND rm -f aclocal.m4 && autoreconf -vif
+  CONFIGURE_COMMAND autoreconf -vif
             COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
                       CPPFLAGS=${CPPFLAGS}
@@ -968,8 +973,8 @@ _ADD_COMPONENT_DEPENDENCY(libraries nauty "" NAUTY_FOUND)
 # https://www.normaliz.uni-osnabrueck.de/
 # normaliz needs libgmp, libgmpxx, boost, and openmp, and is used by the package Normaliz
 ExternalProject_Add(build-normaliz
-  URL               https://github.com/Normaliz/Normaliz/releases/download/v3.10.5/normaliz-3.10.5.tar.gz
-  URL_HASH          SHA256=58492cfbfebb2ee5702969a03c3c73a2cebcbca2262823416ca36e7b77356a44
+  URL               https://github.com/Normaliz/Normaliz/releases/download/v3.11.0/normaliz-3.11.0.tar.gz
+  URL_HASH          SHA256=14441981afce3546c1c0f12b490714da3564af7a60d12ac0a494f9d2382d1a01
   PREFIX            libraries/normaliz
   SOURCE_DIR        libraries/normaliz/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
