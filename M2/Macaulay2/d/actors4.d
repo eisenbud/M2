@@ -665,13 +665,6 @@ stringcatfun(e:Expr):Expr := (
      else WrongArg("a sequence or list of strings, integers, or symbols"));
 setupfun("concatenate",stringcatfun);
 
-errorfun(e:Expr):Expr := (
-     e = stringcatfun(e);
-     when e
-     is s:stringCell do buildErrorPacket(s.v)
-     else buildErrorPacket("expects a string or sequence of strings as its argument"));
-setupfun("error",errorfun).Protected = false;		    -- this will be replaced by a toplevel function that calls this one
-
 mingleseq(a:Sequence):Expr := (
      n := length(a);
      b := new array(Sequence) len n do provide emptySequence;
@@ -995,11 +988,14 @@ tostringfun(e:Expr):Expr := (
      is x:RRcell do toExpr(tostringRR(x.v))
      is x:RRicell do toExpr(tostringRRi(x.v))
      is z:CCcell do toExpr(tostringCC(z.v))
-	 is x:CCicell do toExpr(tostringCCi(x.v))--toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
-     is Error do toExpr("<<an error message>>")
+     is x:CCicell do toExpr(tostringCCi(x.v))--toExpr(concatenate(array(string)(tostringRRi(x.v.re),"+",tostringRRi(x.v.im),"*ii")))
+     is err:Error do toExpr(err.message)
      is Sequence do toExpr("<<a sequence>>")
      is HashTable do toExpr("<<a hash table>>")
-     is List do toExpr("<<a list>>")
+     is x:List do (
+	 if ancestor(x.Class, filePositionClass)
+	 then toExpr(tostringFilePosition(e))
+	 else toExpr("<<a list>>"))
      is s:SpecialExpr do tostringfun(s.e)
      is x:RawMonomialCell do toExpr(tostring(x.p))
      is x:RawFreeModuleCell do toExpr(Ccode(string, "IM2_FreeModule_to_string(",x.p,")" ))
@@ -1098,7 +1094,8 @@ setupfun("connectionCount", connectionCount);
 
 format(e:Expr):Expr := (
      when e
-     is s:stringCell do toExpr("\"" + present(s.v) + "\"")
+     is s:stringCell do toExpr(format(s.v))
+     is s:SpecialExpr do format(s.e)
      is ZZcell do e
      is QQcell do e
      is RRcell do format(Expr(Sequence(e)))
