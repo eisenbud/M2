@@ -28,19 +28,19 @@ using cc_srcptr = cc_struct const *;
 
 struct cc_doubles_struct
 {
-  __mpfi_struct re;
-  __mpfi_struct im;
-} cci_struct;
-using cci_ptr = cci_struct *;
-using cci_srcptr = cci_struct const *;
-
-typedef struct
-{
   double re;
   double im;
 };
 using cc_doubles_srcptr = cc_doubles_struct const *;
 using cc_doubles_ptr = cc_doubles_struct *;
+
+struct cci_struct
+{
+  __mpfi_struct re;
+  __mpfi_struct im;
+};
+using cci_ptr = cci_struct *;
+using cci_srcptr = cci_struct const *;
 
 struct Nterm;
 typedef Nterm *tpoly;
