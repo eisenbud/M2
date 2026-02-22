@@ -1015,10 +1015,7 @@ tostringfun(e:Expr):Expr := (
      is x:RawMonoidCell do toExpr(Ccode(string, "rawMonoidToString(",x.p,")" ))
      is x:RawRingCell do toExpr(Ccode(string, "IM2_Ring_to_string(",x.p,")" ))
      is x:RawRingElementCell do toExpr( Ccode(string, "IM2_RingElement_to_string(",x.p,")" ) )
-     is x:RawMonomialIdealCell do toExpr(
-	  "<<raw monomial ideal>>"
-	  -- Ccode(string, "IM2_MonomialIdeal_to_string(",x.p,")" )
-	  )
+     is x:RawMonomialIdealCell do toExpr( Ccode(string, "IM2_MonomialIdeal_to_string(",x.p,")" ) )
      is c:RawComputationCell do toExpr(Ccode(string, "IM2_GB_to_string(",c.p,")" ))
      is pythonObjectCell do toExpr("<<a python object>>")
      is x:xmlNodeCell do toExpr(toString(x.v))
@@ -1122,7 +1119,7 @@ format(e:Expr):Expr := (
 	  is x:ZZcell do toExpr(concatenate(format(s,ac,l,t,sep,toRR(x.v,defaultPrecision))))
 	  is x:QQcell do toExpr(concatenate(format(s,ac,l,t,sep,toRR(x.v,defaultPrecision))))
 	  is x:RRcell do toExpr(concatenate(format(s,ac,l,t,sep,x.v)))
-	  is z:CCcell do toExpr(format(s,ac,l,t,sep,false,false,z.v))
+	  is z:CCcell do toExpr(format(s,ac,l,t,sep,z.v))
 	  else WrongArgRR(n)
 	  )
      else WrongArg("string, or real number, integer, integer, integer, string"));

@@ -4,8 +4,6 @@ needs "lists.m2"
 needs "max.m2"
 needs "nets.m2"
 
-simpleToString := toString
-
 timelimit := (t,f) -> (alarm t; r := f(); alarm 0; r)
 
 printingTimeLimit = 20
@@ -37,8 +35,6 @@ String.Format = format
 silentRobustNet = (wid,ht,sec,y) -> (
      truncNet(wid,ht,
 	  try timelimit (sec, () -> checkNet if lookup(symbol Format,class y) =!= null then (lookup(symbol Format,class y)) y else net y)
-	  else 
-	  try timelimit (sec, () -> checkString toExternalString y)
 	  else (
 	       alarm 0;
 	       simpleToString y)

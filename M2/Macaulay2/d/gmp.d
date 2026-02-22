@@ -73,18 +73,9 @@ export CCiorNull := CCi or null;
 
 export CCicell := {+v:CCi};
 
-dummy(x:RR):string := "";
-dummyi(x:RRi):string := "";  -- Added for MPFI
 dummyCCi(x:CCi):string := "";  
 
-export tostringRRpointer := dummy;
-export tostringRRipointer := dummyi;  -- Added for MPFI
 export tostringCCipointer := dummyCCi;  
-dummy(x:CC):string := "";
-
-export tonetCCpointer := dummy;
-
-export tonetCCparenpointer := dummy;
 
 dummy(x:CCi):string := "";
 

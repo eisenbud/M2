@@ -1,8 +1,41 @@
-#ifndef M2mem_included
-#define M2mem_included
+#ifndef m2_mem_included
+#define m2_mem_included
 
 #include <stdlib.h>
-#include "scc-core.h"
+
+// d/debug.h
+#ifndef NDEBUG
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+  extern void trap(void);
+  extern void *trapaddr;
+  extern int trapcount;
+  extern int trapset;
+  extern void trapchk(void *);
+  extern void trapchk_size(size_t);
+  extern int badBlock();
+
+  static __attribute__ ((unused)) void debug_version() {}
+
+#if defined(__cplusplus)
+}
+#endif
+
+#define TRAPCHK(p) trapchk(p)
+#define TRAPCHK_SIZE(n) trapchk_size(n)
+
+#else
+
+#define TRAPCHK(p)
+#define TRAPCHK_SIZE(n)
+
+#endif
+
+// d/M2mem.h
+
 
 #ifdef NDEBUG
 #define NVALGRIND 1
@@ -10,16 +43,24 @@
 
 #include <valgrind/memcheck.h>
 
+
+
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#include <interface/m2-mem.h>
-
-extern char *getmem_malloc(size_t);
-extern char *getmoremem(char *, size_t oldsize, size_t newsize);
-extern char *getmoremem1(char *, size_t newsize);
-extern char *getmoremem_atomic(char *, size_t oldsize, size_t newsize);
+extern void outofmem2(size_t);
+extern char *getmem(size_t);
+extern void freemem(void *);
+extern void freememlen(void *, size_t);
+extern char *getmem_clear(size_t);
+extern char *getmem_atomic(size_t);
+  //extern char *getmem_malloc(size_t);
+extern char *getmem_atomic_clear(size_t);
+  //extern char *getmoremem(char *, size_t oldsize, size_t newsize);
+  //extern char *getmoremem1(char *, size_t newsize);
+  //extern char *getmoremem_atomic(char *, size_t oldsize, size_t newsize);
 
 /* Valgrind helper functions,
  * NVALGRIND can be defined to explicitly disable this
@@ -34,7 +75,17 @@ void *I_WRAP_SONAME_FNNAME_ZU(libgcZdsoZd1,GC_malloc_atomic_ignore_off_page)(siz
 void *I_WRAP_SONAME_FNNAME_ZU(libgcZdsoZd1,GC_realloc)(void*, size_t);
 #endif /* NVALGRIND */
 
-
+#ifdef MEMDEBUG
+  /* from d/memdebug.h */
+    void M2_debug_free(void *);
+    void* M2_debug_malloc(size_t size);
+    void* M2_debug_malloc_atomic(size_t size);
+    void* M2_debug_malloc_atomic_uncollectable(size_t size);
+    void* M2_debug_realloc(void *,size_t size);
+    void* M2_debug_malloc_uncollectable(size_t size);
+    void *M2_debug_to_outer(void *p);
+    void *M2_debug_to_inner(void *f);
+#endif
 
 #define sizeofarray(s,len) (sizeof(*(s)) + (len)*sizeof((s)->array[0]))
 #define sizeofarraytype(S,len) sizeofarray((S)0,len)
@@ -57,14 +108,16 @@ void *I_WRAP_SONAME_FNNAME_ZU(libgcZdsoZd1,GC_realloc)(void*, size_t);
 #define getmematomicvectortype(S,len) (S*)(getmem_atomic(sizeof(S)*(len)))
 #endif
 
+
 #if defined(__cplusplus)
 }
 #endif
+
 
 #endif
 
 /*
  Local Variables:
- compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d "
+ indent-tabs-mode: nil
  End:
 */

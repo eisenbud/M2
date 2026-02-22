@@ -4,6 +4,7 @@
 #include <M2/gc-include.h>
 
 #include "interp-exports.h"
+#include <interface/m2-types.h>
 
 #include "M2mem.h"
 #include "types.h"

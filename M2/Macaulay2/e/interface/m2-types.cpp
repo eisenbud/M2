@@ -1,9 +1,7 @@
-#include "engine-exports.h"
-#include "M2mem-replacement.h"
+#include "m2-types.h"
+#include "m2-mem.h"
 #include <memory.h>
 #include <M2/gc-include.h>
-
-typedef struct RingElementrec *RingElement;
 
 M2_arrayint M2_makearrayint(int n)
 {
@@ -30,7 +28,7 @@ M2_string M2_join(M2_string x, M2_string y)
   //GC_CHECK_CLOBBER(p);
   return p;
 }
-M2_string M2_tostring(M2_constcharstarOrNull s)
+M2_string M2_tostring(const char* s)
 {
   int n = s ? strlen(s) : 0;
   M2_string p = getmematomicarraytype(M2_string,n);
@@ -39,7 +37,7 @@ M2_string M2_tostring(M2_constcharstarOrNull s)
   //GC_CHECK_CLOBBER(p);
   return p;
 }
-M2_string M2_tostringn(const char *s, int n)
+M2_string M2_tostringn(char *s, int n)
 {
     M2_string p = (M2_string)getmem_atomic(sizeofarray(p,n));
     p->len = n;
@@ -47,11 +45,6 @@ M2_string M2_tostringn(const char *s, int n)
     //GC_CHECK_CLOBBER(p);
     return p;
 }
-
-M2_string (*gmp_tonetCCparenpointer)(gmp_CC);
-M2_string (*gmp_tonetCCpointer)(gmp_CC);
-M2_string (*gmp_tostringRRpointer)(mpfr_srcptr);
-
 
 char newline[] = "\n";
 
@@ -63,7 +56,6 @@ struct FUNCTION_CELL *thread_prepare_list;
 
 /*
  Local Variables:
- compile-command: "make -C $M2BUILDDIR/Macaulay2/e/unit-tests check  "
  indent-tabs-mode: nil
  End:
 */

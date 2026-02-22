@@ -179,6 +179,8 @@ INTERFACE = \
 	weylalg
 
 COMMANDS = \
+	interface/m2-types \
+	interface/m2-mem \
 	ntl-internal \
 	ntl-debugio \
 	matrix-kbasis \
@@ -222,7 +224,7 @@ NAMES_H = \
 	f4/varpower-monomial \
 	res-a0-pair
 
-C_FILES = error table exptable complex
+C_FILES = error table exptable complex # interface/m2-types interface/m2-mem
 
 D_FILES = 
 DD_FILES = #test
@@ -242,8 +244,10 @@ ENGINE_OFILES := $(addsuffix .o,$(C_FILES) $(CC_FILES) $(D_FILES) $(DD_FILES))
 
 ifeq "$(SHARED)" "yes"
 ENGINE_OBJFILES := $(LOFILES)
+LIBENGINE = @pre_librariesdir@/libengine.so
 else
 ENGINE_OBJFILES := $(ENGINE_OFILES)
+LIBENGINE = @pre_librariesdir@/libengine.a
 endif
 
 HHFILES := $(addsuffix .hpp, $(NAMES_H) $(NAMES) $(INTERFACE) $(INTERFACE2)) $(E_H)
