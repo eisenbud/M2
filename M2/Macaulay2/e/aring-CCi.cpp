@@ -9,22 +9,14 @@ void ARingCCi::elem_text_out(buffer &o,
                              bool p_plus,
                              bool p_parens) const
 {
-//  cci_struct a = &const_cast<ElementType &>(&ap);
-  M2_string s1 = (*gmp_tostringRRpointer)(&(ap.re.left));
-  M2_string s2 = (*gmp_tostringRRpointer)(&(ap.re.right));
-  M2_string s3 = (*gmp_tostringRRpointer)(&(ap.im.left));
-  M2_string s4 = (*gmp_tostringRRpointer)(&(ap.im.right));
 
-  if(p_plus) o << "+";
-  o << "[";
-  o.put((char *)s1->array, s1->len);
-  o << ",";
-  o.put((char *)s2->array, s2->len);
-  o << "]+[";
-  o.put((char *)s3->array, s3->len);
-  o << ",";
-  o.put((char *)s4->array, s4->len);
-  o << "]i";
+  if (p_plus)
+     o << "+";
+
+  if (p_parens && !mpfi_is_zero(&ap.re) && !mpfi_is_zero(&ap.im))
+    o << "(" << &ap << ")";
+  else if (p_one || mpfi_cmp_si(&ap.re, 1) != 0 || !mpfi_is_zero(&ap.im))
+    o << &ap;
 }
 
 };  // end namespace M2

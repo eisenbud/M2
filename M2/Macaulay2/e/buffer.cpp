@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cassert>
 #include <mpfr.h>
+#include <mpfi.h>
 
 void buffer::expand(int newcap)
 {
@@ -164,6 +165,21 @@ void buffer::put(cc_srcptr x)
       put('-');
     else if (mpfr_cmp_si(&x->im, 1) != 0)
       put(&x->im);
+    put('i');
+  }
+}
+
+void buffer::put(cci_srcptr x)
+{
+  if (!mpfi_is_zero(&x->re) ||
+      mpfi_is_zero(&x->re) && mpfi_is_zero(&x->im)) {
+    put(&x->re);
+    if (!mpfi_is_zero(&x->im))
+      put('+');
+  }
+
+  if (!mpfi_is_zero(&x->im)) {
+    put(&x->im);
     put('i');
   }
 }
