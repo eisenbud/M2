@@ -68,6 +68,7 @@ class buffer : public our_new_delete
   void put(unsigned long n,
            int width);  // Format the integer, with given width field.
   void put(mpfr_srcptr x);
+  void put(mpfi_srcptr x);
   void put(cc_struct const *x);
   void put(cc_doubles_struct const *x);
   void put(std::string s) { put(s.data(), s.size()); }
@@ -142,6 +143,11 @@ class buffer : public our_new_delete
     return *this;
   }
   buffer &operator<<(mpfr_srcptr x)
+  {
+    put(x);
+    return *this;
+  }
+  buffer &operator<<(mpfi_srcptr x)
   {
     put(x);
     return *this;

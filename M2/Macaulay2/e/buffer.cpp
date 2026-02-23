@@ -123,6 +123,15 @@ void buffer::put(mpfr_srcptr x)
   put(s);
 }
 
+void buffer::put(mpfi_srcptr x)
+{
+  put('[');
+  put(&x->left);
+  put(',');
+  put(&x->right);
+  put(']');
+}
+
 void buffer::put(cc_doubles_srcptr x)
 {
   if (x->re !=0 || x->re == 0 && x->im == 0) {
