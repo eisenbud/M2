@@ -1060,6 +1060,10 @@ assert isMember(BesselY(1, ii), BesselY(toCCi 1, toCCi(0, 1)))
 assert isMember(BesselY(ii, 1), BesselY(toCCi(0, 1), toCCi 1))
 assert isMember(BesselY(ii, ii), BesselY(toCCi(0, 1), toCCi(0, 1)))
 
+assert small(polylog(1, 1/2) - log 2)
+assert small(polylog(2, 1/2) - 1/12*pi^2 + 1/2*(log 2)^2)
+assert(polylog(3, 1) == zeta 3)
+
 assert Equation(truncate 1, 1)
 assert Equation(truncate 1.9, 1)
 assert Equation(truncate(-1.9), -1)
