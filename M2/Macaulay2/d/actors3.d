@@ -1356,23 +1356,42 @@ polylog(e:Expr):Expr := (
     is a:Sequence do (
 	if length(a) == 2 then (
 	    when a.0
+	    -- # typical value: polylog, InexactNumber, InexactNumber, InexactNumber
 	    is x:RRcell do (
 		when a.1
-		is y:RRcell do (                                                 -- # typical value: polylog, RR, RR, RR
+		is y:RRcell do (
 		    if y.v < 1 then toExpr(polylog(x.v, y.v))
 		    else toExpr(polylog(toCC(x.v), toCC(y.v))))
-		is y:RRicell do toExpr(polylog(toRRi(x.v), y.v))                 -- # typical value: polylog, RR, RRi, RRi
-		is y:CCcell do toExpr(polylog(toCC(x.v), y.v))                   -- # typical value: polylog, RR, CC, CC
+		is y:RRicell do (
+		    if y.v < 1 then toExpr(polylog(toRRi(x.v), y.v))
+		    else toExpr(polylog(toCCi(x.v), toCCi(y.v))))
+		is y:CCcell do toExpr(polylog(toCC(x.v), y.v))
+		is y:CCicell do toExpr(polylog(toCCi(x.v), y.v))
 		else WrongArgRRorCC(2))
 	    is x:RRicell do (
 		when a.1
-		is y:RRcell do toExpr(polylog(x.v, toRRi(y.v)))                  -- # typical value: polylog, RRi, RR, RRi
-		is y:RRicell do toExpr(polylog(x.v, y.v))                        -- # typical value: polylog, RRi, RRi, RRi
+		is y:RRcell do (
+		    if y.v < 1 then toExpr(polylog(x.v, toRRi(y.v)))
+		    else toExpr(polylog(toCCi(x.v), toCCi(y.v))))
+		is y:RRicell do (
+		    if y.v < 1 then toExpr(polylog(x.v, y.v))
+		    else toExpr(polylog(toCCi(x.v), toCCi(y.v))))
+		is y:CCcell do toExpr(polylog(toCCi(x.v), toCCi(y.v)))
+		is y:CCicell do toExpr(polylog(toCCi(x.v), y.v))
 		else WrongArgRRorCC(2))
 	    is x:CCcell do (
 		when a.1
-		is y:RRcell do toExpr(polylog(x.v, toCC(y.v)))                   -- # typical value: polylog, CC, RR, CC
-		is y:CCcell do toExpr(polylog(x.v, y.v))                         -- # typical value: polylog, CC, CC, CC
+		is y:RRcell do toExpr(polylog(x.v, toCC(y.v)))
+		is y:RRicell do toExpr(polylog(toCCi(x.v), toCCi(y.v)))
+		is y:CCcell do toExpr(polylog(x.v, y.v))
+		is y:CCicell do toExpr(polylog(toCCi(x.v), y.v))
+		else WrongArgRRorCC(2))
+	    is x:CCicell do (
+		when a.1
+		is y:RRcell do toExpr(polylog(x.v, toCCi(y.v)))
+		is y:RRicell do toExpr(polylog(x.v, toCCi(y.v)))
+		is y:CCcell do toExpr(polylog(x.v, toCCi(y.v)))
+		is y:CCicell do toExpr(polylog(x.v, y.v))
 		else WrongArgRRorCC(2))
 	    else WrongArgRRorCC(1))
 	else WrongNumArgs(2))

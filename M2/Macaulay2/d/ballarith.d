@@ -767,3 +767,13 @@ export polylog(z:CC, w:CC):CC := (
     clear(x);
     clear(y);
     moveToCCandclear(r, prec));
+
+export polylog(z:CCi, w:CCi):CCi := (
+    prec := min(precision(z), precision(w));
+    x := toCCb(z);
+    y := toCCb(w);
+    r := newCCb();
+    Ccode(void, "acb_polylog(", r, ", ", x, ", ", y, ", ", prec, ")");
+    clear(x);
+    clear(y);
+    moveToCCiandclear(r, prec));
