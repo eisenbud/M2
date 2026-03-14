@@ -130,10 +130,13 @@ projectorsFromMinimalPolynomial = (f, mp) -> (
 
 -- TODO: is there an efficient algorithm to find multiplicity
 -- of an eigenvalue in the minimal polynomial? Short of that,
--- given f (or f minus eigenvalue), this finds smallest f^(2^k)
--- such that 2^k > multiplicity of 0 in the min. poly. of f
+-- given f (or f minus eigenvalue), this finds smallest f^(2^(k+n))
+-- such that 2^k \geq multiplicity of 0 in the min. poly. of f
+-- and also 2^n \geq number of degree blocks in f, so that all
+-- entries corresponding to eigenvalue 0 in the top-right block vanish
 minimalProjectorFromEigenvalue = (f, fm) -> (
-    e := 1; while rank ker fm != rank ker(fm = fm * fm) do e += e; f^e)
+    c := 2^(ceiling log_2 length unique degrees target f);
+    e := 1; while rank ker fm != rank ker(fm = fm * fm) do e += e; f^(c*e))
 
 -- TODO: is it faster to search over fieldElements for finite fields?
 roots' = f -> (

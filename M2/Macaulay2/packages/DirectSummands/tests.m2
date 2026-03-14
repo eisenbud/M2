@@ -438,9 +438,27 @@ TEST ///
   -- TODO: M^[0] doesn't work
 ///
 
+TEST ///
+  S = ZZ/3[x,y,z,w]
+  I = ideal(x^3-y*z*w)
+  R = S/I
+  X = Proj R
+
+  E2 = frobeniusPushforward(1, OO_X(2))
+  assert isIsomorphic(directSum summands module E2, module E2) -- should be true, no matter what E2 is!
+  assert(isIsomorphic (prune module E2, prune dual dual module E2)) -- true, and should be true
+  assert(length summands prune module E2 == length summands prune dual dual module E2)
+
+  -- E = frobeniusPushforward(1, OO_X^1 ++ OO_X(1));
+  -- E'= frobeniusPushforward(1, OO_X) ++ frobeniusPushforward(1, OO_X(1));
+  -- assert isIsomorphic(prune E, prune E', Tries => 100)
+///
+
+
 load "./large-tests.m2"
 
 end--
 
 restart
-elapsedTime check "DirectSummands" -- ~48s
+needsPackage "DirectSummands"
+elapsedTime check DirectSummands -- ~48s
