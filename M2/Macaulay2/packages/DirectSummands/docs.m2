@@ -34,8 +34,22 @@ Node
   Acknowledgement
     The authors thank the organizers of the @HREF{"https://aimath.org/pastworkshops/macaulay2efie.html",
 	"Macaulay2 workshop at AIM"}@, where significant progress on this package was made.
+  References
+    @HREF{"https://doi.org/10.1016/j.jsc.2025.102486", "Computing direct sum decompositions"}@,
+    Mallory and Sayrafi, Journal of Symbolic Computation, Volume 133, March–April 2026
+    @HREF{"https://arxiv.org/abs/2412.19799v2", "[arXiv:2412.19799]"}@.
   Subnodes
     directSummands
+  Citation
+    @article{MS26,
+      author       = {Mallory, Devlin and Sayrafi, Mahrud},
+      title	       = {Computing direct sum decompositions},
+      journal      = {J. Symbolic Comput.},
+      fjournal     = {Journal of Symbolic Computation},
+      volume       = {133},
+      year	       = {2026},
+      doi	       = {10.1016/j.jsc.2025.102486},
+    }
 
 Node
   Key
