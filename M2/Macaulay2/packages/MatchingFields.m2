@@ -226,7 +226,7 @@ allKSubsets(ZZ, ZZ, List) := (Lk, Ln, L) -> (
     )
 
 --------------------------------------------------
--- Constructor for parital Flag Matching Fields
+-- Constructor for partial Flag Matching Fields
 flMatchingField = method(
     TypicalValue => FlMatchingField
     )
@@ -1701,7 +1701,7 @@ doc ///
           Given a matching field $\Lambda$ for the Grassmannian Gr$(k,n)$, the matching field
           polytope $P(\Lambda)$ is simply the convex hull of the exponent
           vectors of the image of Pluecker variables under the monomial map of
-          $\Lambda$. The polytope natrually lives in the space
+          $\Lambda$. The polytope naturally lives in the space
           $\RR^{k \times n}$.
         Example
           L2 = diagonalMatchingField(2, 4)
