@@ -93,6 +93,7 @@ set(DLIST
   texmacs.d
   boostmath.dd
   atomic2.d
+  json.d
   ffi.d		# removed unless WITH_FFI
   interp.dd	# this one is last, because it contains the top level interpreter
   version.dd
@@ -112,6 +113,9 @@ if(NOT WITH_PYTHON)
 endif()
 if(NOT WITH_FFI)
   list(REMOVE_ITEM DLIST ffi.d)
+endif()
+if(NOT WITH_JANSSON)
+  list(REMOVE_ITEM DLIST json.d)
 endif()
 
 ###############################################################################
