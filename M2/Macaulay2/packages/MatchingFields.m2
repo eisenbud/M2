@@ -3249,7 +3249,7 @@ assert(zero I);
 ///
 
 -- non-coherent matching field ideal equals diagonal matching field ideal
-TEST ///which
+TEST ///
 S = subsets(1 .. 5, 3);
 S = {{2,1,3}} | delete({1,2,3}, S);
 L = grMatchingField(3, 5, S);
@@ -3259,6 +3259,12 @@ D = diagonalMatchingField(3, 5);
 I' = matchingFieldIdeal D;
 m = map(ring I, ring I', vars ring I);
 assert(m I' == I);
+///
+
+-- construct a FlMatchingField from permutation
+TEST ///
+L = matchingFieldFromPermutation({2,3}, 6, {2,4,3,6,5,1});
+assert(#getTuples L == 35);
 ///
 
 end --
