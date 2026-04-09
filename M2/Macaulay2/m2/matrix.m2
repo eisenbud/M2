@@ -187,6 +187,7 @@ Matrix * Matrix := Matrix => (m,n) -> (
 	       Degree => degree m + if m.?RingMap then m.RingMap.cache.DegreeMap degree n else degree n))
      else (
 	  (m,n) = toSameRing(m,n);
+	  S := ring target n;
 	  M = target m;
 	  P := source m;
 	  N = source n;
@@ -194,13 +195,8 @@ Matrix * Matrix := Matrix => (m,n) -> (
 	  if not isFreeModule P or not isFreeModule Q or rank P =!= rank Q
 	  then error "maps not composable";
 	  dif := degrees P - degrees Q;
-	  deg := (
-	       if #dif === 0
-	       then degree m + degree n
-	       else if same dif
-	       then degree m + degree n + dif#0
- 	       else toList (degreeLength ring m:0)
-	       );
+	  deg := degree m + degree n;
+	  if #dif > 0 then if same dif then N = N ** S^{-dif#0} else deg = toList (degreeLength S:0);
 	  f := m.RawMatrix * n.RawMatrix;
 	  f = rawMatrixRemake2(rawTarget f, rawSource f, deg, f, 0);
 	  f = reduce(M,f);
@@ -209,8 +205,11 @@ Matrix * Matrix := Matrix => (m,n) -> (
 	  else map(M,N,f)))
 
 Matrix#1 = f -> (
-    if source f =!= target f then error "expected source and target to agree"
-    else id_(target f))
+    M := target f;
+    N := source f;
+    if (M =!= N) and (not isFreeModule M or not isFreeModule N or rank M =!= rank N)
+    then error "expected source and target to agree"
+    else id_M)
 Matrix ^ ZZ := Matrix => BinaryPowerMethod
 
 transpose Matrix := Matrix => (cacheValue symbol transpose) (
