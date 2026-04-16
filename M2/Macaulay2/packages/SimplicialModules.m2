@@ -52,7 +52,7 @@ export {"SimplicialModule",
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-load "./SimplicialModules/SimplicialMapUtilities_Modified.m2"
+load "./SimplicialModules/SimplicialMapUtilities.m2"
 load "./SimplicialModules/SimplicialModule.m2"
 load "./SimplicialModules/Normalization.m2"
 
