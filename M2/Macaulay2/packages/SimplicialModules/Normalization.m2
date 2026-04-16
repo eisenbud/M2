@@ -1,6 +1,3 @@
- needsPackage "SchurFunctors"
- needsPackage "Complexes"
- 
  altSumFace = method();
 altSumFace(SimplicialModule,ZZ) := (S,n) -> (sum(0..n,i->(-1)^i*(S.dd)_(n,i)))
 
@@ -41,16 +38,16 @@ schurMap(List,SimplicialModule) := SimplicialModule => opts -> (lambda,S) -> (td
         );
     L := hashTable for i to tdeg list i => schurModule(lambda,combineSFactors(S,i));
     H1 := applyValues(S.dd.map, fastOrFallback);
-    if opts.Degeneracy==true then H2 := applyValues(S.ss.map, fastOrFallback);
+    if opts.Degeneracy === true then H2 := applyValues(S.ss.map, fastOrFallback);
     --print("we made it");
-    if opts.Degeneracy==true then return simplicialModule(L,H1,H2,tdeg);
+    if opts.Degeneracy === true then return simplicialModule(L,H1,H2,tdeg);
     simplicialModule(L,H1,tdeg)
     )
 
 schurMap(List,SimplicialModuleMap) := SimplicialModuleMap => opts -> (lambda,phi) -> (
     S1 := source phi;
     S2 := target phi;
-    if instance((keys phi.map)#0,Sequence) then error "Expected SimplicialModuleMap to have singly graded indices";
+    if instance((keys phi.map)#0,Sequence) then error "expected SimplicialModuleMap to have singly graded indices";
     fastOrFallback := v -> (
         r := fastSchurSparse(lambda, v);
         if r =!= null then r else schur(lambda, v)
@@ -58,13 +55,13 @@ schurMap(List,SimplicialModuleMap) := SimplicialModuleMap => opts -> (lambda,phi
     map(schurMap(lambda,S2),schurMap(lambda,S1),applyValues(phi.map, fastOrFallback),Degree => degree phi)
     )
 
-schurMap(List,Complex) := Complex => opts -> (lambda,C) -> (S := if not(opts.TopDegree === null) then simplicialModule(C,opts.TopDegree)
+schurMap(List,Complex) := Complex => opts -> (lambda,C) -> (S := if opts.TopDegree =!= null then simplicialModule(C,opts.TopDegree)
     else simplicialModule(C,(sum lambda)*length(C));
     Sn := schurMap(lambda,S);
     normalize(Sn)
     )
 
-schurMap(List,ComplexMap) := ComplexMap => opts -> (lambda,phi) -> (phin := if not(opts.TopDegree === null) then simplicialModule(phi,opts.TopDegree)
+schurMap(List,ComplexMap) := ComplexMap => opts -> (lambda,phi) -> (phin := if opts.TopDegree =!= null then simplicialModule(phi,opts.TopDegree)
     else simplicialModule(phi,(sum lambda)*(max(length(source phi),length target phi)));
     phik := schurMap(lambda,phin);
     normalize(phik)
@@ -85,26 +82,26 @@ sym(ZZ,SimplicialModule) := SimplicialModule => opts -> (d,S) -> (tdeg := topDeg
     --C := S.complex;
     L = hashTable for i to tdeg list i => symmetricPower(d,combineSFactors(S,i));
     H1 = hashTable for i in keys (S.dd.map) list i => map(symmetricPower(d,target (S.dd)_i),symmetricPower(d,source (S.dd)_i),sym(d,((S.dd)_i)));
-    if opts.Degeneracy==true then H2 = hashTable for i in keys (S.ss.map) list i => sym(d,((S.ss)_i));
+    if opts.Degeneracy === true then H2 = hashTable for i in keys (S.ss.map) list i => sym(d,((S.ss)_i));
     --print("we made it");
-    if opts.Degeneracy==true then return simplicialModule(L,H1,H2,tdeg);
+    if opts.Degeneracy === true then return simplicialModule(L,H1,H2,tdeg);
     simplicialModule(L,H1,tdeg)
     )
 
 sym(ZZ,SimplicialModuleMap) := SimplicialModuleMap => opts -> (d,phi) -> (
     S1 := source phi;
     S2 := target phi;
-    if instance((keys phi.map)#0,Sequence) then error "Expected SimplicialModuleMap to have singly graded indices";
+    if instance((keys phi.map)#0,Sequence) then error "expected SimplicialModuleMap to have singly graded indices";
     map(sym(d,S2),sym(d,S1),new HashTable from for i to max(topDegree S1,topDegree S2) list i => sym(d,phi_i),Degree => degree phi)
     )
 
-sym(ZZ,Complex) := Complex => opts -> (d,C) -> (if not(opts.TopDegree === null) then S = simplicialModule(C,opts.TopDegree)
+sym(ZZ,Complex) := Complex => opts -> (d,C) -> (if opts.TopDegree =!= null then S = simplicialModule(C,opts.TopDegree)
     else S = simplicialModule(C,d*length(C));
     Sn := sym(d,S);
     normalize(Sn)
     )
 
-sym(ZZ,ComplexMap) := ComplexMap => opts -> (d,phi) -> (if not(opts.TopDegree === null) then phin = simplicialModuleMap(phi,opts.TopDegree)
+sym(ZZ,ComplexMap) := ComplexMap => opts -> (d,phi) -> (if opts.TopDegree =!= null then phin = simplicialModuleMap(phi,opts.TopDegree)
     else phin = simplicialModuleMap(phi,d*(max(length(source phi),length target phi)));
     phik := sym(d,phin);
     normalize(phik)
@@ -126,26 +123,26 @@ extPower(ZZ,SimplicialModule) := SimplicialModule => opts -> (d,S) -> (tdeg := t
         );
     L := hashTable for i to tdeg list i => exteriorPower(d,combineSFactors(S,i));
     H1 := applyValues(S.dd.map, fastOrFallback);
-    H2 := if opts.Degeneracy==true then applyValues(S.ss.map, fastOrFallback);
+    H2 := if opts.Degeneracy === true then applyValues(S.ss.map, fastOrFallback);
     --print("we made it");
-    if opts.Degeneracy==true then return simplicialModule(L,H1,H2,tdeg);
+    if opts.Degeneracy === true then return simplicialModule(L,H1,H2,tdeg);
     simplicialModule(L,H1,tdeg)
     )
 
 extPower(ZZ,SimplicialModuleMap) := SimplicialModuleMap => opts -> (d,phi) -> (
     S1 := source phi;
     S2 := target phi;
-    if instance((keys phi.map)#0,Sequence) then error "Expected SimplicialModuleMap to have singly graded indices";
+    if instance((keys phi.map)#0,Sequence) then error "expected SimplicialModuleMap to have singly graded indices";
     map(extPower(d,S2),extPower(d,S1),applyValues(phi.map, v -> exteriorPower(d, v)),Degree => degree phi)
     )
 
-extPower(ZZ,Complex) := Complex => opts -> (d,C) -> (S := if not(opts.TopDegree === null) then simplicialModule(C,opts.TopDegree)
+extPower(ZZ,Complex) := Complex => opts -> (d,C) -> (S := if opts.TopDegree =!= null then simplicialModule(C,opts.TopDegree)
     else simplicialModule(C,d*length(C));
     Sn := extPower(d,S);
     normalize(Sn)
     )
 
-extPower(ZZ,ComplexMap) := ComplexMap => opts -> (d,phi) -> (phin := if not(opts.TopDegree === null) then simplicialModule(phi,opts.TopDegree)
+extPower(ZZ,ComplexMap) := ComplexMap => opts -> (d,phi) -> (phin := if opts.TopDegree =!= null then simplicialModule(phi,opts.TopDegree)
     else simplicialModule(phi,d*(max(length(source phi),length target phi)));
     phik := extPower(d,phin);
     normalize(phik)
@@ -162,8 +159,8 @@ simplicialTensor(List) := SimplicialModule => opts -> T -> (if instance(T_0,Simp
 	tdeg := max apply(T,i->topDegree i);
 	L := hashTable for i to tdeg list i => tensorwithComponents(apply(T,s->s_i));
 	H1 := applyPairs((T_0).dd.map, (i, v) -> (i, map(L#(i_0-1),L#(i_0),tensor(apply(T,s->s.dd_i)))));
-	H2 := if opts.Degeneracy==true or degens then applyPairs((T_0).ss.map, (i, v) -> (i, tensorwithComponents(apply(T,s->s.ss_i))));
-	if opts.Degeneracy==true or degens then return simplicialModule(L,H1,H2,tdeg);
+	H2 := if opts.Degeneracy === true or degens then applyPairs((T_0).ss.map, (i, v) -> (i, tensorwithComponents(apply(T,s->s.ss_i))));
+	if opts.Degeneracy === true or degens then return simplicialModule(L,H1,H2,tdeg);
         return simplicialModule(L,H1,tdeg);
 	);
     tLength := max apply(T,j->try length j else length source j);

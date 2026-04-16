@@ -147,7 +147,7 @@ simplicialModule(Complex,ZZ) := SimplicialModule => opts -> (C,d) -> (
      (lo, hi) := concentration C;
      --if lo == hi then
      if instance(C,Complex) then (
-	 if opts.Degeneracy == true then (degenmapHash := hashTable flatten for n from 0 to d-1 list (
+	 if opts.Degeneracy === true then (degenmapHash := hashTable flatten for n from 0 to d-1 list (
 	    for i from 0 to n list (
 		(n,i) => degenMapi(n,i,C)
 		)
@@ -158,7 +158,7 @@ simplicialModule(Complex,ZZ) := SimplicialModule => opts -> (C,d) -> (
 	 	 )
 	     );
 	 --print("mde it here first");
-	 if opts.Degeneracy == true then break return simplicialModule(C,facemapHash,degenmapHash,d);
+	 if opts.Degeneracy === true then break return simplicialModule(C,facemapHash,degenmapHash,d);
 	 --print("made it here");
 	 return simplicialModule(C,facemapHash,d)
 	 );
@@ -309,7 +309,7 @@ matIsId = A -> entries A == entries id_((ring A)^(numrows A))
 --this method checks if the simplicial identities hold for simplicial objects with degeneracy map keys
 isSimplicialModule = method()
 isSimplicialModule(SimplicialModule) := Boolean => S -> (
-    if not S.?ss then error "Expected S to have both face and degeneracy maps";
+    if not S.?ss then error "expected S to have both face and degeneracy maps";
     faceMaps := S.dd;
     degenMaps := S.ss;
     t := S.topDegree;
@@ -549,7 +549,7 @@ SimplicialModule _ ZZ := Module => (S,n) -> (if S.module#?n then S.module#n else
 net SimplicialModule := S -> (
      (lo,hi) := (0,topDegree S);
      if lo > hi then 
-         error "In a simplical module, top degree should be nonnegative"
+         error "in a simplicial module, top degree should be nonnegative"
          --"0"
      else if lo == hi and S_lo === 0 then 
          "0"
@@ -1293,7 +1293,7 @@ homology(SimplicialModuleMap) := SimplicialModuleMap => opts -> f -> (
 
 
 SimplicialModule Array := (C, L) -> (t := topDegree C;
-    forgetComplex simplicialModule( (normalize C) L, t, Degeneracy => C.?ss )
+    simplicialModule( (normalize C) L, t, Degeneracy => C.?ss )
     )
 
 SimplicialModuleMap Array := (f, L) -> (t := topDegree f;

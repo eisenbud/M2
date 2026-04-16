@@ -193,8 +193,8 @@ faceMapi = (n,i,C) -> (
 	maxKn := min(hi, n);
 	srcParts := for k from 0 to maxKn list directSum toList(binomial(n,k):(C_k));
 	tarParts := for k from 0 to maxK list directSum toList(binomial(n-1,k):(C_k));
-	srcMod := if #srcParts == 1 then srcParts#0 else fold(directSum, srcParts);
-	tarMod := if #tarParts == 1 then tarParts#0 else fold(directSum, tarParts);
+	srcMod := if #srcParts == 1 then srcParts#0 else directSum srcParts;
+	tarMod := if #tarParts == 1 then tarParts#0 else directSum tarParts;
 	map(tarMod, srcMod, matrix rawMat)
 	)
     else if i==n then (
