@@ -259,12 +259,12 @@ isWellDefined SimplicialModule := Boolean => C -> (
         );
     for i from lo+1 to hi do (
         f := dd^C_i;
-        if source f =!= C_i or target f =!= C_(i-1)
+        if source f != C_i or target f != C_(i-1)
         then (
             if debugLevel > 0 then (
                 << "-- expected source and target of the face maps to be modules in the simplicial module " << endl;
-                << "--   face map at index " << i << " fails this condition" << endl;                
-            );    
+                << "--   face map at index " << i << " fails this condition" << endl;
+            );
             return false;
             );
         );
@@ -289,6 +289,23 @@ isWellDefined SimplicialModule := Boolean => C -> (
     )
 
 
+-- helpers for comparing map compositions (handles both free and non-free modules)
+-- tries direct composition first; falls back to matrix-level entry comparison
+mapsEq = (A, B, C, D) -> (
+    -- checks if A*B == C*D as maps
+    if target B === source A and target D === source C
+    then try (A * B == C * D) else matEq(matrix A * matrix B, matrix C * matrix D)
+    else matEq(matrix A * matrix B, matrix C * matrix D)
+    )
+mapIsId = (A, B) -> (
+    -- checks if A*B == identity
+    if target B === source A
+    then try (A * B == id_(source B)) else matIsId(matrix A * matrix B)
+    else matIsId(matrix A * matrix B)
+    )
+matEq = (A, B) -> entries A == entries B
+matIsId = A -> entries A == entries id_((ring A)^(numrows A))
+
 --this method checks if the simplicial identities hold for simplicial objects with degeneracy map keys
 isSimplicialModule = method()
 isSimplicialModule(SimplicialModule) := Boolean => S -> (
@@ -299,7 +316,7 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
     for i from 1 to t do (
 	for j from 2 to i do (
 	    for k from 1 to j-1 do (
-		if not(dd^S_(i-1,k)*dd^S_(i,j) == dd^S_(i-1,j-1)*dd^S_(i,k))
+		if not mapsEq(dd^S_(i-1,k), dd^S_(i,j), dd^S_(i-1,j-1), dd^S_(i,k))
 		then (
 		    if debugLevel > 0 then (
 			<< "--simplicial map identities fail for face/face compositions" << endl;
@@ -313,7 +330,7 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
     for i from 0 to t-1 do (
 	for j from 0 to i do (
 	    for k from 0 to j-1 do (
-		if not(dd^S_(i+1,k)*ss^S_(i,j) == ss^S_(i-1,j-1)*dd^S_(i,k))
+		if not mapsEq(dd^S_(i+1,k), ss^S_(i,j), ss^S_(i-1,j-1), dd^S_(i,k))
 		then (
 		    if debugLevel > 0 then (
 			<< "--simplicial map identities fail for face/degeneracy compositions" << endl;
@@ -326,7 +343,7 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
 	);
     for i from 0 to t-1 do (
 	for j from 0 to i do (
-	    if not(dd^S_(i+1,j)*ss^S_(i,j) == 1) or not(dd^S_(i+1,j+1)*ss^S_(i,j) == 1)
+	    if not mapIsId(dd^S_(i+1,j), ss^S_(i,j)) or not mapIsId(dd^S_(i+1,j+1), ss^S_(i,j))
 	    then (
 		if debugLevel > 0 then (
 			<< "--simplicial map identities fail for face/degeneracy compositions" << endl;
@@ -339,7 +356,7 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
     for i from 0 to t-1 do (
 	for j from 0 to i do (
 	    for k from j+2 to i do (
-		if not(dd^S_(i+1,k)*ss^S_(i,j) == ss^S_(i-1,j)*dd^S_(i,k-1))
+		if not mapsEq(dd^S_(i+1,k), ss^S_(i,j), ss^S_(i-1,j), dd^S_(i,k-1))
 		then (
 		    if debugLevel > 0 then (
 			<< "--simplicial map identities fail for face/degeneracy compositions" << endl;
@@ -353,7 +370,7 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
     for i from 0 to t-1 do (
 	for j from 0 to i do (
 	    for k from 0 to j do (
-		if not(ss^S_(i+1,k)*ss^S_(i,j) == ss^S_(i+1,j+1)*ss^S_(i,k))
+		if not mapsEq(ss^S_(i+1,k), ss^S_(i,j), ss^S_(i+1,j+1), ss^S_(i,k))
 		then (
 		    if debugLevel > 0 then (
 			<< "--simplicial map identities fail for degeneracy/degeneracy compositions" << endl;
@@ -399,12 +416,12 @@ isWellDefined SimplicialModuleMap := f -> (
         );
     if all(keys f.map, i -> instance(i,ZZ)) then for i from lo to hi do (
         g := f_i;
-        if source g =!= f.source_i or target g =!= f.target_(i+f.degree)
+        if source g != f.source_i or target g != f.target_(i+f.degree)
         then (
             if debugLevel > 0 then (
                 << "-- expected source and target of maps to agree with those of simplicial module  " << endl;
-                << "--   the map at index " << i << " fails this condition" << endl;                
-            );    
+                << "--   the map at index " << i << " fails this condition" << endl;
+            );
             return false;
             );
         );
@@ -419,13 +436,13 @@ isWellDefined SimplicialModuleMap := f -> (
         for i from loC to hiC do (
             if i+deg-1 >= loD and i+deg-1 <= hiD then (
 		for l from 0 to i do (
-                if not (dd^D_(i+deg,l) * f_i == (-1)^deg * (f_(i-1) * dd^C_(i,l)))
+                if not (try (dd^D_(i+deg,l) * f_i == (-1)^deg * (f_(i-1) * dd^C_(i,l))) else matEq(matrix(dd^D_(i+deg,l)) * matrix(f_i), (-1)^deg * (matrix(f_(i-1)) * matrix(dd^C_(i,l)))))
                 then (
                     iscommutative = false;
                     if f.cache.isCommutative then (
                         if debugLevel > 0 then (
                             << "-- the cache table incorrectly asserts that the maps commute with the differentials " << endl;
-                            << "--   differential at index " << i << " fails this condition" << endl;                
+                            << "--   differential at index " << i << " fails this condition" << endl;
                             );
                         return false;
                         );
@@ -443,7 +460,7 @@ isWellDefined SimplicialModuleMap := f -> (
 
 
 isCommutative SimplicialModuleMap := Boolean => f -> (
-    if debugLevel == 0 and f.cache.?isCommutative then 
+    if debugLevel == 0 and f.cache.?isCommutative then
        return f.cache.isCommutative;
     C := source f;
     D := target f;
@@ -454,8 +471,8 @@ isCommutative SimplicialModuleMap := Boolean => f -> (
     for i from loC to hiC do (
         if i+deg-1 >= loD and i+deg-1 <= hiD then (
 	    for l from 0 to i do (
-            if not (dd^D_(i+deg,l) * f_i == (-1)^deg * (f_(i-1) * dd^C_(i,l)))
-	    or not (if hasDegens then ss^D_(i+deg,l) * f_i == (-1)^deg * (f_(i+1) * ss^C_(i,l)) else true)
+            if not (try (dd^D_(i+deg,l) * f_i == (-1)^deg * (f_(i-1) * dd^C_(i,l))) else matEq(matrix(dd^D_(i+deg,l)) * matrix(f_i), (-1)^deg * (matrix(f_(i-1)) * matrix(dd^C_(i,l)))))
+	    or not (if hasDegens then (try (ss^D_(i+deg,l) * f_i == (-1)^deg * (f_(i+1) * ss^C_(i,l))) else matEq(matrix(ss^D_(i+deg,l)) * matrix(f_i), (-1)^deg * (matrix(f_(i+1)) * matrix(ss^C_(i,l))))) else true)
             then (
                 if debugLevel > 0 then (
                     << "-- block " << (i,i-1) << " fails to commute" << endl;
@@ -484,14 +501,15 @@ isSimplicialMorphism SimplicialModuleMap := (f) -> (
 --is obtained as a Dold-Kan image
  forgetComplex = method(Options => {RememberSummands => true});
  forgetComplex(SimplicialModule) := SimplicialModule => opts -> S -> (
-     if not any(keys S,i->i==symbol complex) then return S;
-     L := new HashTable from for i to S.topDegree list i => combineSFactors(S,i,RememberSummands => opts.RememberSummands);
-     faces := new HashTable from for i in keys S.dd.map list i => S.dd.map#i;
-     if any(keys S,i->i==symbol ss) then (
-	 degens := new HashTable from for i in keys S.ss.map list i => S.ss.map#i;
-	 return simplicialModule(L,faces,degens,S.topDegree);
+     if not S.?complex then return S;
+     L := hashTable for i to S.topDegree list i => combineSFactors(S,i,RememberSummands => opts.RememberSummands);
+     -- rewrite maps so their source/target match the new combined modules
+     H1 := applyPairs(S.dd.map, (k, f) -> (k, map(L#(first k - 1), L#(first k), matrix f)));
+     if S.?ss then (
+	 H2 := applyPairs(S.ss.map, (k, f) -> (k, map(L#(first k + 1), L#(first k), matrix f)));
+	 return simplicialModule(L, H1, H2, S.topDegree);
 	 );
-     D := simplicialModule(L,faces,S.topDegree);
+     D := simplicialModule(L, H1, S.topDegree);
      D.cache.components = components S;
      D
      )
@@ -511,8 +529,8 @@ combineSFactors(SimplicialModule,ZZ) := Module => opts -> (S,d) -> (
  --for the purposes of speeding up computations
  forgetDegeneracy = method();
  forgetDegeneracy(SimplicialModule) := S -> (
-     if not any(keys S,i->i==symbol ss) then return S;
-     if any(keys S,i->i==symbol complex) then return simplicialModule(S.complex,S.dd.map,S.topDegree);
+     if not S.?ss then return S;
+     if S.?complex then return simplicialModule(S.complex,S.dd.map,S.topDegree);
      simplicialModule(S.module,S.dd.map,S.topDegree)
      )
  
@@ -535,7 +553,7 @@ net SimplicialModule := S -> (
          --"0"
      else if lo == hi and S_lo === 0 then 
          "0"
-     else if any(keys S,i->i==symbol complex) then
+     else if S.?complex then
          (horizontalJoin (between(" <-- ", 
              for i from lo to hi list
                  stack (net directSum(for k from 0 to min(i,S.complexLength) list (S.module)#(i,k)), " ", net i)) | {"<-- ..."}) )
@@ -633,7 +651,7 @@ map(SimplicialModule, SimplicialModule, ZZ) := SimplicialModuleMap => opts -> (D
 ---this method is good for inducing maps on subcomplexes
 map(SimplicialModule, SimplicialModule, SimplicialModuleMap) := SimplicialModuleMap => opts -> (tar, src, f) -> (
     deg := if opts.Degree === null then degree f else opts.Degree;
-    H := hashTable for k in keys f.map list k => map(tar_(deg+k), src_k, f.map#k);
+    H := applyPairs(f.map, (k, v) -> (k, map(tar_(deg+k), src_k, v)));
     map(tar,src,H, Degree=>deg)
     )
 
@@ -698,10 +716,10 @@ SimplicialModule.directSum = args -> (
     R := ring args#0;
     if not all(args, C -> ring C === R) then error "expected all simplicial modules to be over the same ring";
     concentrations := for C in args list (0,C.topDegree);
-    --checking if they all are Dold-Kan images
-    allComplexes := all(args,i->any(keys i,j->j==symbol complex));
-    allDegens := all(args,i->any(keys i, j->j== symbol ss));
-    if not allComplexes then args = apply(args,i->forgetComplex(i));
+    --strip complex data to ensure consistent module objects in direct sums
+    allDegens := all(args, i -> i.?ss);
+    origArgs := args;
+    args = apply(args, i -> forgetComplex(i));
     lo := concentrations/first//min;
     hi := concentrations/last//max;
     if not(all(args,i->i.topDegree==hi)) then error "all objects should have the same top degree";
@@ -710,14 +728,12 @@ SimplicialModule.directSum = args -> (
     faceHashM := new HashTable from for i in keys S.dd.map list i => directSum for j in args list if j.dd.map#?i then j.dd_i;
     if allDegens then (
 	degenMapHashM := new HashTable from for i in keys S.ss.map list i => directSum for j in args list if j.ss.map#?i then j.ss_i;
-	D = if allComplexes then simplicialModule(directSum for i in args list i.complex,faceHashM,degenMapHashM,hi)
-	else  simplicialModule(LM,faceHashM,degenMapHashM,hi);
-	D.cache.components = toList args;
+	D = simplicialModule(LM,faceHashM,degenMapHashM,hi);
+	D.cache.components = toList origArgs;
 	return D;
 	);
-    D = if allComplexes then  simplicialModule(directSum for i in args list i.complex,faceHashM,S.topDegree)
-    else simplicialModule(LM,faceHashM,S.topDegree);
-    D.cache.components = toList args;
+    D = simplicialModule(LM,faceHashM,S.topDegree);
+    D.cache.components = toList origArgs;
     D    
     )
 SimplicialModule ++ SimplicialModule := SimplicialModule => (C,D) -> directSum(C,D)
@@ -771,53 +787,50 @@ SimplicialModule ** SimplicialModule := SimplicialModule => (C,D) -> simplicialT
 --it seemed more efficient to directly define the tensor product with a module
 --as opposed to converting the module into a simplicial object then using simplicialTensor
 Module ** SimplicialModule := SimplicialModule => (M,S) -> (
-    if any(keys S,i->i==symbol complex) then return simplicialModule(M**(S.complex), S.topDegree, Degeneracy => S.?ss);
-    LM := new HashTable from for i in keys S.module list i => M**(S.module)#i;
-    faceHashM := new HashTable from for i in keys S.dd.map list i => map(M ** S_(i_0-1), M ** S_(i_0), M**(S.dd.map)#i);
-    if any(keys S,i->i==symbol ss) then (
-	degenMapHashM := new HashTable from for i in keys S.ss.map list i => map(M ** S_(i_0+1), S_(i_0), M**(S.ss.map)#i);
-	if any(keys S,i->i==symbol complex) then return simplicialModule(M**(S.complex),faceHashM,degenMapHashM,S.topDegree)
-	else return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
+    if S.?complex then S = forgetComplex S;
+    LM := applyValues(S.module, x -> M**x);
+    faceHashM := applyPairs(S.dd.map, (i, v) -> (i, map(M ** S_(i_0-1), M ** S_(i_0), M**v)));
+    if S.?ss then (
+	degenMapHashM := applyPairs(S.ss.map, (i, v) -> (i, map(M ** S_(i_0+1), M ** S_(i_0), M**v)));
+	return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
 	);
     simplicialModule(LM,faceHashM,S.topDegree)
     )
-    
+
 SimplicialModule ** Module := SimplicialModule => (S,M) -> (
-    if any(keys S,i->i==symbol complex) then return simplicialModule((S.complex)**M, S.topDegree, Degeneracy => S.?ss);
-    LM := new HashTable from for i in keys S.module list i => (S.module)#i**M;
-    faceHashM := new HashTable from for i in keys S.dd.map list i => map(S_(i_0-1) ** M, S_(i_0) ** M, (S.dd.map)#i**M);
-    if any(keys S,i->i==symbol ss) then (
-	degenMapHashM := new HashTable from for i in keys S.ss.map list i => map(S_(i_0+1), S_(i_0), (S.ss.map)#i**M);
-	if any(keys S,i->i==symbol complex) then return simplicialModule((S.complex)**M,faceHashM,degenMapHashM,S.topDegree)
-	else return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
+    if S.?complex then S = forgetComplex S;
+    LM := applyValues(S.module, x -> x**M);
+    faceHashM := applyPairs(S.dd.map, (i, v) -> (i, map(S_(i_0-1) ** M, S_(i_0) ** M, v**M)));
+    if S.?ss then (
+	degenMapHashM := applyPairs(S.ss.map, (i, v) -> (i, map(S_(i_0+1) ** M, S_(i_0) ** M, v**M)));
+	return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
 	);
     simplicialModule(LM,faceHashM,S.topDegree)
     )
 
 SimplicialModule ** Matrix := SimplicialModuleMap => (S, f) -> (
-    if S.?complex then return simplicialModule((S.complex)**f, topDegree S, Degeneracy => S.?ss);
+    if S.?complex then S = forgetComplex S;
     if ring S =!= ring f then error "expected Simplicial module and Matrix over the same ring";
     src := S ** source f;
     tar := S ** target f;
-    map(tar, src, new HashTable from for i to S.topDegree list i => map(tar_i, src_i, S_i ** f, Degeneracy => S.?ss))
+    map(tar, src, new HashTable from for i to S.topDegree list i => map(tar_i, src_i, S_i ** f))
     )
 
 Matrix ** SimplicialModule := SimplicialModuleMap => (f, S) -> (
-    if S.?complex then return simplicialModule(f**(S.complex), topDegree S, Degeneracy => S.?ss);
+    if S.?complex then S = forgetComplex S;
     if ring S =!= ring f then error "expected Simplicial module and Matrix over the same ring";
     src := (source f) ** S;
     tar := (target f) ** S;
-    map(tar, src, new HashTable from for i to S.topDegree list i => map(tar_i, src_i,  f ** S_i, Degeneracy => S.?ss))
+    map(tar, src, new HashTable from for i to S.topDegree list i => map(tar_i, src_i,  f ** S_i))
     )
 
 SimplicialModule ** Ring := SimplicialModule => (S,R) -> (
-    LM := new HashTable from for i in keys S.module list i => R**(S.module)#i;
-    faceHashM := new HashTable from for i in keys S.dd.map list i => R**(S.dd.map)#i;
-    if any(keys S,i->i==symbol complex) and not(S.?ss) then return simplicialModule(R**(S.complex),faceHashM,S.topDegree);
-    if any(keys S,i->i==symbol ss) then (
-	degenMapHashM := new HashTable from for i in keys S.ss.map list i => R**(S.ss.map)#i;
-	if any(keys S,i->i==symbol complex) then return simplicialModule(R**(S.complex),faceHashM,degenMapHashM,S.topDegree)
-	else return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
+    if S.?complex then S = forgetComplex S;
+    LM := applyValues(S.module, m -> R**m);
+    faceHashM := applyValues(S.dd.map, m -> R**m);
+    if S.?ss then (
+	degenMapHashM := applyValues(S.ss.map, m -> R**m);
+	return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
 	);
     simplicialModule(LM,faceHashM,S.topDegree)
     )
@@ -825,26 +838,24 @@ SimplicialModule ** Ring := SimplicialModule => (S,R) -> (
 Ring ** SimplicialModule := SimplicialModule => (R,S) -> S ** R
 
 RingMap SimplicialModule := SimplicialModule => (phi,S) -> (
-    if any(keys S,i->i==symbol complex) then return simplicialModule(phi(S.complex), S.topDegree, Degeneracy => S.?ss);
-    LM := new HashTable from for i in keys S.module list i => phi((S.module)#i);
-    faceHashM := new HashTable from for i in keys S.dd.map list i => phi((S.dd.map)#i);
-    if any(keys S,i->i==symbol ss) then (
-	degenMapHashM := new HashTable from for i in keys S.ss.map list i => phi((S.ss.map)#i);
-	if any(keys S,i->i==symbol complex) then return simplicialModule(phi(S.complex),faceHashM,degenMapHashM,S.topDegree)
-	else return simplicialModule(LM,faceHashM, degenMapHashM, S.topDegree);
+    if S.?complex then return simplicialModule(tensor(phi, S.complex), S.topDegree, Degeneracy => S.?ss);
+    LM := applyValues(S.module, m -> phi m);
+    faceHashM := applyValues(S.dd.map, f -> phi f);
+    if S.?ss then (
+	degenMapHashM := applyValues(S.ss.map, f -> phi f);
+	return simplicialModule(LM,faceHashM, degenMapHashM, S.topDegree);
 	);
     simplicialModule(LM,faceHashM,S.topDegree)
     )
 
 tensor(RingMap, SimplicialModule) := SimplicialModule => {} >> opts -> (phi, S) -> (
     if source phi =!= ring S then error "expected the source of the ring map to be the ring of the simplicial module";
-    LM := new HashTable from for i in keys S.module list i => tensor(phi,(S.module)#i);
-    faceHashM := new HashTable from for i in keys S.dd.map list i => tensor(phi,(S.dd.map)#i);
-    if any(keys S,i->i==symbol complex) and not(S.?ss) then return simplicialModule(tensor(phi,(S.complex)),faceHashM,S.topDegree);
+    if S.?complex then return simplicialModule(tensor(phi, S.complex), S.topDegree, Degeneracy => S.?ss);
+    LM := applyValues(S.module, m -> tensor(phi, m));
+    faceHashM := applyValues(S.dd.map, m -> tensor(phi, m));
     if S.?ss then (
-	degenMapHashM := new HashTable from for i in keys S.ss.map list i => tensor(phi,(S.ss.map)#i);
-	if any(keys S,i->i==symbol complex) then return simplicialModule(tensor(phi,(S.complex)),faceHashM,degenMapHashM,S.topDegree)
-	else return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
+	degenMapHashM := applyValues(S.ss.map, m -> tensor(phi, m));
+	return simplicialModule(LM,faceHashM,degenMapHashM,S.topDegree);
 	);
     simplicialModule(LM,faceHashM,S.topDegree)
     )
@@ -880,10 +891,10 @@ SimplicialModule == SimplicialModule := (C,D) -> (
         if C_i != D_i then return false;
         );
     for i in keys C.dd.map do (
-	if C.dd.map#i != D.dd.map#i then return false;
+	if not matEq(matrix C.dd.map#i, matrix D.dd.map#i) then return false;
 	);
-    if any(keys C,i->i==symbol ss) then for i in keys C.ss.map do (
-	if C.ss.map#i != D.ss.map#i then return false;
+    if C.?ss then for i in keys C.ss.map do (
+	if not matEq(matrix C.ss.map#i, matrix D.ss.map#i) then return false;
 	);
     true    
     )
@@ -910,7 +921,7 @@ transs := (C,v) -> (
 SimplicialModule _ Array := SimplicialModuleMap => (C,v) -> (
     v = transs(C,v);
     D := directSum apply(toList v, j -> C.cache.components#j);
-    Cc := if any(keys C,i->i==symbol complex) then forgetComplex(C,RememberSummands => false) else C;
+    Cc := if C.?complex then forgetComplex(C,RememberSummands => false) else C;
     maps := hashTable for i from 0 to Cc.topDegree list i => map(C_i,D_i,Cc_i_v);
     result := map(C,D,maps);
     result.cache.isCommutative = true;
@@ -920,7 +931,7 @@ SimplicialModule _ Array := SimplicialModuleMap => (C,v) -> (
 SimplicialModule ^ Array := SimplicialModuleMap => (C,v) -> (
     v = transs(C,v);
     D := directSum apply(toList v, j -> C.cache.components#j);
-    Cc := if any(keys C,i->i==symbol complex) then forgetComplex(C,RememberSummands => false) else C;
+    Cc := if C.?complex then forgetComplex(C,RememberSummands => false) else C;
     maps := hashTable for i from 0 to Cc.topDegree list i => map(D_i,C_i,Cc_i^v);
     result := map(D,C,maps);
     result.cache.isCommutative = true;
@@ -933,20 +944,20 @@ SimplicialModuleMap == SimplicialModuleMap := (f,g) -> (
     if source f != source g or target f != target g 
       then return false;
     for i from 0 to (source f).topDegree do (
-        if f_i != g_i then return false;
+        if not (try (f_i == g_i) else matEq(matrix f_i, matrix g_i)) then return false;
         );
-    true    
+    true
     )
 SimplicialModuleMap == ZZ := Boolean => (f,n) -> (
-    if n === 0 then 
+    if n === 0 then
         all(keys f.map, k -> f.map#k == 0)
     else if n === 1 then (
         if source f != target f then return false;
         if degree f =!= 0 then return false;
         (lo,hi) := (0,(source f).topDegree);
         for i from lo to hi do
-            if f_i != 1 then return false;
-        f.cache.isCommutative = true;  -- this is the identity, after all!        
+            if not (try (f_i == id_((source f)_i)) else matIsId(matrix f_i)) then return false;
+        f.cache.isCommutative = true;  -- this is the identity, after all!
         true
         )
     else 
@@ -1019,11 +1030,15 @@ SimplicialModuleMap * SimplicialModuleMap := (f,g) -> (
     if all(keys f.map, i-> instance(i, ZZ)) then (
     df := degree f;
     dg := degree g;
-    maps := hashTable for i from 0 to (source g).topDegree list i => (
-        h := f_(dg + i) * g_i;
+    src := source g;
+    tar := target f;
+    maps := hashTable for i from 0 to src.topDegree list i => (
+        h := if target(g_i) === source(f_(dg + i))
+             then f_(dg + i) * g_i
+             else map(tar_(df+dg+i), src_i, matrix(f_(dg + i)) * matrix(g_i));
         if h == 0 then continue else h
         );
-    result := map(target f, source g, maps, Degree=>df+dg);
+    result := map(tar, src, maps, Degree=>df+dg);
     return result;
     );
     --this is the case where face/degeneracy maps are being composed
@@ -1033,7 +1048,7 @@ SimplicialModuleMap * SimplicialModuleMap := (f,g) -> (
 	    df = degree f;
 	    dg = degree g;
 	    maps = hashTable for i in keys g.map list i => (
-		h := f_((dg + i_0, i_1)) * g_i;
+		h := matrix(f_((dg + i_0, i_1))) * matrix(g_i);
 		if h == 0 then continue else h
 		);
 	    result = map(target f, source g, maps, Degree=>df+dg);
@@ -1102,26 +1117,25 @@ SimplicialModuleMap ** SimplicialModuleMap := SimplicialModuleMap => (f,g) -> te
 SimplicialModule ** SimplicialModuleMap := SimplicialModuleMap => (C,g) -> id_C ** g
 SimplicialModuleMap ** SimplicialModule := SimplicialModuleMap => (f,D) -> f ** id_D
 Module ** SimplicialModuleMap := SimplicialModuleMap => (M,g) -> (
-    map(M**(target g),M**(source g),new HashTable from for i in keys (g.map) list i => M**(g.map#i), Degree => degree g)
+    map(M**(target g),M**(source g), applyValues(g.map, v -> M**v), Degree => degree g)
     )
 SimplicialModuleMap ** Module := SimplicialModuleMap => (g,N) -> (
-    map((target g) ** N,(source g) ** N,new HashTable from for i in keys (g.map) list i => (g.map#i)**N, Degree => degree g)
+    map((target g) ** N,(source g) ** N, applyValues(g.map, v -> v**N), Degree => degree g)
     )
-    
+
 
 SimplicialModuleMap ** Ring := SimplicialModuleMap => (g,R) -> (
-    map((target g)**R,(source g)**R,new HashTable from for i in keys (g.map) list i => (g.map#i)**R, Degree => degree g)
+    map((target g)**R,(source g)**R, applyValues(g.map, v -> v**R), Degree => degree g)
     )
 Ring ** SimplicialModuleMap := SimplicialModuleMap => (R,f) -> f ** R
 
 RingMap SimplicialModuleMap := SimplicialModuleMap => (phi,f) -> (
-    if f.?complexMap then return simplicialModule(phi(f.complexMap), topDegree f, Degeneracy => (source f).?ss);
-    map(phi target f, phi source f, new HashTable from for i in keys (f.map) list i=> phi((f.map)#i), Degree => degree f)
+    map(phi (target f), phi (source f), applyValues(f.map, v -> phi v), Degree => degree f)
     )
 
 tensor(RingMap, SimplicialModuleMap) := SimplicialModuleMap => {} >> opts -> (phi, f) -> (
     if source phi =!= ring f then error "expected the source of the ring map to be the ring of the complex map";
-    map(tensor(phi, target f), tensor(phi, source f), new HashTable from for i in keys (f.map) list i=> tensor(phi,(f.map)#i), Degree => degree f)
+    map(tensor(phi, target f), tensor(phi, source f), applyValues(f.map, v -> tensor(phi, v)), Degree => degree f)
     )
 tensor(SimplicialModuleMap, RingMap) := SimplicialModuleMap => {} >> opts -> (f, phi) -> tensor(phi, f)
 
@@ -1154,17 +1168,17 @@ kernel SimplicialModuleMap := SimplicialModule => opts -> f -> (
     B := source f;
     modules := hashTable for i from 0 to B.topDegree list i => kernel f_i;
     inducedMaps := hashTable for i from 0 to B.topDegree list i => inducedMap(B_i, modules#i);
-    facemaps := hashTable for i in keys (B.dd.map)  list i => (
-	        b1 :=B.dd_i * inducedMaps#(i_0);
-		b2 := map(target b1,source inducedMaps#(i_0-1),inducedMaps#(i_0-1));
-                (b1) // b2
-                );
-    if any(keys B,i->i==symbol ss) then (
-	degenmaps := hashTable for i in keys (B.ss.map) list i => (
-	    b1 := B.ss_i * inducedMaps#(i_0);
-	    b2 := map(target b1,source inducedMaps#(i_0+1),inducedMaps#(i_0+1));
-	    (b1) // b2
-	    );
+    facemaps := applyPairs(B.dd.map, (i, v) -> (
+	    b1 := v * inducedMaps#(i_0);
+	    b2 := map(target b1, source inducedMaps#(i_0-1), inducedMaps#(i_0-1));
+	    (i, b1 // b2)
+	    ));
+    if B.?ss then (
+	degenmaps := applyPairs(B.ss.map, (i, v) -> (
+		b1 := v * inducedMaps#(i_0);
+		b2 := map(target b1, source inducedMaps#(i_0+1), inducedMaps#(i_0+1));
+		(i, b1 // b2)
+		));
 	result =  simplicialModule(modules,facemaps,degenmaps,B.topDegree);
 	result.cache.kernel = f;
 	return result;
@@ -1179,13 +1193,9 @@ cokernel SimplicialModuleMap := SimplicialModule => f -> (
     C := target f;
     deg := degree f;
     modules := hashTable for i from 0 to C.topDegree list i => cokernel f_(i-deg);
-    facemaps := hashTable for i in keys (C.dd.map) list i => (
-                map(modules#(i_0-1), modules#(i_0), matrix C.dd_i)
-                );
-    if any(keys C,i->i==symbol ss) then (
-	degenmaps := hashTable for i in keys (C.ss.map) list i => (
-	    map(modules#(i_0+1), modules#(i_0), matrix C.ss_i)
-                );
+    facemaps := applyPairs(C.dd.map, (i, v) -> (i, map(modules#(i_0-1), modules#(i_0), matrix v)));
+    if C.?ss then (
+	degenmaps := applyPairs(C.ss.map, (i, v) -> (i, map(modules#(i_0+1), modules#(i_0), matrix v)));
 	    result =  simplicialModule(modules,facemaps,degenmaps,C.topDegree);
 	    result.cache.cokernel = f;
 	    return result;
@@ -1203,17 +1213,17 @@ image SimplicialModuleMap := SimplicialModule => f -> (
     deg := degree f;
     modules := hashTable for i from 0 to C.topDegree list i => image f_(i-deg);
     inducedMaps := hashTable for i from 0 to B.topDegree list i => inducedMap(C_i, modules#i);
-    facemaps := hashTable for i in keys (C.dd.map)  list i => (
-	        b1 :=C.dd_i * inducedMaps#(i_0);
-		b2 := map(target b1,source inducedMaps#(i_0-1),inducedMaps#(i_0-1));
-                (b1) // b2
-                );
-    if any(keys C,i->i==symbol ss) then (
-	degenmaps := hashTable for i in keys (C.ss.map) list i => (
-	    b1 := C.ss_i * inducedMaps#(i_0);
-	    b2 := map(target b1,source inducedMaps#(i_0+1),inducedMaps#(i_0+1));
-	    (b1) // b2
-	    );
+    facemaps := applyPairs(C.dd.map, (i, v) -> (
+	    b1 := v * inducedMaps#(i_0);
+	    b2 := map(target b1, source inducedMaps#(i_0-1), inducedMaps#(i_0-1));
+	    (i, b1 // b2)
+	    ));
+    if C.?ss then (
+	degenmaps := applyPairs(C.ss.map, (i, v) -> (
+		b1 := v * inducedMaps#(i_0);
+		b2 := map(target b1, source inducedMaps#(i_0+1), inducedMaps#(i_0+1));
+		(i, b1 // b2)
+		));
 	result =  simplicialModule(modules,facemaps,degenmaps,C.topDegree);
 	result.cache.image = f;
 	return result;
@@ -1228,13 +1238,9 @@ coimage SimplicialModuleMap := SimplicialModule => f -> (
     local result;
     B := source f;
     modules := hashTable for i from 0 to B.topDegree list i => coimage f_(i);
-    facemaps := hashTable for i in keys (B.dd.map) list i => (
-                map(modules#(i_0-1), modules#(i_0), matrix B.dd_i)
-                );
-    if any(keys B,i->i==symbol ss) then (
-	degenmaps := hashTable for i in keys (B.ss.map) list i => (
-	    map(modules#(i_0+1), modules#(i_0), matrix B.ss_i)
-                );
+    facemaps := applyPairs(B.dd.map, (i, v) -> (i, map(modules#(i_0-1), modules#(i_0), matrix v)));
+    if B.?ss then (
+	degenmaps := applyPairs(B.ss.map, (i, v) -> (i, map(modules#(i_0+1), modules#(i_0), matrix v)));
 	    result =  simplicialModule(modules,facemaps,degenmaps,B.topDegree);
 	    result.cache.coimage = f;
 	    return result;
@@ -1287,24 +1293,25 @@ homology(SimplicialModuleMap) := SimplicialModuleMap => opts -> f -> (
 
 
 SimplicialModule Array := (C, L) -> (t := topDegree C;
-    simplicialModule( (normalize C) L, t, Degeneracy => C.?ss )
+    forgetComplex simplicialModule( (normalize C) L, t, Degeneracy => C.?ss )
     )
 
 SimplicialModuleMap Array := (f, L) -> (t := topDegree f;
     simplicialModule( (normalize f) L, t, Degeneracy => (source f).?ss)
     )
 
-minimalPresentation SimplicialModule := 
+minimalPresentation SimplicialModule :=
 prune SimplicialModule := SimplicialModule => opts -> (cacheValue symbol minimalPresentation)(C -> (
+	if C.?complex then C = forgetComplex C;
 	R := ring C;
     -- opts is ignored here
     -- to be cached: in the input C: cache the result D
     --               in the result: cache pruningMap: D --> C
     faceKeys := keys C.dd.map;
-    if any(keys C,i->i==symbol ss) then degenKeys := keys C.ss.map; 
+    if C.?ss then degenKeys := keys C.ss.map; 
     prunedMods := new MutableHashTable from for i to C.topDegree list i => prune C_i;
     prunedFaceMaps := new MutableHashTable from for i in faceKeys list i => map(prune C_(i_0-1),prune C_(i_0),0);
-    if any(keys C,i->i==symbol ss) then prunedDegenMaps := new MutableHashTable from for i in degenKeys list i=>map(prune C_(i_0+1),prune C_(i_0),0); 
+    if C.?ss then prunedDegenMaps := new MutableHashTable from for i in degenKeys list i=>map(prune C_(i_0+1),prune C_(i_0),0); 
     nonzeros := select(0..C.topDegree, i -> minimalPresentation C_i != 0);
     D := if #nonzeros === 0 
          then (
@@ -1315,15 +1322,15 @@ prune SimplicialModule := SimplicialModule => opts -> (cacheValue symbol minimal
              hi := max nonzeros;
 	     for i from lo to hi do prunedMods#i = minimalPresentation(C_i);
              for i in select(faceKeys,i->(i_0>=lo and i_0<=hi)) do prunedFaceMaps#i = minimalPresentation C.dd_i;
-	     if any(keys C,i->i==symbol ss) then (
+	     if C.?ss then (
 		 for i in select(degenKeys,i->(i_0>=lo and i_0<hi)) do prunedDegenMaps#i = minimalPresentation C.ss_i;
 		 );
-             nmMods := new HashTable from for i in keys prunedMods list i => prunedMods#i;
-	     nmFaces := new HashTable from for i in keys prunedFaceMaps list i=> prunedFaceMaps#i;
-	     if any(keys C,i->i==symbol ss) then (
-		 nmDegens := new HashTable from for i in keys prunedDegenMaps list i=> prunedDegenMaps#i;
+             nmMods := new HashTable from prunedMods;
+	     nmFaces := new HashTable from prunedFaceMaps;
+	     if C.?ss then (
+		 nmDegens := new HashTable from prunedDegenMaps;
 		 );
-	     if any(keys C,i->i==symbol ss) then simplicialModule(nmMods,nmFaces,nmDegens,C.topDegree) else simplicialModule(nmMods,nmFaces,C.topDegree)
+	     if C.?ss then simplicialModule(nmMods,nmFaces,nmDegens,C.topDegree) else simplicialModule(nmMods,nmFaces,C.topDegree)
                  );
     -- create the isomorphism D --> C
     pruning := hashTable for i from 0 to C.topDegree list i => (minimalPresentation C_i).cache.pruningMap;
@@ -1375,18 +1382,18 @@ basis(ZZ, Complex) := Complex => opts -> (deg, C) -> (
 
 basis(List, SimplicialModule) := SimplicialModule => opts -> (L, S) -> (
     if S.?complex then return simplicialModule(basis(L,S.complex), S.topDegree, Degeneracy => S.?ss);
-    mods := hashTable for i in keys S.module list i => image basis(L, S_i, opts);
-    H1 := hashTable for i in keys S.dd.map list i => basis(L, S.dd_i, opts);
-    if S.?ss then H2 := hashTable for i in keys S.ss.map list i => basis(L, S.ss_i, opts);
+    mods := applyValues(S.module, m -> image basis(L, m, opts));
+    H1 := applyValues(S.dd.map, f -> basis(L, f, opts));
+    if S.?ss then H2 := applyValues(S.ss.map, f -> basis(L, f, opts));
     if S.?ss then return simplicialModule(mods, H1, H2, S.topDegree);
     simplicialModule(mods, H1, S.topDegree)
     )
 
 basis(ZZ, SimplicialModule) := SimplicialModule => opts -> (L, S) -> (
     if S.?complex then return simplicialModule(basis(L,S.complex), S.topDegree, Degeneracy => S.?ss);
-    mods := hashTable for i in keys S.module list i => image basis(L, S_i, opts);
-    H1 := hashTable for i in keys S.dd.map list i => basis(L, S.dd_i, opts);
-    if S.?ss then H2 := hashTable for i in keys S.ss.map list i => basis(L, S.ss_i, opts);
+    mods := applyValues(S.module, m -> image basis(L, m, opts));
+    H1 := applyValues(S.dd.map, f -> basis(L, f, opts));
+    if S.?ss then H2 := applyValues(S.ss.map, f -> basis(L, f, opts));
     if S.?ss then return simplicialModule(mods, H1, H2, S.topDegree);
     simplicialModule(mods, H1, S.topDegree)
     )
@@ -1403,10 +1410,10 @@ basis(ZZ, SimplicialModuleMap) := SimplicialModuleMap => opts -> (L, phi) -> (
 
 
 truncate(List, SimplicialModule) := SimplicialModule => {} >> opts -> (L, S) -> (
-    if S.?complex then return simplicialModule(truncate(L,S.complex), S.topDegree, Degeneracy => S.?ss);
-    mods := hashTable for i in keys S.module list i => truncate(L, S_i, opts);
-    H1 := hashTable for i in keys S.dd.map list i => truncate(L, S.dd_i, opts);
-    if S.?ss then H2 := hashTable for i in keys S.ss.map list i => truncate(L, S.ss_i, opts);
+    if S.?complex then return simplicialModule(truncate(L, S.complex, opts), S.topDegree, Degeneracy => S.?ss);
+    mods := applyValues(S.module, m -> truncate(L, m, opts));
+    H1 := applyValues(S.dd.map, f -> truncate(L, f, opts));
+    if S.?ss then H2 := applyValues(S.ss.map, f -> truncate(L, f, opts));
     if S.?ss then return simplicialModule(mods, H1, H2, S.topDegree);
     simplicialModule(mods, H1, S.topDegree)
     )
@@ -1425,12 +1432,15 @@ truncate(ZZ, SimplicialModuleMap) := SimplicialModuleMap => {} >> opts -> (L, ph
 isShortExactSequence(SimplicialModuleMap, SimplicialModuleMap) := Boolean => (g, f) -> (
     -- f : A --> B, g : B --> C
     -- the SES is 0 --> A --> B --> C --> 0.
-    isWellDefined g and 
+    isWellDefined g and
     isWellDefined f and
     isSimplicialMorphism g and
     isSimplicialMorphism f and
     g*f == 0 and
-    image f == kernel g and
+    -- check exactness degree by degree (image and kernel may have
+    -- different generator representations, so comparing as simplicial
+    -- modules can fail even when the underlying submodules agree)
+    all(0..topDegree(source g), i -> image f_(i - degree f) == kernel g_i) and
     kernel f == 0 and
     coker g == 0
     )  

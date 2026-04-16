@@ -9,7 +9,8 @@ newPackage(
      Headline => "methods for working in the category of simplicial modules",
      Keywords => {"Homological Algebra", "Commutative Algebra"},
      PackageExports => {"Complexes", "SchurFunctors"},
-     PackageImports => {"Complexes"}
+     PackageImports => {"Complexes"},
+     HomePage => "https://github.com/kellervandebogert/SimplicialModules"
     )
 
 export {"SimplicialModule",

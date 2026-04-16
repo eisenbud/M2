@@ -25,7 +25,7 @@ doc ///
         Text
 	    @SUBSECTION "The Dold-Kan Correspondence"@
 	Text
-	    The category of simplicial R-modules is equivalent to the category of nonegatively graded
+	    The category of simplicial R-modules is equivalent to the category of nonnegatively graded
 	    chain complexes via an equivalence known as the Dold-Kan correspondence. 
 	    
 	    This means that there is a functor that converts a chain complex into a simplicial object, known as the Dold-Kan functor. In practice, the image of the Dold-Kan functor is
@@ -98,13 +98,13 @@ doc ///
 	    phi = extend(K,F,id_(K_0))
 	    e2phi = prune extPower(2,phi) --induced map on the exterior powers of these complexes
 	    assert isCommutative e2phi
-	    --ephi = prune extPower(3,phi,TopDegree => 4); --the TopDegree option specifies how many homological degrees to compute
-	    --assert isCommutative ephi;
-	    --ephi_1
-	    --ephi_2;
-	    --prune schurMap({2},phi) --the second symmetric power
-	    --sphi = schurMap({2,1},phi,TopDegree => 3);  --schur functor corresponding to partition {2,1} applied to phi
-	    --sphi_1
+	    ephi = prune extPower(3,phi,TopDegree => 4); --the TopDegree option specifies how many homological degrees to compute
+	    assert isCommutative ephi;
+	    ephi_1
+	    ephi_2;
+	    prune schurMap({2},phi) --the second symmetric power
+	    sphi = schurMap({2,1},phi,TopDegree => 3);  --schur functor corresponding to partition {2,1} applied to phi
+	    sphi_1
 	Text    
 	    This package thus lays the groundwork for computing with Dold-Puppe extensions of nonlinear functors, deriving nonlinear functors, and also allows any endofunctor of R-modules
 	    implemented in Macaulay2 to immediately be canonically extended to an endofunctor at the level of chain complexes. Moreover, almost all methods
@@ -184,7 +184,7 @@ doc ///
             then for each $i$ there is a decomposition
             $$S_i = C_0 \oplus C_1^{\binom{i}{1}} \oplus \cdots \oplus C_j^{\binom{i}{j}} \oplus \cdots.$$
             To be technically correct, each of the direct summands $C_j$ of $S_i$ should be thought of as being
-	    parametrized by an order preserving surjection $f : [i] \to [j]$ (where $[n] := \{ 0 ,\dots  , n \}$. To deduce which surjection
+	    parametrized by an order preserving surjection $f : [i] \to [j]$ (where $[n] := \{ 0 ,\dots  , n \}$). To deduce which surjection
 	    corresponds to a given summand, first notice that order preserving surjections $f : [i] \to [j]$
 	    are in bijection with compositions of $i+1$ into $j+1$ parts by just listing the sizes of the
 	    fibers of the map $f$. For instance, the composition $(2,2,1)$ corresponds to the surjection
@@ -219,19 +219,21 @@ doc ///
 	    S.ss --degeneracy maps
 	    S.dd_(2,0)
         Text
-	    If you want to restrict/project a face/degeneracy map to a particular summand, this can be done as follows:
+	    If you want to restrict/project a face/degeneracy map to a particular summand group, this can be done
+	    using the array notation. The $k$-th summand group of $S_i$ corresponds to $C_k^{\binom{i}{k}}$:
 	Example
-	    (S.dd_(2,0))_[1]^[0]  --restrict to 1th summand of S_2, project onto 0th summand of S_1
-	    (S.dd_(2,0))_[2]^[1]  --restrict to 2th summand of S_2, project onto 1th summand of S_1
-	    (S.dd_(2,0))_[3]^[1]  --restrict to 3th summand of S_2, project onto 1th summand of S_1
+	    (S.dd_(2,0))_[1]^[0]  --restrict to C_1 summand group of S_2, project onto C_0 summand of S_1
+	    (S.dd_(2,0))_[1]^[1]  --restrict to C_1 summand group of S_2, project onto C_1 summand of S_1
+	    (S.dd_(2,0))_[2]^[1]  --restrict to C_2 summand of S_2, project onto C_1 summand of S_1
         Text
-	    The above computations tell us that the component of the face map $d_{2,0}$ mapping
-	    $$C_{(1,2)} \to  C_{(2)} $$
-	    is given by the differential of the original complex $C$ (we are using the compositions
-	    corresponding to the surjection to label the free modules now). The component
-	    $$C_{(2,1)} \to C_{(1,1)}$$
-	    is simply the identity map, and the component
-	    $$C_{(1,1,1)} \to C_{(1,1)}$$
+	    The first computation tells us that the component of the face map $d_{2,0}$ mapping
+	    $$C_1^{\oplus 2} \to  C_0$$
+	    is given by the differential of the original complex $C$ applied to the first copy of $C_1$
+	    (we use the compositions corresponding to the surjections to label the free modules).
+	    The second computation shows the component $C_1^{\oplus 2} \to C_1$
+	    is simply the identity map on the second copy of $C_1$.
+	    The third computation shows the component
+	    $$C_2 \to C_1$$
 	    is also given by the differential of $C$.
     SeeAlso
         "Making simplicial modules"
@@ -346,7 +348,7 @@ doc ///
     Description
         Text
             Every simplicial module or simplicial module map has a base ring.  This
-            function access that information.
+            function accesses that information.
         Example
             S = ZZ/101[a,b,c,d];
             C = simplicialModule freeResolution coker vars S
@@ -443,7 +445,7 @@ doc ///
                 \[ s_j s_i = s_i s_{j+1} \text{ for } i \leq j \]
 
             This constructor is the most basic constructor for building a simplicial module,
-	    and is called by all of the more user friendly constructors. It is highly recommend
+	    and is called by all of the more user friendly constructors. It is highly recommended
 	    that the user sees @TO (simplicialModule, Complex)@ to quickly build simplicial modules.
         Example
             S = ZZ/101[a..d]
@@ -764,7 +766,7 @@ doc ///
                 \[ s_j s_i = s_i s_{j+1} \text{ for } i \leq j \]
         Text
             The face/degeneracy maps are considered as double indexed in this package. This is because
-	    for a fixed integer $n$, the module $S_n$ comes equipped with $n$ face and degeneracy maps:
+	    for a fixed integer $n$, the module $S_n$ comes equipped with $(n+1)$ face and degeneracy maps:
 	    $$d_{n,i} : S_n \to S_{n-1}, \quad \text{and} \quad s_{n,i} : S_n \to S_{n+1}.$$
 	    The above maps can be accessed as follows:
         Example
@@ -928,7 +930,7 @@ doc ///
     Text
       The tensor product is a simplicial module $D$ whose $i$th component is
       the tensor product of the degree i components of $C1$ and $C2$. The face/degeneracy maps
-      are given by the tensor products of the face an degeneracy maps of the original objects.
+      are given by the tensor products of the face and degeneracy maps of the original objects.
       
       As the next example illustrates, the simplicial tensor product in general does not
       normalize to give an object that is isomorphic to the classically defined tensor product
@@ -1022,7 +1024,7 @@ doc ///
             assert all({D1,D2,D3,D4,D5}, isWellDefined)
     SeeAlso
         "Making simplicial modules"
-        (truncate, List, Module)
+        "Truncations :: truncate(List,Module)"
         (truncate, List, SimplicialModuleMap)
 ///
 
@@ -1330,7 +1332,7 @@ doc ///
 
       A map of simplicial modules $f \colon C \rightarrow D$ of degree $d$ is a
       sequence of maps $f_i \colon C_i \rightarrow D_{d+i}$.  
-      No relationship between the maps $f_i$ and 
+      No relationship between the maps $f_i$
       and the face/degeneracy maps of either $C$ or $D$ is assumed. If a simplicial module map
       is obtained as the image of a morphism of complexes under the Dold-Kan functor,
       the key {\tt complexMap} will be stored for more efficient normalization computations.
@@ -1339,7 +1341,7 @@ doc ///
       subtraction, scalar multiplication, and composition. The
       identity map from a simplicial module to itself can be produced with
       @TO "id"@. An attempt to add (subtract, or compare) a ring
-      element to a simplicial module will result in the ring element being
+      element to a simplicial module map will result in the ring element being
       multiplied by the appropriate identity map.
   SeeAlso
     SimplicialModule
@@ -1361,20 +1363,14 @@ doc ///
         H:HashTable
             whose keys are integers, and whose values are the maps between
             the corresponding terms
-        Degree => ZZ
-            the degree of the resulting map
-        DegreeLift => 
-            unused
-        DegreeMap =>
-            unused
     Outputs
         f:SimplicialModuleMap
     Description
         Text
             A map of simplicial modules $f : C \rightarrow D$ of degree $d$ is a
             sequence of maps $f_i : C_i \rightarrow D_{d+i}$.  
-            No relationship between the maps $f_i$ and 
-            and the face/degeneracy maps of either $C$ or $D$ is assumed.
+            No relationship between the maps $f_i$ and
+            the face/degeneracy maps of either $C$ or $D$ is assumed.
             
             We construct a map of simplicial modules by specifying the
             individual maps between the terms. Note that this constructor is typically
@@ -1431,7 +1427,7 @@ doc ///
 	    h == 0
         Text
             This is the primary constructor used by all of the more user friendly
-            methods for constructing a chain complex.
+            methods for constructing a simplicial module map.
     Caveat
         This constructor minimizes computation
         and does very little error checking. To verify that a simplicial module map
@@ -1461,12 +1457,6 @@ doc ///
         D:SimplicialModule
         0:ZZ
             or 1
-        Degree => ZZ
-            the degree of the resulting map
-        DegreeLift => 
-            unused
-        DegreeMap =>
-            unused
     Outputs
         f:SimplicialModuleMap
             the zero map from $C$ to $D$ or the identity map from $C$ to $C$
@@ -1521,12 +1511,6 @@ doc ///
         D:SimplicialModule
         f:SimplicialModuleMap
             regarded as providing matrices which induce maps between the terms of $C$ and $D$
-        Degree => ZZ
-            the degree $d$ of the resulting map
-        DegreeLift => 
-            unused
-        DegreeMap =>
-            unused
     Outputs
         g:SimplicialModuleMap
     Description
@@ -1537,8 +1521,8 @@ doc ///
             induced by the matrix of $f_i$.
             
             One use for this function is to get the new map of simplicial modules induced by
-	    forgetting the underlying complexes of the course and target, assuming that the
-	    source and target is obtained as a Dold-Kan image. 
+	    forgetting the underlying complexes of the source and target, assuming that the
+	    source and target are obtained as Dold-Kan images. 
         Example
             R = ZZ/101[a,b,c];
             C = simplicialModule(freeResolution coker vars R, Degeneracy => true)
@@ -1556,7 +1540,7 @@ doc ///
         (degree, SimplicialModuleMap)
         (isSimplicialMorphism, SimplicialModuleMap)
         (isCommutative, SimplicialModuleMap)
-        (symbol SPACE, SimplicialModule, Array)
+        (symbol SPACE, SimplicialModuleMap, Array)
 ///
 
 
@@ -1615,7 +1599,7 @@ doc ///
             displayed.
         Text
             Unlike the @TO2((isWellDefined, SimplicialModule), 
-                "corresponding function for SimplicialModulees")@,
+                "corresponding function for SimplicialModules")@,
             the basic constructors for simplicial module maps are all but
             assured to be well defined. The only case that could cause
             a problem is if one constructs the source or target
@@ -1796,7 +1780,7 @@ doc ///
         :ZZ
     Description
         Text
-            A simplicial module map $f : C \to D$ of degree $d$ is a sequence of
+            A simplicial module map $f : C \to D$ of degree $d$ is a sequence
             of maps $f_i : C_i \to D_{i+d}$.
             This method returns $d$.
         Text
@@ -1846,7 +1830,7 @@ doc ///
             f_2
             f_0
 	Text
-	    The face/degeneracy maps of a simplicial module are instead instead by sequences $(a,b)$ of integers,
+	    The face/degeneracy maps of a simplicial module are indexed by sequences $(a,b)$ of integers,
 	    where $b \leq a$.
 	Example
 	    dd^C_(2,0)
@@ -1905,7 +1889,6 @@ doc ///
     SeeAlso
         "Basic invariants and properties"
         isHomogeneous
-        (isHomogeneous, SimplicialModuleMap)
         (randomSimplicialMap, SimplicialModule, SimplicialModule)
 ///
 
@@ -2003,7 +1986,7 @@ doc ///
             A simplicial module map $f : C \to C$ can be composed with itself.
             This method produces these new maps of simplicial modules.
         Text
-            The face/degeneracy maps -- always composes with itself to give the 
+            The face/degeneracy map always composes with itself to give the
             zero map.
         Example
             S = ZZ/101[a..c];
@@ -2083,7 +2066,7 @@ doc ///
        h = inducedMap(coker g, target g)
        assert(h != 1)
      Text
-       Testing for equality is not the same testing for isomorphism.
+       Testing for equality is not the same as testing for isomorphism.
        In particular, different presentations of a simplicial module need not be equal.
      Example
        D = prune image g
@@ -2349,7 +2332,7 @@ doc ///
             a list of degrees is generated by all homogeneous elements of degree
             that are component-wise greater than or equal to at least one
             of the degrees.  As in the singly graded case, this induces a map between
-            the truncations the source and target.
+            the truncations of the source and target.
         Example
             A = ZZ/101[x_0, x_1, y_0, y_1, y_2, Degrees => {2:{1,0}, 3:{0,1}}];
             I = intersect(ideal(x_0, x_1), ideal(y_0, y_1, y_2))
@@ -2369,7 +2352,7 @@ doc ///
             assert all({g1,g2,g3,g4,g5}, isWellDefined)
     SeeAlso
         "Making maps between simplicial modules"
-        (truncate, List, Matrix)
+        "Truncations :: truncate(List,Matrix)"
         (truncate, List, SimplicialModule)
 ///
 
@@ -2475,10 +2458,6 @@ doc ///
     Inputs
         C:SimplicialModule
         D:SimplicialModule
-        Degree => ZZ
-            specify the degree of the map of simplicial modules, if not 0
-        Verify => Boolean
-            if true, check that the resulting maps are well-defined
     Outputs
         f:SimplicialModuleMap
     Description
@@ -2490,7 +2469,7 @@ doc ///
             induced by the identity on each of these free modules.
             
             If {\tt Verify => true} is given, then this method
-            also checks that these identity maps induced well-defined 
+            also checks that these identity maps induce well-defined 
             maps.  This can be a relatively expensive computation.
         Text
             We illustrate this method by truncating a free resolution
@@ -2518,7 +2497,7 @@ doc ///
             assert(f2 == f1 * f)
     SeeAlso
         (inducedMap, Module, Module)
-        "Truncations :: truncate(ZZ,SimplicialModule)"
+        (truncate, List, SimplicialModule)
 ///
 
 
@@ -2695,10 +2674,10 @@ doc ///
         g:SimplicialModuleMap
     Outputs
         h:SimplicialModuleMap
-          that is the direct sum of the input chain  simplicial module maps
+          that is the direct sum of the input simplicial module maps
     Description
         Text
-            The direct sum of two simplicial module maps is a a simplicial module map
+            The direct sum of two simplicial module maps is a simplicial module map
             from the direct sum of the sources to the direct sum of
             the targets.
 
@@ -2758,7 +2737,7 @@ doc ///
   Description
     Text
       If $f : C \to D$ is a map of simplicial modules of degree $d$,
-      then the image is the simplicial module $E$ whose $i-th$ is $image(f_{i-d})$,
+      then the image is the simplicial module $E$ whose $i$-th term is $image(f_{i-d})$,
       and whose face/degeneracy map is induced from the face/degeneracy map 
       on the target.
     Text
@@ -2803,7 +2782,7 @@ doc ///
   Description
     Text
       The coimage of a simplicial module map $f : C \to D$
-      is the simplicial module $E$ whose $i-th$ term is $coimage(f_i)$,
+      is the simplicial module $E$ whose $i$-th term is $coimage(f_i)$,
       and whose face/degeneracy map is induced from the face/degeneracy map 
       on the source.
     Text
@@ -2844,7 +2823,7 @@ doc ///
   Description
     Text
       The kernel of a simplicial module map $f : C \to D$
-      is the simplicial module $E$ whose $i-th$ term is $kernel(f_i)$,
+      is the simplicial module $E$ whose $i$-th term is $kernel(f_i)$,
       and whose face/degeneracy map is induced from the face/degeneracy map 
       on the source.
     Text
@@ -2883,7 +2862,7 @@ doc ///
   Description
     Text
       If $f : C \to D$ is a map of simplicial modules of degree $d$,
-      then the cokernel is the simplicial module $E$ whose $i-th$ is $cokernel(f_{i-d})$,
+      then the cokernel is the simplicial module $E$ whose $i$-th term is $cokernel(f_{i-d})$,
       and whose face/degeneracy map is induced from the face/degeneracy map 
       on the target.
     Text
@@ -3034,7 +3013,7 @@ doc ///
             assert isNullHomotopic normalize h
             nullHomotopy normalize h
         Text
-            When the degree of the random element is chosen with specific degree,
+            When the degree of the random element is chosen with a specific degree,
             the associated map of simplicial modules will be a well-defined degree 0 simplicial
 	    morphism mapping to the Dold-Kan image of the shift of the normalization. Thus,
 	    even when specifying nonzero degree this constructor will still yield a simplicial
@@ -3131,7 +3110,7 @@ doc ///
       The shifted simplicial module $D$ is not as simple to define as the
       shift in the category of chain complexes. This method naively normalizes the
       given simplicial module/map, applies the shift in the category of chain complexes,
-      then applied the Dold-Kan functor to the result.
+      then applies the Dold-Kan functor to the result.
 
       As the following example shows, this is not the same thing as simply shifting
       all terms of the simplicial module.
@@ -3191,7 +3170,7 @@ doc ///
       C1 ++ C2
       assert isWellDefined(C1 ++ C2)
     Text
-      The direct sum of a sequence of simplicialModule can be computed as follows.
+      The direct sum of a sequence of simplicial modules can be computed as follows.
     Example
       C3 = directSum(C1,C2,C2[-2])
       assert isWellDefined C3
@@ -3215,7 +3194,7 @@ doc ///
       isShortExactSequence(C4^[second], C4_[first])
     Text
       Given a simplicial module which is a direct sum, we obtain the component
-      simplicial complexes and their names (indices) as follows.
+      simplicial modules and their names (indices) as follows.
     Example
       components C3
       indices C3
@@ -3296,7 +3275,7 @@ doc ///
                 Default value is true. Indicates whether to remember the component summands of the simplicial module when creating the new simplicial module.
     Outputs
         :SimplicialModule
-            A new simplicial module that has no longer is no longer viewed as a Dold-Kan image of some complex
+            A new simplicial module that is no longer viewed as a Dold-Kan image of some complex
     Description
         Text
             This function removes the data of the underlying complex from a simplicial module $S$ that is obtained as a Dold-Kan image.
@@ -3386,7 +3365,7 @@ doc ///
 	    This caching is particularly useful for easily accessing induced maps on components of tensor products of direct sums.
         Text
             If M and N have cached index components, then this function will use those indices. This function
-	    is mostly used to extracting components of the simplicial tensor product, since the full
+	    is mostly used for extracting components of the simplicial tensor product, since the full
 	    face/degeneracy maps are typically much too large to be displayed on their own.
         Example
             Q = ZZ/101[a..b]
@@ -3485,7 +3464,7 @@ doc ///
 	    creating a simplicial module where each component is a Schur functor applied to the corresponding component of S.
         Text
 	    By default, degeneracy maps are not computed in this method since it adds additional computation time
-	    that is not necessary for computing the normalization or many of invariants of interest. However,
+	    that is not necessary for computing the normalization or many of the invariants of interest. However,
 	    if the user is interested in having degeneracy maps, use the option {\tt Degeneracy => true}.
 	Example
 	    Q = ZZ/101[a..b]
@@ -3514,7 +3493,7 @@ doc ///
 	    (minimize S2K).dd --ignore the last differential
 	    --S21K = elapsedTime prune schurMap({2,1}, K, TopDegree => 3) --top degree 4 takes ~1 minute
 	Text
-	    These functors are particularly interesting in the modular setting, ie, when the characteristic
+	    These functors are particularly interesting in the modular setting, i.e., when the characteristic
 	    of the underlying field is small relative to the degree of the Schur functor. In this case,
 	    the induced complexes will have different homotopy classes as the characteristic varies.
 	Example
@@ -3609,9 +3588,9 @@ doc ///
 	Example
 	    Q = ZZ/2[a..c];
 	    K = koszulComplex vars Q
-	    --w2K = elapsedTime prune extPower(2, K)
-	    --(minimize w2K).dd
-	    --prune HH w2K --has more interesting homology than in the nonmodular case
+	    w2K = prune extPower(2, K)
+	    (minimize w2K).dd
+	    prune HH w2K --has more interesting homology than in the nonmodular case
 	    needsPackage "ChainComplexOperations"
 	    Q = ZZ/3[a..c]
 	    K = koszulComplex vars Q
@@ -3819,9 +3798,9 @@ doc ///
 	    elapsedTime prune normalize(S10, 3, CheckSum => false) --MUCH FASTER!
         Text
             Again, this method is functorial, and when combined with other methods in this package
-	    can be a particularly power way of obtaining nontrivial morphisms of complexes. We use this
+	    can be a particularly powerful way of obtaining nontrivial morphisms of complexes. We use this
 	    method to obtain the image of the inclusion
-	    $$\bigwedge^3 K \to bigwedge^2 K \otimes K$$
+	    $$\bigwedge^3 K \to \bigwedge^2 K \otimes K$$
 	    for a Koszul complex K. Constructing this map directly using the naive definitions of
 	    tensor products/exterior powers of complexes is not possible in full generality. Taking
 	    advantage of the Dold-Kan correspondence and simplicial methods allows us to obtain
@@ -3877,7 +3856,7 @@ doc ///
 	    $$\bigwedge^2 S \to S \otimes S,$$
 	    The cokernel of
 	    this map is by definition the second symmetric power of $S$. This method
-	    is main used in conjunction with the @TO tensorLES@ command to compute induced
+	    is mainly used in conjunction with the @TO tensorLES@ command to compute induced
 	    maps on homology for canonical short exact sequences.
 	Example
 	    Q = ZZ/101[a,b,c]
@@ -3975,7 +3954,7 @@ doc ///
     Description
         Text
             This function computes the long exact sequence of homology associated with the canonical short exact sequence of complexes:
-            \( 0 \to \bigwedge^2 C \to C \otimes C \to operatorname{Sym}^2 C \to 0 \).
+            \( 0 \to \bigwedge^2 C \to C \otimes C \to \operatorname{Sym}^2 C \to 0 \).
         Text
             This function first computes the exterior inclusion map on the complex C up to degree d using the @TO exteriorInclusion@ function.
             Then it constructs the induced map on the cokernel of this exterior inclusion map, which is the surjection to the second symmetric power of C.
@@ -3990,7 +3969,7 @@ doc ///
 	    prune tensorLES(K,4)
 	    oo.dd_6 --nontrivial connecting homomorphism
 	    F = freeResolution( (ideal vars Q)^3)
-	    --prune tensorLES(F,4) --takes time to run, commented out
+	    prune tensorLES(F,4)
 	    L = complex {K.dd_1, map(source K.dd_1,target K.dd_2 ,K.dd_2*K.dd_1), K.dd_2}
 	    hL = elapsedTime prune tensorLES(L,4)
 	    netList {hL.dd_3, hL.dd_6, hL.dd_9, hL.dd_12, hL.dd_15} --two nontrivial connecting homs
@@ -3998,4 +3977,220 @@ doc ///
         exteriorInclusion
 	simplicialTensor
  ///
+
+-- Option doc stubs
+
+doc ///
+    Key
+        [simplicialModule, Degeneracy]
+    Headline
+        whether to compute degeneracy maps
+    Usage
+        simplicialModule(..., Degeneracy => true)
+    Description
+        Text
+            If {\tt Degeneracy => true}, the degeneracy maps are also computed
+            alongside the face maps. By default, degeneracy maps are not computed.
+    SeeAlso
+        simplicialModule
+///
+
+doc ///
+    Key
+        [forgetComplex, RememberSummands]
+    Headline
+        whether to remember direct sum structure
+    Usage
+        forgetComplex(..., RememberSummands => true)
+    Description
+        Text
+            If {\tt RememberSummands => true}, the direct sum structure
+            of the terms is remembered when forgetting the underlying complex.
+    SeeAlso
+        forgetComplex
+///
+
+doc ///
+    Key
+        [normalize, CheckComplex]
+    Headline
+        whether to use cached complex data
+    Usage
+        normalize(..., CheckComplex => true)
+    Description
+        Text
+            If {\tt CheckComplex => true} (the default), and the simplicial module
+            was constructed as the Dold-Kan image of a complex, then the cached complex
+            is returned. If {\tt CheckComplex => false}, the normalization is computed
+            from scratch.
+    SeeAlso
+        normalize
+///
+
+doc ///
+    Key
+        [normalize, CheckSum]
+    Headline
+        whether to use cached direct sum data
+    Usage
+        normalize(..., CheckSum => true)
+    Description
+        Text
+            If {\tt CheckSum => true} (the default), and the simplicial module has cached
+            direct sum data, it is used during normalization.
+    SeeAlso
+        normalize
+///
+
+doc ///
+    Key
+        [extPower, Degeneracy]
+    Headline
+        whether to compute degeneracy maps
+    Usage
+        extPower(..., Degeneracy => true)
+    Description
+        Text
+            If {\tt Degeneracy => true}, the degeneracy maps are also computed
+            alongside the face maps. By default, degeneracy maps are not computed.
+    SeeAlso
+        extPower
+///
+
+doc ///
+    Key
+        [extPower, TopDegree]
+    Headline
+        top degree for the construction
+    Usage
+        extPower(..., TopDegree => n)
+    Description
+        Text
+            Specifies the top simplicial degree for the resulting simplicial module.
+    SeeAlso
+        extPower
+///
+
+doc ///
+    Key
+        [schurMap, Degeneracy]
+    Headline
+        whether to compute degeneracy maps
+    Usage
+        schurMap(..., Degeneracy => true)
+    Description
+        Text
+            If {\tt Degeneracy => true}, the degeneracy maps are also computed
+            alongside the face maps. By default, degeneracy maps are not computed.
+    SeeAlso
+        schurMap
+///
+
+doc ///
+    Key
+        [schurMap, TopDegree]
+    Headline
+        top degree for the construction
+    Usage
+        schurMap(..., TopDegree => n)
+    Description
+        Text
+            Specifies the top simplicial degree for the resulting simplicial module.
+    SeeAlso
+        schurMap
+///
+
+doc ///
+    Key
+        [simplicialTensor, Degeneracy]
+    Headline
+        whether to compute degeneracy maps
+    Usage
+        simplicialTensor(..., Degeneracy => true)
+    Description
+        Text
+            If {\tt Degeneracy => true}, the degeneracy maps are also computed
+            alongside the face maps. By default, degeneracy maps are not computed.
+    SeeAlso
+        simplicialTensor
+///
+
+doc ///
+    Key
+        [simplicialTensor, TopDegree]
+    Headline
+        top degree for the construction
+    Usage
+        simplicialTensor(..., TopDegree => n)
+    Description
+        Text
+            Specifies the top simplicial degree for the resulting simplicial module.
+    SeeAlso
+        simplicialTensor
+///
+
+
+doc ///
+    Key
+        [minimalPresentation, Exclude]
+    Headline
+        exclude option for minimal presentation
+    Description
+        Text
+            This option is inherited from the core @TO minimalPresentation@ method.
+    SeeAlso
+        (minimalPresentation, SimplicialModule)
+///
+
+doc ///
+    Key
+        [map, Degree]
+    Headline
+        specify the degree of a map of simplicial modules
+    Description
+        Text
+            When constructing a map of simplicial modules, this option
+            specifies the degree $d$ of the resulting map.  A map of
+            degree $d$ consists of component maps $f_i : C_i \to D_{i+d}$.
+            By default, the degree is 0.
+    SeeAlso
+        (map, SimplicialModule, SimplicialModule, HashTable)
+///
+
+doc ///
+    Key
+        [map, DegreeLift]
+    Headline
+        unused option for maps of simplicial modules
+    Description
+        Text
+            This option is inherited from the core map method
+            and is not used for maps of simplicial modules.
+///
+
+doc ///
+    Key
+        [map, DegreeMap]
+    Headline
+        unused option for maps of simplicial modules
+    Description
+        Text
+            This option is inherited from the core map method
+            and is not used for maps of simplicial modules.
+///
+
+doc ///
+    Key
+        [inducedMap, Degree]
+    Headline
+        specify the degree of an induced map of simplicial modules
+    Description
+        Text
+            When constructing an induced map of simplicial modules,
+            this option specifies the degree of the resulting map.
+            By default, the degree is 0.
+    SeeAlso
+        (inducedMap, SimplicialModule, SimplicialModule)
+///
+
 

@@ -33,9 +33,15 @@ symMult(List,ZZ,Ring) := (L,d,Q) -> (Qn := Q[z_1..z_d];
 schurMap = method(Options => {Degeneracy => false,TopDegree => null});
 schurMap(List,SimplicialModule) := SimplicialModule => opts -> (lambda,S) -> (tdeg := topDegree S;
     --C := S.complex;
+    -- fastSchurSparse handles face/degeneracy maps that are column-sparse
+    -- (at most one nonzero per column); falls back to generic schur otherwise.
+    fastOrFallback := f -> (
+        r := fastSchurSparse(lambda, f);
+        if r =!= null then r else schur(lambda, f)
+        );
     L := hashTable for i to tdeg list i => schurModule(lambda,combineSFactors(S,i));
-    H1 := hashTable for i in keys (S.dd.map) list i => schur(lambda,((S.dd)_i));
-    if opts.Degeneracy==true then H2 := hashTable for i in keys (S.ss.map) list i => schur(lambda,((S.ss)_i));
+    H1 := applyValues(S.dd.map, fastOrFallback);
+    if opts.Degeneracy==true then H2 := applyValues(S.ss.map, fastOrFallback);
     --print("we made it");
     if opts.Degeneracy==true then return simplicialModule(L,H1,H2,tdeg);
     simplicialModule(L,H1,tdeg)
@@ -45,7 +51,11 @@ schurMap(List,SimplicialModuleMap) := SimplicialModuleMap => opts -> (lambda,phi
     S1 := source phi;
     S2 := target phi;
     if instance((keys phi.map)#0,Sequence) then error "Expected SimplicialModuleMap to have singly graded indices";
-    map(schurMap(lambda,S2),schurMap(lambda,S1),new HashTable from for i to max(topDegree S1,topDegree S2) list i => schur(lambda,phi_i),Degree => degree phi)
+    fastOrFallback := v -> (
+        r := fastSchurSparse(lambda, v);
+        if r =!= null then r else schur(lambda, v)
+        );
+    map(schurMap(lambda,S2),schurMap(lambda,S1),applyValues(phi.map, fastOrFallback),Degree => degree phi)
     )
 
 schurMap(List,Complex) := Complex => opts -> (lambda,C) -> (S := if not(opts.TopDegree === null) then simplicialModule(C,opts.TopDegree)
@@ -106,9 +116,17 @@ sym(ZZ,ComplexMap) := ComplexMap => opts -> (d,phi) -> (if not(opts.TopDegree ==
 extPower = method(Options => {Degeneracy=>false,TopDegree => null})
 extPower(ZZ,SimplicialModule) := SimplicialModule => opts -> (d,S) -> (tdeg := topDegree S;
     --C := S.complex;
+    -- fastExteriorPowerSparse handles the common case where every column
+    -- has at most one nonzero entry (all d_k for k>0 and all degeneracies
+    -- coming from the Dold-Kan construction); it falls back to M2's
+    -- generic exteriorPower when the matrix is dense.
+    fastOrFallback := f -> (
+        r := fastExteriorPowerSparse(d, f);
+        if r =!= null then r else exteriorPower(d, f)
+        );
     L := hashTable for i to tdeg list i => exteriorPower(d,combineSFactors(S,i));
-    H1 := hashTable for i in keys (S.dd.map) list i =>exteriorPower(d,((S.dd)_i));
-    H2 := if opts.Degeneracy==true then hashTable for i in keys (S.ss.map) list i => exteriorPower(d,((S.ss)_i));
+    H1 := applyValues(S.dd.map, fastOrFallback);
+    H2 := if opts.Degeneracy==true then applyValues(S.ss.map, fastOrFallback);
     --print("we made it");
     if opts.Degeneracy==true then return simplicialModule(L,H1,H2,tdeg);
     simplicialModule(L,H1,tdeg)
@@ -118,7 +136,7 @@ extPower(ZZ,SimplicialModuleMap) := SimplicialModuleMap => opts -> (d,phi) -> (
     S1 := source phi;
     S2 := target phi;
     if instance((keys phi.map)#0,Sequence) then error "Expected SimplicialModuleMap to have singly graded indices";
-    map(extPower(d,S2),extPower(d,S1),new HashTable from for i to max(topDegree S1,topDegree S2) list i => exteriorPower(d,phi_i),Degree => degree phi)
+    map(extPower(d,S2),extPower(d,S1),applyValues(phi.map, v -> exteriorPower(d, v)),Degree => degree phi)
     )
 
 extPower(ZZ,Complex) := Complex => opts -> (d,C) -> (S := if not(opts.TopDegree === null) then simplicialModule(C,opts.TopDegree)
@@ -143,8 +161,8 @@ simplicialTensor(List) := SimplicialModule => opts -> T -> (if instance(T_0,Simp
 	degens := all(T, i->i.?ss);
 	tdeg := max apply(T,i->topDegree i);
 	L := hashTable for i to tdeg list i => tensorwithComponents(apply(T,s->s_i));
-	H1 := hashTable for i in keys ((T_0).dd.map) list i => map(L#(i_0-1),L#(i_0),tensor(apply(T,s->s.dd_i)));
-	H2 := if opts.Degeneracy==true or degens then hashTable for i in keys ((T_0).ss.map) list i => tensorwithComponents(apply(T,s->s.ss_i));
+	H1 := applyPairs((T_0).dd.map, (i, v) -> (i, map(L#(i_0-1),L#(i_0),tensor(apply(T,s->s.dd_i)))));
+	H2 := if opts.Degeneracy==true or degens then applyPairs((T_0).ss.map, (i, v) -> (i, tensorwithComponents(apply(T,s->s.ss_i))));
 	if opts.Degeneracy==true or degens then return simplicialModule(L,H1,H2,tdeg);
         return simplicialModule(L,H1,tdeg);
 	);
@@ -209,12 +227,12 @@ makeNormMap(SimplicialModuleMap,ZZ) := (phi,d) -> (
 --back to the category of nonnegatively-graded chain complexes.
 normalize = method(Options => {CheckSum => true,CheckComplex => true});
 normalize(SimplicialModule,ZZ) := Complex => opts -> (S,d) -> (
-    if opts.CheckComplex and any(keys S,i->i==symbol complex) then return naiveTruncation(S.complex,0,d);
+    if opts.CheckComplex and S.?complex then return naiveTruncation(S.complex,0,d);
     n := length components S;
     if opts.CheckSum and n>1 then return directSum for i to n-1 list normalize((components S)_i,d);
     complex for i from 1 to d list makeNormMap(S,i))
 
-normalize(SimplicialModule) := Complex => opts -> S -> (if any(keys S,i->i==symbol complex) then return normalize(S,S.complexLength,opts);
+normalize(SimplicialModule) := Complex => opts -> S -> (if S.?complex then return normalize(S,S.complexLength,opts);
     normalize(S,S.topDegree,opts)
     )
 
@@ -244,7 +262,7 @@ exteriorInclusion(Module) := M -> (
 exteriorInclusion(SimplicialModule) := S -> (cS := forgetComplex S;
     w2S := extPower(2,S);
     T := S**S;
-    map(T,w2S,hashTable for i in keys cS.module list i => (dual wedgeProduct(1,1,dual cS.module#i)))
+    map(T,w2S,applyValues(cS.module, m -> dual wedgeProduct(1,1,dual m)))
     )
 
 exteriorInclusion(Complex,ZZ) := (C,d) -> (normalize exteriorInclusion(simplicialModule(C,d)))
