@@ -212,7 +212,7 @@ makeDocumentTag String      := opts -> key -> (
 fixup DocumentTag := DocumentTag => tag -> (
     tag' := if (rawdoc := fetchAnyRawDocumentation tag) =!= null then rawdoc.DocumentTag else tag;
     if package tag =!= package tag' then printerr("warning: ambiguous reference ",
-	format toString tag, " and ", format toString tag', " when processsing ",
+	format toString tag, " and ", format toString tag', " when processing ",
 	toString locate currentDocumentTag);
     tag')
 
@@ -255,7 +255,6 @@ fSeq := new HashTable from splice {
     (2, symbol (*)     ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol ^*      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol _*      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
-    (2, symbol ~       ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol ^~      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol _~      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol !       ) => s -> (toString s#1, " ", toString s#0), -- postfix operator

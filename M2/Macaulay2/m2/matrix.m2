@@ -97,10 +97,10 @@ toSameRing = (m,n) -> (
      else (m,n))
 
 Matrix _ Sequence := RingElement => (m,ind) -> (
-     if # ind === 2
-     then promote(rawMatrixEntry(m.RawMatrix, ind#0, ind#1), ring m)
-     else error "expected a sequence of length two"
-     )
+    n := (raw m)_ind;
+    if instance(n, RawRingElement) then promote(n, ring m)
+    else if instance(n, RawMatrix) then map(ring m, n)
+    else error "internal error")
 
 Number      == Matrix :=
 RingElement == Matrix :=
@@ -179,8 +179,8 @@ Matrix * Matrix := Matrix => (m,n) -> (
      	  R := ring m;
 	  S := ring target n;
 	  if R =!= S then ( -- use toSameRing?
-	       try m = promote(m,S) else
-	       try n = promote(n,R) else
+	       try (m = promote(m,S); R=S) else
+	       try (n = promote(n,R); S=R) else
 	       error "maps over incompatible rings";
 	       );
 	  M = target m;
@@ -190,13 +190,8 @@ Matrix * Matrix := Matrix => (m,n) -> (
 	  if not isFreeModule P or not isFreeModule Q or rank P =!= rank Q
 	  then error "maps not composable";
 	  dif := degrees P - degrees Q;
-	  deg := (
-	       if #dif === 0
-	       then degree m + degree n
-	       else if same dif
-	       then degree m + degree n + dif#0
- 	       else toList (degreeLength ring m:0)
-	       );
+	  deg := degree m + degree n;
+	  if #dif > 0 then if same dif then N = N ** S^{-dif#0} else deg = toList (degreeLength S:0);
 	  f := m.RawMatrix * n.RawMatrix;
 	  f = rawMatrixRemake2(rawTarget f, rawSource f, deg, f, 0);
 	  f = reduce(M,f);
@@ -205,8 +200,11 @@ Matrix * Matrix := Matrix => (m,n) -> (
 	  else map(M,N,f)))
 
 Matrix#1 = f -> (
-    if source f =!= target f then error "expected source and target to agree"
-    else id_(target f))
+    M := target f;
+    N := source f;
+    if (M =!= N) and (not isFreeModule M or not isFreeModule N or rank M =!= rank N)
+    then error "expected source and target to agree"
+    else id_M)
 Matrix ^ ZZ := Matrix => BinaryPowerMethod
 
 transpose Matrix := Matrix => (cacheValue symbol transpose) (
@@ -431,8 +429,8 @@ Matrix || Number := (f,g) -> concatRows(f,g*id_(source f))
 -----------------------------------------------------------------------------
 -- submatrix, submatrixByDegrees
 -----------------------------------------------------------------------------
-Matrix _ List := Matrix => (f,v) -> submatrix(f,listZ splice v)	-- get some columns
-Matrix ^ List := Matrix => (f,v) -> submatrix(f,listZ splice v,) -- get some rows
+Matrix _ List := Matrix => (f,v) -> submatrix(f, v)  -- get some columns
+Matrix ^ List := Matrix => (f,v) -> submatrix(f, v,) -- get some rows
 
 Matrix _ ZZ := Vector => (m,i) -> (
      R := ring m;
@@ -442,10 +440,13 @@ Matrix _ ZZ := Vector => (m,i) -> (
      new target h from {h})
 
 -- given a map of free modules, find a submatrix of it
-submatrixFree = (m, rows, cols) -> map(ring m, if rows === null
-    then rawSubmatrix(raw cover m, listZZ cols)
-    else rawSubmatrix(raw cover m, listZZ rows,
-	if cols =!= null then listZZ cols else 0 .. numgens source m - 1))
+submatrixFree = (m, rows, cols) -> (
+    if rows =!= null then rows = adjustIndices(listZZ rows, numRows m);
+    if cols =!= null then cols = adjustIndices(listZZ cols, numColumns m);
+    map(ring m, if rows === null
+    then rawSubmatrix(raw cover m, cols)
+    else rawSubmatrix(raw cover m, rows,
+	if cols =!= null then cols else 0 .. numgens source m - 1)))
 -- given a module, find a part of the ambient module
 -- along with corresponding generators and relations
 sliceModule = (M, rows) -> (
@@ -460,17 +461,17 @@ submatrix  = method(TypicalValue => Matrix)
 submatrix' = method(TypicalValue => Matrix)
 
 submatrix(Matrix, VisibleList, VisibleList) := (m, rows, cols) -> map(sliceModule(target m, rows), sliceModule(source m, cols), raw submatrixFree(m, rows, cols))
-submatrix(Matrix, VisibleList, Nothing)     := (m, rows, null) -> map(sliceModule(target m, rows), source m,                    raw submatrixFree(m, rows, null))
+submatrix(Matrix, VisibleList, Nothing)     := (m, rows, cols) -> map(sliceModule(target m, rows), source m,                    raw submatrixFree(m, rows, null))
 submatrix(Matrix, VisibleList)              := (m,       cols) -> map(target m,                    sliceModule(source m, cols), raw submatrixFree(m, null, cols))
-submatrix(Matrix, Nothing,     VisibleList) := (m, null, cols) -> submatrix(m, cols)
-submatrix(Matrix, Nothing,     Nothing)     := (m, null, null) -> m
+submatrix(Matrix, Nothing,     VisibleList) := (m, rows, cols) -> submatrix(m, cols)
+submatrix(Matrix, Nothing,     Nothing)     := (m, rows, cols) -> m
 
 compl := (M, rows) -> if #(rows = listZZ rows) > 0 then toList(0 .. numgens M - 1) - set rows
 submatrix'(Matrix, VisibleList, VisibleList) := (m, rows, cols) -> submatrix(m, compl(target m, rows), compl(source m, cols))
-submatrix'(Matrix, VisibleList, Nothing)     := (m, rows, null) -> submatrix(m, compl(target m, rows), null)
+submatrix'(Matrix, VisibleList, Nothing)     := (m, rows, cols) -> submatrix(m, compl(target m, rows), null)
 submatrix'(Matrix, VisibleList)              := (m,       cols) -> submatrix(m, null, compl(source m, cols))
-submatrix'(Matrix, Nothing,     VisibleList) := (m, null, cols) -> submatrix'(m, cols)
-submatrix'(Matrix, Nothing,     Nothing)     := (m, null, null) -> m
+submatrix'(Matrix, Nothing,     VisibleList) := (m, rows, cols) -> submatrix'(m, cols)
+submatrix'(Matrix, Nothing,     Nothing)     := (m, rows, cols) -> m
 
 submatrixByDegrees = method()
 submatrixByDegrees(Matrix, Sequence, Sequence) := (m, tarBox, srcBox) -> (
@@ -653,7 +654,7 @@ isSubquotient(Module,Module) := (M,N) -> (
      and
      ambient M === ambient N
      and
-     (generators M | relations M) % (generators N | relations N) == 0
+     fullgens M % fullgens N == 0
      and
      relations N % relations M == 0
      )
@@ -732,25 +733,18 @@ inducesWellDefinedMap(Nothing,Nothing,Matrix) := (M,N,f) -> true
 
 -----------------------------------------------------------------------------
 
-vars Ring := Matrix => R -> (
-     g := generators R;
-     if R.?vars then R.vars else R.vars =
-     map(R^1,,{g}))
+vars Ring := Matrix => R -> R.vars ??= map(module R, , {generators R})
 
+relations  Module := Matrix => M -> (
+    if M.?relations then M.relations
+    else map(ambient M, (ring M)^0, 0))
+-- TODO: why are there two places for generators?
 generators Module := Matrix => opts -> M -> (
      if M.?generators then M.generators
      else if M.cache.?generators then M.cache.generators
      else M.cache.generators = id_(ambient M))
 
 Module_* := M -> apply(numgens M, i -> M_i)
-
-relations Module := Matrix => M -> (
-     if M.?relations then M.relations 
-     else (
-	  R := ring M;
-	  map(ambient M,R^0,0)
-	  )
-     )
 
 degrees Matrix := f -> {degrees target f, degrees source f}
 

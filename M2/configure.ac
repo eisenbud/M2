@@ -161,7 +161,6 @@ AC_CHECK_PROGS(ETAGS,etags ctags,false)
 if test "$ETAGS" = false; then AC_MSG_WARN(without etags no TAGS files will be made); fi
 AC_CHECK_PROGS(LINTIAN,lintian,false)
 AC_CHECK_PROGS(OTOOL,otool,false)
-AC_CHECK_PROGS(RPMLINT,rpmlint,false)
 AC_CHECK_PROGS(TAR,gtar gnutar tar,false)
 AC_CHECK_PROGS(FIND,gfind find,false)
 AC_CHECK_PROGS(OBJDUMP,objdump,false)
@@ -176,6 +175,7 @@ AC_CHECK_PROGS(CMP,cmp,false)
 AS_IF([test $CMP = false],
     AC_MSG_ERROR([cmp is required (try installing 'diffutils' package)]))
 AC_CHECK_PROGS([CMAKE], [cmake], [false])
+AC_CHECK_PROGS([CHRPATH], [chrpath], [false])
 
 AC_CHECK_TOOL(AR,ar,false)
 AC_CHECK_TOOL(AS,as,false)
@@ -219,7 +219,8 @@ fi
 AC_ARG_ENABLE([documentation],
     [AS_HELP_STRING([--enable-documentation=...],
         [space-delimited list of types of documentation to build; available
-         options are "html", "info", and "pdf"; default value is "html info"])],
+         options are "html", "info", and "pdf"; default value is "html info".
+         "download" will download pre-generated documentation])],
     [DOCUMENTATION=$enableval],
     [DOCUMENTATION="html info"])
 
@@ -227,6 +228,9 @@ if test "$DOCUMENTATION" = no
 then DOCUMENTATION=""
 elif test "$DOCUMENTATION" = yes
 then DOCUMENTATION="html info"
+elif test "$DOCUMENTATION" = download
+then DOCUMENTATION=""
+     BUILDLIST="$BUILDLIST Macaulay2-docs"
 else for DOCTYPE in $DOCUMENTATION
     do case $DOCTYPE in
             html|pdf)
@@ -393,7 +397,6 @@ test "$DEBUG" = "yes" && ENABLE_STRIP=no
 # note: we build many programs for inclusion in the distribution -- stripping them saves 9MB of 70
 
 AC_SUBST(MEMDEBUG,no)  AC_ARG_ENABLE(memdebug, AS_HELP_STRING(--enable-memdebug,enable memory allocation debugging), MEMDEBUG=$enableval)
-AC_SUBST(ENCAP,no)     AC_ARG_ENABLE(encap, AS_HELP_STRING(--enable-encap,encapsulate all files in a subdirectory at installation time), ENCAP=$enableval)
 AC_SUBST(XCODE,no)     AC_ARG_ENABLE(xcode, AS_HELP_STRING(--enable-xcode,create Macaulay2/d/interpret.a for use with xcode), XCODE=$enableval)
 
 AC_SUBST(CC_THREAD_SUPPORT)
@@ -509,17 +512,6 @@ AC_SUBST([GIT_DESCRIPTION],
 AC_SUBST([GIT_BRANCH],
          [`$GIT branch --show-current`])
 
-AC_SUBST(DEB,no)
-AC_ARG_ENABLE(deb,  AS_HELP_STRING(--enable-deb,prepare a *.deb package (for debian, ubuntu, ...)), DEB=$enableval)
-if test "$DEB" = yes 
-then if test "$OPTIMIZE" = no
-     then AC_MSG_ERROR([--disable-optimize and --enable-deb both specified])
-     fi
-     if test "$DEBUG" = yes
-     then AC_MSG_ERROR([--enable-debug and --enable-deb both specified])
-     fi
-fi
-
 AC_SUBST(FREEBSD,no)
 AC_ARG_ENABLE(freebsd,  AS_HELP_STRING(--enable-freebsd,prepare a package file for freebsd), FREEBSD=$enableval)
 if test "$FREEBSD" = yes 
@@ -528,17 +520,6 @@ then if test "$OPTIMIZE" = no
      fi
      if test "$DEBUG" = yes
      then AC_MSG_ERROR([--enable-debug and --enable-freebsd both specified])
-     fi
-fi
-
-AC_SUBST(RPM,no)
-AC_ARG_ENABLE(rpm,  AS_HELP_STRING(--enable-rpm,prepare a *.rpm package (for red hat based systems)), RPM=$enableval)
-if test "$RPM" = yes 
-then if test "$OPTIMIZE" = no
-     then AC_MSG_ERROR([--disable-optimize and --enable-rpm both specified])
-     fi
-     if test "$DEBUG" = yes
-     then AC_MSG_ERROR([--enable-debug and --enable-rpm both specified])
      fi
 fi
 
@@ -604,6 +585,21 @@ done
 AC_SUBST(OPENMP_CXXFLAGS,"$OPENMP_CXXFLAGS")
 AC_SUBST(OPENMP_LIBS,"$OPENMP_LIBS")
 
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81358
+AC_MSG_CHECKING([whether we need to link with -latomic])
+AC_LANG([C++])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([
+	#include <atomic>
+	], [std::atomic<int64_t> x; x++])],
+	[AC_MSG_RESULT([no])],
+	[LIBS="$LIBS -latomic"
+	 AC_LINK_IFELSE([AC_LANG_PROGRAM([
+		#include <atomic>
+		], [std::atomic<int64_t> x; x++])],
+		[AC_MSG_RESULT([yes])],
+		[AC_MSG_RESULT([error])
+		 AC_MSG_ERROR([unable to handle 64-bit atomics])])])
+
 #############################################################################
 AC_SUBST(BUILTLIBS)
 # The list BUILTLIBS is the list of link options for the libraries we have decided to build,
@@ -615,7 +611,7 @@ AC_SUBST(BUILTLIBS)
 AC_SUBST(LIBLIST, " gc gdbm gmp mpfr mpfi normaliz readline ntl flint factory lapack mpsolve frobby glpk cddlib fplll givaro fflas_ffpack linbox gtest tbb memtailor mathic mathicgb eigen ")
 # The list LIBLIST is the list of libraries that might be used and linked into M2.
 
-AC_SUBST(PROGLIST, "4ti2 gfan csdp nauty cddplus lrslib topcom cohomcalg msolve")
+AC_SUBST(PROGLIST, "4ti2 gfan csdp nauty lrslib topcom cohomcalg msolve")
 # The list PROGLIST is the list of programs and libraries for them that are distributed with M2.
 #     Initially, we offer no option for not compiling some of them.
 
@@ -678,7 +674,7 @@ PKGNAME_fflas_ffpack=fflas-ffpack
 #############################################################################
 
 LIBLIST=" $LIBLIST "
-AC_ARG_ENABLE(build-libraries, AS_HELP_STRING(--enable-build-libraries=...,[list of libraries and programs to build from downloaded source code (e.g., gc gdbm mpfr mpfi readline ntl factory lapack mpsolve frobby glpk cddlib givaro fflas_ffpack linbox 4ti2 gfan normaliz csdp nauty cddplus lrslib msolve)]),
+AC_ARG_ENABLE(build-libraries, AS_HELP_STRING(--enable-build-libraries=...,[list of libraries and programs to build from downloaded source code (e.g., gc gdbm mpfr mpfi readline ntl factory lapack mpsolve frobby glpk cddlib givaro fflas_ffpack linbox 4ti2 gfan normaliz csdp nauty lrslib msolve)]),
     [for i in $enableval
      do case " $LIBLIST $PROGLIST " in
 	    *" $i "*) 
@@ -880,6 +876,9 @@ then CPPFLAGS="$CPPFLAGS -I/usr/include/cddlib"
 fi
 if test -d /usr/include/cdd 
 then CPPFLAGS="$CPPFLAGS -I/usr/include/cdd"
+fi
+if test -d /opt/homebrew/include/cddlib
+then CPPFLAGS="$CPPFLAGS -I/opt/homebrew/include/cddlib"
 fi
 AC_LANG(C)
 AC_CHECK_HEADER(cdd.h,,[ AC_MSG_RESULT([[cddlib not found, will build]])
@@ -1670,6 +1669,18 @@ AS_IF([test x$with_libffi != xno ],
 AC_SUBST([LIBFFI], [$with_libffi])
 AC_DEFINE_UNQUOTED([FFI_VERSION], ["$FFI_VERSION"], [libffi version])
 
+AC_ARG_WITH([jansson],
+    [AS_HELP_STRING([--without-jansson],
+        [don't link with the jansson for json parsing])],,
+    [with_jansson=yes])
+AS_IF([test "x$with_jansson" = xyes],
+    [AC_CHECK_HEADERS([jansson.h],, [AC_MSG_ERROR([jansson.h not found])])
+     AC_SEARCH_LIBS([json_loadb], [jansson], [],
+         [AC_MSG_ERROR([libjansson not found])])
+     AC_DEFINE([WITH_JANSSON], [1],
+         [whether we are linking with the jansson library])])
+AC_SUBST([JANSSON], [$with_jansson])
+
 # after this point we add no more libraries to $LIBS, e.g., with AC_SEARCH_LIBS()
 SAVELIBS=$LIBS
 
@@ -1850,21 +1861,6 @@ AC_LINK_IFELSE([AC_LANG_SOURCE([int main() {}])],
 rm -f conftest.mapfile
 LDFLAGS=$SAVE
 
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81358
-AC_MSG_CHECKING([whether we need to link with -latomic])
-AC_LANG([C++])
-AC_LINK_IFELSE([AC_LANG_PROGRAM([
-	#include <atomic>
-	], [std::atomic<int64_t> x; x++])],
-	[AC_MSG_RESULT([no])],
-	[LIBS="$LIBS -latomic"
-	 AC_LINK_IFELSE([AC_LANG_PROGRAM([
-		#include <atomic>
-		], [std::atomic<int64_t> x; x++])],
-		[AC_MSG_RESULT([yes])],
-		[AC_MSG_RESULT([error])
-		 AC_MSG_ERROR([unable to handle 64-bit atomics])])])
-
 AC_SUBST(DUMPDATAFILE,Macaulay2-$ARCH-data)
 
 test "$MEMDEBUG" = yes && M2_CPPFLAGS="$M2_CPPFLAGS -DMEMDEBUG"
@@ -1966,12 +1962,6 @@ fi
 
 # Here we insert autoconf's default values so we can compute the relative locations in the directory tree
 test "$prefix" || prefix=/usr/local
-
-# for some distributions, we know what the prefix should be:
-test "$DEB"     = yes && test "$prefix" != /usr && 
-     AC_MSG_ERROR(--enable-deb specified and --prefix not set to /usr)
-test "$RPM"     = yes && test "$prefix" != /usr && 
-     AC_MSG_ERROR(--enable-rpm specified and --prefix not set to /usr)
 
 if test "$prefix" != /usr/local
 then test "$FREEBSD" = yes && AC_MSG_ERROR(--enable-freebsd specified and --prefix not set to /usr/local)

@@ -1,5 +1,5 @@
 -- ForeignFunctions package for Macaulay2
--- Copyright (C) 2022-2024 Doug Torrance
+-- Copyright (C) 2022-2026 Doug Torrance
 
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License
@@ -12,14 +12,12 @@
 -- GNU General Public License for more details.
 
 -- You should have received a copy of the GNU General Public License
--- along with this program; if not, write to the Free Software
--- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
--- 02110-1301, USA.
+-- along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 newPackage("ForeignFunctions",
     Headline => "foreign function interface",
-    Version => "0.5",
-    Date => "March 8, 2025",
+    Version => "0.7",
+    Date => "February 5, 2026",
     Authors => {{
 	    Name => "Doug Torrance",
 	    Email => "dtorrance@piedmont.edu",
@@ -45,6 +43,13 @@ newPackage("ForeignFunctions",
 ---------------
 
 -*
+
+0.7 (2026-02-05, M2 1.26.05)
+* update foreignSymbol test so that it doesn't require mpfi since it may not be
+  available (e.g., if it's statically linked)
+
+0.6 (2025-11-10, M2 1.25.11)
+* update GPL 2 text (FSF no longer has a physical address)
 
 0.5 (2025-03-08, M2 1.25.05)
 * make LAPACK example canned since it may be a static library
@@ -2548,11 +2553,8 @@ TEST ///
 -------------------
 -- foreignSymbol --
 -------------------
-mpfi = openSharedLibrary "mpfi"
-(foreignFunction(mpfi, "mpfi_set_error", void, int)) 5
-assert Equation(value foreignSymbol(mpfi, "mpfi_error", int), 5)
-assert Equation(value foreignSymbol("mpfi_error", int), 5)
-(foreignFunction(mpfi, "mpfi_reset_error", void, void))()
+environ = foreignSymbol("environ", charstarstar)
+assert all(value environ, x -> instance(x, String))
 ///
 
 -- TODO: add test when #2683 fixed
@@ -2630,4 +2632,11 @@ assert BinaryOperation(symbol ===, value value toExternalString x,
 mpfi = openSharedLibrary "mpfi"
 assert instance(value describe mpfi, SharedLibrary)
 assert instance(value toExternalString mpfi, SharedLibrary)
+///
+
+TEST ///
+-- finalizing gmp and mpfr objects
+scan(1000, i -> mpzT 2^100)
+scan(1000, i -> mpfrT numeric(100, pi))
+collectGarbage()
 ///

@@ -53,7 +53,7 @@ captureTestResult := (desc, teststring, pkg, usermode) -> (
     -- TODO: remove this when capture uses ArgQ
     if usermode === not noinitfile then
     -- try capturing in the same process
-    if isCapturable(teststring, pkg, true) then (
+    if isCapturable(teststring, pkg) then (
 	checkmsg("capturing", desc);
 	-- TODO: adjust and pass argumentMode, instead. This can be done earlier, too.
 	-- Note: UserMode option of capture is not related to UserMode option of check
@@ -83,7 +83,10 @@ loadTestDir := pkg -> (
 
 tests = method()
 tests Package := pkg -> (
-    if pkg#?"documentation not loaded" then pkg = loadPackage(pkg#"pkgname", LoadDocumentation => true, Reload => true);
+    if pkg#?"documentation not loaded"
+    then pkg = loadPackage(pkg,
+	FileName => pkg#"source file",
+	LoadDocumentation => true);
     if not pkg#?"test directory loaded" then loadTestDir pkg;
     previousMethodsFound = new NumberedVerticalList from pkg#"test inputs"
     )

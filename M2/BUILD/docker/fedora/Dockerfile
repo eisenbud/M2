@@ -8,13 +8,13 @@ FROM quay.io/fedora/fedora-minimal:$RELEASE
 
 # Programs we require to build
 #  kernel-devel rpm-build rpm-sign rpmdevtools
-RUN microdnf install -y autoconf bison ccache cmake curl diffutils file     \
-    gcc-c++ git gnupg libtool make ninja-build patch yasm rpm-build rpmlint \
-    which flex gcc-gfortran
+RUN microdnf install -y autoconf bison ccache chrpath cmake curl diffutils \
+    file gcc-c++ git gnupg libtool make ninja-build patch yasm rpm-build   \
+    rpmlint which flex gcc-gfortran environment-modules
 
 # Libraries we require
 RUN microdnf install -y openblas-devel libxml2-devel readline-devel gdbm-devel \
-    boost-devel libomp-devel tbb-devel python3-devel libffi-devel
+    boost-devel libomp-devel tbb-devel python3-devel libffi-devel jansson-devel
 
 # Libraries we can build (factory not available on ubuntu)
 RUN microdnf install -y eigen3-devel glpk-devel gmp-devel mpfr-devel ntl-devel \

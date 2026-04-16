@@ -18,9 +18,9 @@ rawKeyDB = "raw documentation database"
 -- warnings or errors to issue for deprecated packages
 -- TODO: also add package deprecation warnings for OldPolyhedra, etc?
 deprecatedPackageWarnings = new HashTable from {
-    -- two warnings added before v1.25.05
     "Divisor"      => () -> ( printerr "warning: the 'Divisor' package has been renamed as 'WeilDivisors'."; "WeilDivisors" ),
     "CodepthThree" => () -> ( printerr "warning: the 'CodepthThree' package has been renamed as 'TorAlgebra'."; "TorAlgebra" ),
+    "LieTypes"     => () -> ( printerr "warning: the 'LieTypes' package has been renamed as 'LieAlgebraRepresentations'."; "LieAlgebraRepresentations" ),
 }
 
 -----------------------------------------------------------------------------
@@ -428,7 +428,7 @@ export List   := v -> (
 		if class sym#1 =!= String then error("expected a string: ", nam);
 		sym = getGlobalSymbol(pd, sym#1))
 	    else if instance(sym, String) then (
-		if match("^[[:alpha:]]$", sym) then error ("cannot export single-letter symbol ", getGlobalSymbol(pd, sym));
+		if match("^[[:alpha:]]$", sym) then error ("cannot export single-letter symbol '", sym, "'");
 		nam = sym;
 		sym = if pd#?nam then pd#nam else getGlobalSymbol(pd, nam))
 	    else error ("'export' expected a string or an option but was given ", sym, ", of class ", class sym);

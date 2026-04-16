@@ -123,7 +123,7 @@ TateOnProducts
 LatticePolytopes
 FiniteFittingIdeals
 HigherCIOperators
-LieTypes
+LieAlgebraRepresentations
 ConformalBlocks
 M0nbar
 AnalyzeSheafOnP1
@@ -146,8 +146,6 @@ RandomPoints
 SwitchingFields
 SpectralSequences
 SectionRing
-OldPolyhedra
-OldToricVectorBundles
 K3Carpets
 ChainComplexOperations
 NumericalCertification
@@ -169,6 +167,7 @@ ReflexivePolytopesDB
 AbstractToricVarieties
 TestIdeals
 FrobeniusThresholds
+NonPrincipalTestIdeals
 Seminormalization
 AlgebraicSplines
 TriangularSets
@@ -278,6 +277,7 @@ Msolve
 Permutations
 SCMAlgebras
 NumericalSemigroups
+ExteriorExtensions
 Oscillators
 IncidenceCorrespondenceCohomology
 ToricHigherDirectImages
@@ -289,3 +289,6 @@ Tableaux
 CpMackeyFunctors
 JSONRPC
 SimplicialModules
+MatrixFactorizations
+PathSignatures
+MacaulayPosets
