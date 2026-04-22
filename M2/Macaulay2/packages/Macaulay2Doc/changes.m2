@@ -2892,6 +2892,12 @@ document {
 			 saving time.  See ", TO (quotientRemainder,RingElement,RingElement), "."
 			 },
 		    LI {
+			 "The binary representation of a real number is now available using ", TT "promote(RR,QQ)", ".
+			 (note: this was reverted in a later version.)
+			 The code for ", TO (lift,RR,QQ), " has been tightened up so a rational number is provided
+			 that provides exactly the same real number when promoted."
+			 },
+		    LI {
 			 "The Emacs commands ", KBD "M-x M2", ", bound to ", KBD "F12", ", and ", TT "M2-send-to-program",
 			 ", bound to ", KBD "F11", ", have some new capability.
 			 With prefix argument ", KBD "C-u C-u", " to ", KBD "M-x M2", ", the tag from which the buffer name is constructed (by

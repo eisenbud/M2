@@ -159,7 +159,7 @@ QQ _ ComplexField :=
 RR _ ComplexField :=
 CC _ ComplexField := (x,R) -> toCC(R.precision,x)
 
-lift1 := z -> if z === 0. then 0/1 else if isFinite z then (
+internalRepresentation = z -> if z === 0. then 0/1 else if isFinite z then (
      (prec,sgn,expt,m,numbits) := partsRR z;
      sgn * m / 2^(numbits - expt)
      )
@@ -178,7 +178,7 @@ lift(RR,QQ) := opts -> (r,QQ) -> (
 	  d := m_(1,0);
 	  q := n / d;
 	  if r === numeric(p,q) then return q;
-	  if r' == 0 or abs(n*d) > p2 then return lift1 r;
+	  if r' == 0 or abs(n*d) > p2 then return internalRepresentation r;
 	  r' = 1/r' ;
 	  ))
 lift(RR,ZZ) := opts -> (r,ZZ) -> (
