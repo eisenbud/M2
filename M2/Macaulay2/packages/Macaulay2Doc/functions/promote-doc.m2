@@ -20,7 +20,10 @@ promote(Vector,type of RingElement)
 
 undocumented {(promote,CC,CC_*),
      (promote,CC,CCi_*),
-     (promote, Matrix, InexactNumber),(promote, Number, InexactNumber),
+     (promote, Matrix, InexactNumber),
+     (promote, QQ, RR),
+     (promote, ZZ, RR),
+     (promote, Number, CC),
      (promote, Ideal, Number),
      (promote, Ideal, RingElement),
      (promote, List, QQ, CC_*),
@@ -108,8 +111,7 @@ undocumented {(promote,CC,CC_*),
 
 document { 
      Key => {promote,
-	  (symbol _, RingElement, Ring),(symbol _,Number,Ring),
-	  (promote,RR,QQ)},
+	  (symbol _, RingElement, Ring),(symbol _,Number,Ring)},
      Headline => "promote to another ring",
      Usage => "promote(f,R)",
      Inputs => {
@@ -130,17 +132,6 @@ document {
      F = map(R,QQ);  F(2/3)
      promote(f,S)
      G = map(S,R); G(f)
-     ///,
-     PARA {
-	  "Promotion of real numbers to rational numbers is accomplished by using all of the bits of
-	  the internal representation."
-	  },
-     EXAMPLE lines ///
-     promote(101.,QQ)
-     promote(.101,QQ)
-     factor denominator oo
-     ooo + 0.
-     oo === .101
      ///,
      PARA {
 	  "For promotion of ring elements, there is the following shorter notation."

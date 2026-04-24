@@ -1298,7 +1298,6 @@ export {
         "gens" => "generators",
 	"intersection" => "intersect",
         "ker" => "kernel",
-	"Li" => "polylog",
 	"member" => "isMember",
         "minPres" => "minimalPresentation",
         "mutable" => "isMutable",
