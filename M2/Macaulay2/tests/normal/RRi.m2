@@ -134,6 +134,9 @@ R = CCi[x]/x^2
 assert(promote(toRRi 2, R) == 2)
 assert(promote(toCCi 2, R) == 2)
 
+f = map(CCi_53, RRi_53)
+assert Equation(f 2, toCCi 2)
+
 --- TO FIX: ---------------------------------------------
 
 -*
