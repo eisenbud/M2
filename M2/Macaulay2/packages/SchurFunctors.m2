@@ -20,7 +20,7 @@ newPackage(
      
 export{ "schur", "schurModule", "Filling",
      "straighten", "printSchurModuleElement", "schurModulesMap", "augmentFilling",
-     "isStandard", "standardTableaux", "normalize",
+     "isStandard", "standardTableaux",
      "character", "splitCharacter", "characterRep", "decomposeRep",
      -- Weyl module base functionality (divided-power analogue of Filling)
      "WeylFilling", "weyl",
