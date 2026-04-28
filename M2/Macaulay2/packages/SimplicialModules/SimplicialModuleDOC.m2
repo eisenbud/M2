@@ -3737,19 +3737,27 @@ doc ///
 
 
 
-doc /// 
+doc ///
     Key
-        normalize
         (normalize, SimplicialModule, ZZ)
 	(normalize, SimplicialModule)
 	(normalize, SimplicialModuleMap, ZZ)
 	(normalize, SimplicialModuleMap)
 	CheckSum
 	CheckComplex
+        [(normalize, SimplicialModule, ZZ), CheckSum]
+        [(normalize, SimplicialModule, ZZ), CheckComplex]
+        [(normalize, SimplicialModule), CheckSum]
+        [(normalize, SimplicialModule), CheckComplex]
+        [(normalize, SimplicialModuleMap, ZZ), CheckSum]
+        [(normalize, SimplicialModuleMap, ZZ), CheckComplex]
+        [(normalize, SimplicialModuleMap), CheckSum]
+        [(normalize, SimplicialModuleMap), CheckComplex]
     Headline
         normalization functor from simplicial modules to nonnegatively-graded chain complexes
     Usage
-        normalize(S, d, Options => {CheckSum => true, CheckComplex => true})
+        normalize(S, d)
+        normalize S
     Inputs
         S: SimplicialModule
             or @TO SimplicialModuleMap@, the object to be normalized.
@@ -4013,38 +4021,6 @@ doc ///
             of the terms is remembered when forgetting the underlying complex.
     SeeAlso
         forgetComplex
-///
-
-doc ///
-    Key
-        [normalize, CheckComplex]
-    Headline
-        whether to use cached complex data
-    Usage
-        normalize(..., CheckComplex => true)
-    Description
-        Text
-            If {\tt CheckComplex => true} (the default), and the simplicial module
-            was constructed as the Dold-Kan image of a complex, then the cached complex
-            is returned. If {\tt CheckComplex => false}, the normalization is computed
-            from scratch.
-    SeeAlso
-        normalize
-///
-
-doc ///
-    Key
-        [normalize, CheckSum]
-    Headline
-        whether to use cached direct sum data
-    Usage
-        normalize(..., CheckSum => true)
-    Description
-        Text
-            If {\tt CheckSum => true} (the default), and the simplicial module has cached
-            direct sum data, it is used during normalization.
-    SeeAlso
-        normalize
 ///
 
 doc ///

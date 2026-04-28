@@ -20,7 +20,7 @@ newPackage(
      
 export{ "schur", "schurModule", "Filling",
      "straighten", "printSchurModuleElement", "schurModulesMap", "augmentFilling",
-     "isStandard", "standardTableaux",
+     "isStandard", "standardTableaux", "normalize",
      "character", "splitCharacter", "characterRep", "decomposeRep",
      -- Weyl module base functionality (divided-power analogue of Filling)
      "WeylFilling", "weyl",
@@ -110,8 +110,8 @@ sortSign = L -> (
 --   c =  0  if any column has a repeated entry (T represents 0),
 --   c =  1  if the total permutation has even sign,
 --   c = -1  if it has odd sign.
-normalize = method()
-normalize Filling := T -> (
+normalize = method(Options => true)
+normalize Filling := {} >> opts -> T -> (
      coeff := 0;
      degenerate := false;
      T' := apply(T, t -> (

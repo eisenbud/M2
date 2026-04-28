@@ -25,7 +25,6 @@ export {"SimplicialModule",
     "exteriorInclusion",
     "extPower",
     "naiveNorm",
-    "normalize",
     "schurMap",
     "simplicialTensor",
     "symmetricQuotient",
@@ -41,6 +40,10 @@ export {"SimplicialModule",
     "complexMap",
     "summandSurjection"
     }
+
+-- normalize is owned and exported by SchurFunctors; we share the symbol so
+-- this package can install its own normalize methods on simplicial modules.
+exportFrom_SchurFunctors { "normalize" }
 
 
 

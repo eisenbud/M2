@@ -222,18 +222,20 @@ makeNormMap(SimplicialModuleMap,ZZ) := (phi,d) -> (
 
 --this is the normalization functor from the category of simplicial modules
 --back to the category of nonnegatively-graded chain complexes.
-normalize = method(Options => {CheckSum => true,CheckComplex => true});
-normalize(SimplicialModule,ZZ) := Complex => opts -> (S,d) -> (
+--The dispatcher `normalize = method(Options => true)` lives in SchurFunctors,
+--where `normalize Filling` is also installed; we share that method here so the
+--two packages cooperate on a single symbol.
+normalize(SimplicialModule,ZZ) := Complex => {CheckSum => true, CheckComplex => true} >> opts -> (S,d) -> (
     if opts.CheckComplex and S.?complex then return naiveTruncation(S.complex,0,d);
     n := length components S;
     if opts.CheckSum and n>1 then return directSum for i to n-1 list normalize((components S)_i,d);
     complex for i from 1 to d list makeNormMap(S,i))
 
-normalize(SimplicialModule) := Complex => opts -> S -> (if S.?complex then return normalize(S,S.complexLength,opts);
+normalize(SimplicialModule) := Complex => {CheckSum => true, CheckComplex => true} >> opts -> S -> (if S.?complex then return normalize(S,S.complexLength,opts);
     normalize(S,S.topDegree,opts)
     )
 
-normalize(SimplicialModuleMap,ZZ) := ComplexMap => opts -> (phi,d) -> (
+normalize(SimplicialModuleMap,ZZ) := ComplexMap => {CheckSum => true, CheckComplex => true} >> opts -> (phi,d) -> (
     if opts.CheckComplex and phi.cache.?complexMap then return naiveTruncation(phi.cache.complexMap,0,d);
     n := length components phi;
     if opts.CheckSum and n>1 then return directSum for i to n-1 list normalize((components phi)_i,d);
@@ -244,7 +246,7 @@ normalize(SimplicialModuleMap,ZZ) := ComplexMap => opts -> (phi,d) -> (
     map(C2,C1,new HashTable from for i to max(max C1,max C2) list i => (if (f:=makeNormMap(phi,i)) == 0 then continue else map(C2_i, C1_i,  f)))
     )
 
-normalize(SimplicialModuleMap) := ComplexMap => opts ->  phi -> (d := max(topDegree source phi,topDegree target phi);
+normalize(SimplicialModuleMap) := ComplexMap => {CheckSum => true, CheckComplex => true} >> opts ->  phi -> (d := max(topDegree source phi,topDegree target phi);
     normalize(phi,d,opts)
     )
 
