@@ -194,67 +194,47 @@ isWellDefined SimplicialModule := Boolean => C -> (
     k := keys C;
     -- check keys, check their types
     if not instance(C.ring, Ring) then (
-        if debugLevel > 0 then (
-            << "-- expected 'ring C' to be a ring" << endl;
-            );
+        if debugLevel > 0 then printerr "expected 'ring C' to be a ring";
         return false;
         );
     (lo,hi) := (0, C.topDegree);
     if not instance(hi,ZZ) or lo > hi then (
-        if debugLevel > 0 then (
-            << "-- expected topDegree to be a nonnegative integer" << endl;
-            );
+        if debugLevel > 0 then printerr "expected topDegree to be a nonnegative integer";
         return false;
         );
     if not instance(C.module, HashTable) then (
-        if debugLevel > 0 then (
-            << "-- expected C.module to be a HashTable" << endl;
-            );
+        if debugLevel > 0 then printerr "expected C.module to be a HashTable";
         return false;
-        );    
+        );
     if not instance(C.dd, SimplicialModuleMap) then (
-        if debugLevel > 0 then (
-            << "-- expected dd^C to be a SimplicialModuleMap" << endl;
-            );
+        if debugLevel > 0 then printerr "expected dd^C to be a SimplicialModuleMap";
         return false;
         );
     if not instance(C.cache, CacheTable) then (
-        if debugLevel > 0 then (
-            << "-- expected 'C.cache' to be a CacheTable" << endl;
-            );
+        if debugLevel > 0 then printerr "expected 'C.cache' to be a CacheTable";
         return false;
         );
     -- check ring matches modules
     if not all(keys C.module, i -> instance(i,Sequence) and i_0 >= lo and i_0 <= hi)
        and not all(keys C.module, i -> instance(i,ZZ) and i >= lo and i <= hi) then (
-        if debugLevel > 0 then (
-            << "-- expected all keys of C.module to be sequences or integers with nonnegative first entry, bounded by the top degree" << [lo,hi] << endl;
-            );
+        if debugLevel > 0 then printerr("expected all keys of C.module to be sequences or integers with nonnegative first entry, bounded by the top degree", toString [lo,hi]);
         return false;
         );
     if not all(values C.module, m -> ring m === ring C) then (
-        if debugLevel > 0 then (
-            << "-- expected all modules in C.module to be over 'ring C'" << endl;
-            );
+        if debugLevel > 0 then printerr "expected all modules in C.module to be over 'ring C'";
         return false;
         );
     -- check face maps
     if ring C.dd =!= ring C then (
-        if debugLevel > 0 then (
-            << "-- expected ring of the face maps to be the ring of the simplicial module" << endl;
-            );
+        if debugLevel > 0 then printerr "expected ring of the face maps to be the ring of the simplicial module";
         return false;
         );
     if degree C.dd =!= -1 then (
-        if debugLevel > 0 then (
-            << "-- expected degree of the face maps to be -1" << endl;
-            );
+        if debugLevel > 0 then printerr "expected degree of the face maps to be -1";
         return false;
         );
     if not all(keys (dd^C).map, i -> instance(i,Sequence) and i_0 >= lo+1 and i_0 <= hi) then (
-        if debugLevel > 0 then (
-            << "-- expected all maps of the face maps to be indexed by integers in the concentration [lo+1,hi]" << endl;
-            );
+        if debugLevel > 0 then printerr "expected all maps of the face maps to be indexed by integers in the concentration [lo+1,hi]";
         return false;
         );
     for i from lo+1 to hi do (
@@ -262,26 +242,22 @@ isWellDefined SimplicialModule := Boolean => C -> (
         if source f != C_i or target f != C_(i-1)
         then (
             if debugLevel > 0 then (
-                << "-- expected source and target of the face maps to be modules in the simplicial module " << endl;
-                << "--   face map at index " << i << " fails this condition" << endl;
+                printerr "expected source and target of the face maps to be modules in the simplicial module";
+                printerr("  face map at index ", toString i, " fails this condition");
             );
             return false;
             );
         );
     if not(C.?ss) then (
-    D := naiveNorm C; 
+    D := naiveNorm C;
     if not isWellDefined D then (
-            if debugLevel > 0 then (
-                << "-- expected naive normalization to be a well-defined complex " << endl;            
-            );    
+            if debugLevel > 0 then printerr "expected naive normalization to be a well-defined complex";
             return false;
             );
 	);
     if C.?ss then (
 	if not isSimplicialModule C then (
-	    if debugLevel >0 then (
-		<< "--object fails to satisfy simplicial identities; run isSimplicialModule to see where it fails" << endl;
-		);
+	    if debugLevel > 0 then printerr "object fails to satisfy simplicial identities; run isSimplicialModule to see where it fails";
 	    return false;
 	    );
 	);
@@ -319,8 +295,8 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
 		if not mapsEq(dd^S_(i-1,k), dd^S_(i,j), dd^S_(i-1,j-1), dd^S_(i,k))
 		then (
 		    if debugLevel > 0 then (
-			<< "--simplicial map identities fail for face/face compositions" << endl;
-			<< "--face/face composition for indices " << (i,j,k) << " fail" << endl;
+			printerr "simplicial map identities fail for face/face compositions";
+			printerr("face/face composition for indices ", toString (i,j,k), " fail");
 			);
 		    return false;
 		    );
@@ -333,8 +309,8 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
 		if not mapsEq(dd^S_(i+1,k), ss^S_(i,j), ss^S_(i-1,j-1), dd^S_(i,k))
 		then (
 		    if debugLevel > 0 then (
-			<< "--simplicial map identities fail for face/degeneracy compositions" << endl;
-			<< "--face/degeneracy composition for indices " << (i,j,k) << " fail" << endl;
+			printerr "simplicial map identities fail for face/degeneracy compositions";
+			printerr("face/degeneracy composition for indices ", toString (i,j,k), " fail");
 			);
 		    return false;
 		    );
@@ -346,8 +322,8 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
 	    if not mapIsId(dd^S_(i+1,j), ss^S_(i,j)) or not mapIsId(dd^S_(i+1,j+1), ss^S_(i,j))
 	    then (
 		if debugLevel > 0 then (
-			<< "--simplicial map identities fail for face/degeneracy compositions" << endl;
-			<< "--face/degeneracy composition for indices " << (i,j,j) << " fail" << endl;
+			printerr "simplicial map identities fail for face/degeneracy compositions";
+			printerr("face/degeneracy composition for indices ", toString (i,j,j), " fail");
 			);
 		    return false;
 		    );
@@ -359,8 +335,8 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
 		if not mapsEq(dd^S_(i+1,k), ss^S_(i,j), ss^S_(i-1,j), dd^S_(i,k-1))
 		then (
 		    if debugLevel > 0 then (
-			<< "--simplicial map identities fail for face/degeneracy compositions" << endl;
-			<< "--face/degeneracy composition for indices " << (i,j,k) << " fail" << endl;
+			printerr "simplicial map identities fail for face/degeneracy compositions";
+			printerr("face/degeneracy composition for indices ", toString (i,j,k), " fail");
 			);
 		    return false;
 		    );
@@ -373,8 +349,8 @@ isSimplicialModule(SimplicialModule) := Boolean => S -> (
 		if not mapsEq(ss^S_(i+1,k), ss^S_(i,j), ss^S_(i+1,j+1), ss^S_(i,k))
 		then (
 		    if debugLevel > 0 then (
-			<< "--simplicial map identities fail for degeneracy/degeneracy compositions" << endl;
-			<< "--degeneracy/degeneracy composition for indices " << (i,j,k) << " fail" << endl;
+			printerr "simplicial map identities fail for degeneracy/degeneracy compositions";
+			printerr("degeneracy/degeneracy composition for indices ", toString (i,j,k), " fail");
 			);
 		    return false;
 		    );
@@ -390,28 +366,20 @@ isWellDefined SimplicialModuleMap := f -> (
     k := keys f;
     -- source and target
     if ring f.source =!= ring f.target then (
-        if debugLevel > 0 then (
-            << "-- expected source and target to have the same ring" << endl;
-            );
+        if debugLevel > 0 then printerr "expected source and target to have the same ring";
         return false;
         );
     if not isWellDefined f.source or not isWellDefined f.target then (
-        if debugLevel > 0 then (
-            << "-- expected source and target to be well-defined simplicial modules" << endl;
-            );
+        if debugLevel > 0 then printerr "expected source and target to be well-defined simplicial modules";
         return false;
         );
     if not instance(f.degree, ZZ) then (
-        if debugLevel > 0 then (
-            << "-- expected degree of homomorphism to be an integer" << endl;
-            );
+        if debugLevel > 0 then printerr "expected degree of homomorphism to be an integer";
         return false;
         );
     (lo,hi) := (0,f.source.topDegree);
     if not all(keys f.map, i -> instance(i,ZZ) or instance(i, Sequence)) then (
-        if debugLevel > 0 then (
-            << "-- expected all maps to be indexed by integers or sequences of two integers" << endl;
-            );
+        if debugLevel > 0 then printerr "expected all maps to be indexed by integers or sequences of two integers";
         return false;
         );
     if all(keys f.map, i -> instance(i,ZZ)) then for i from lo to hi do (
@@ -419,8 +387,8 @@ isWellDefined SimplicialModuleMap := f -> (
         if source g != f.source_i or target g != f.target_(i+f.degree)
         then (
             if debugLevel > 0 then (
-                << "-- expected source and target of maps to agree with those of simplicial module  " << endl;
-                << "--   the map at index " << i << " fails this condition" << endl;
+                printerr "expected source and target of maps to agree with those of simplicial module";
+                printerr("  the map at index ", toString i, " fails this condition");
             );
             return false;
             );
@@ -441,17 +409,15 @@ isWellDefined SimplicialModuleMap := f -> (
                     iscommutative = false;
                     if f.cache.isCommutative then (
                         if debugLevel > 0 then (
-                            << "-- the cache table incorrectly asserts that the maps commute with the differentials " << endl;
-                            << "--   differential at index " << i << " fails this condition" << endl;
+                            printerr "the cache table incorrectly asserts that the maps commute with the differentials";
+                            printerr("  differential at index ", toString i, " fails this condition");
                             );
                         return false;
                         );
                     )
 	    );));
         if iscommutative and not f.cache.isCommutative then (
-            if debugLevel > 0 then (
-                << "-- the cache table incorrectly asserts that the maps do not commute with the differentials " << endl;
-                );
+            if debugLevel > 0 then printerr "the cache table incorrectly asserts that the maps do not commute with the differentials";
             return false;
             );
         );
@@ -474,9 +440,7 @@ isCommutative SimplicialModuleMap := Boolean => f -> (
             if not (try (dd^D_(i+deg,l) * f_i == (-1)^deg * (f_(i-1) * dd^C_(i,l))) else matEq(matrix(dd^D_(i+deg,l)) * matrix(f_i), (-1)^deg * (matrix(f_(i-1)) * matrix(dd^C_(i,l)))))
 	    or not (if hasDegens then (try (ss^D_(i+deg,l) * f_i == (-1)^deg * (f_(i+1) * ss^C_(i,l))) else matEq(matrix(ss^D_(i+deg,l)) * matrix(f_i), (-1)^deg * (matrix(f_(i+1)) * matrix(ss^C_(i,l))))) else true)
             then (
-                if debugLevel > 0 then (
-                    << "-- block " << (i,i-1) << " fails to commute" << endl;
-                    );
+                if debugLevel > 0 then printerr("block ", toString (i,i-1), " fails to commute");
                 f.cache.isCommutative = false;
                 return false;
                 )
@@ -490,7 +454,7 @@ isCommutative SimplicialModuleMap := Boolean => f -> (
 isSimplicialMorphism = method(TypicalValue => Boolean)
 isSimplicialMorphism SimplicialModuleMap := (f) -> (
     if debugLevel > 0 and degree f =!= 0 then (
-        << "-- the complex map has non-zero degree" << endl;
+        printerr "the complex map has non-zero degree";
         return false;
         );
     degree f === 0 and isCommutative f

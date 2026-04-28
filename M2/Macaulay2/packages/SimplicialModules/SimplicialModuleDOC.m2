@@ -754,6 +754,11 @@ doc ///
             A simplicial module is a sequence of modules connected
             by homomorphisms, called face/degeneracy maps, such that
             these maps satisfy a set of identities known as the simplicial identities.
+            The face maps are accessed via the symbol @TT "dd"@ (the same symbol used
+            for the differentials of a complex), and the degeneracy maps via @TT "ss"@,
+            after the conventional letter $s$ (or $\sigma$) used for degeneracy maps
+            in the literature.
+
 	    More precisely we should have the following equalities:
 	    1. For face maps:
                 \[ d_j d_i = d_i d_{j-1} \text{ for } 0 \leq i < j \leq n \]
