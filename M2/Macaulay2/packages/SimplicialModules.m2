@@ -41,9 +41,9 @@ export {"SimplicialModule",
     "summandSurjection"
     }
 
--- normalize is owned and exported by SchurFunctors; we share the symbol so
--- this package can install its own normalize methods on simplicial modules.
-exportFrom_SchurFunctors { "normalize" }
+-- normalize is owned and exported by SchurFunctors; SimplicialModules picks
+-- it up automatically through PackageExports above and installs its own
+-- normalize methods on simplicial modules in Normalization.m2.
 
 
 
