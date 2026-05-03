@@ -57,6 +57,63 @@ assert( instance(oo,QQ) and a === promote(oo,RR) )
 R=QQ[x,Inverses=>true,MonomialOrder=>RevLex]
 assert not liftable(x-1,QQ)
 
+
+assert(lift(2, ZZ) === 2)
+assert(lift(2/1, ZZ) === 2)
+assert(lift(2.0, ZZ) === 2)
+assert(lift(toRRi 2, ZZ) === 2)
+assert(lift(toCC 2, ZZ) === 2)
+assert(lift(toCCi 2, ZZ) === 2)
+scan({5/2, 2.5, toRRi 2.5, toCC 2.5, toRRi 2.5},
+    x -> (
+	assert not liftable(x, ZZ);
+	lift(x, ZZ, Verify => false)))
+
+assert(lift(5/2, QQ) === 5/2)
+assert(lift(2.5, QQ) === 5/2)
+assert(lift(toRRi 2.5, QQ) === 5/2)
+assert(lift(toCC 2.5, QQ) === 5/2)
+assert(lift(toCCi 2.5, QQ) === 5/2)
+scan({toRRi(3, 4), ii, toCCi(toRRi(2, 3), toRRi(4, 5))},
+    x -> (
+	assert not liftable(x, QQ);
+	lift(x, QQ, Verify => false)))
+
+assert(lift(2.0, RR) === 2.0)
+assert(lift(2.0, RR_100) === 2.0p100)
+assert(lift(toRRi 2.0, RR) === 2.0)
+assert(lift(toRRi 2.0, RR_100) === 2.0p100)
+assert(lift(toCC 2.0, RR) === 2.0)
+assert(lift(toCC 2.0, RR_100) === 2.0p100)
+assert(lift(toCCi 2.0, RR) === 2.0)
+assert(lift(toCCi 2.0, RR_100) === 2.0p100)
+scan({toRRi(3, 4), ii, toCCi(toRRi(2, 3), toRRi(4, 5))},
+    x -> (
+	assert not liftable(x, RR);
+	lift(x, RR, Verify => false)))
+
+assert(lift(interval(2, 3), RRi) === toRRi(53, 2, 3))
+assert(lift(interval(2, 3), RRi_100) === toRRi(100, 2, 3))
+assert(lift(toCC(53, 2, 0), RRi) === toRRi(53, 2, 2))
+assert(lift(toCC(53, 2, 0), RRi_100) === toRRi(100, 2, 2))
+assert(lift(toCCi(53, interval(2, 3), 0), RRi) === toRRi(53, 2, 3))
+assert(lift(toCCi(53, interval(2, 3), 0), RRi_100) === toRRi(100, 2, 3))
+scan({ii, interval ii}, x -> (
+	assert not liftable(x, RRi);
+	lift(x, RRi, Verify => false)))
+
+assert(lift(toCC(53, 2, 3), CC) == toCC(53, 2, 3))
+assert(lift(toCC(53, 2, 3), CC_100) == toCC(100, 2, 3))
+assert(lift(toCCi(53, 2, 3), CC) == toCC(53, 2, 3))
+assert(lift(toCCi(53, 2, 3), CC_100) == toCC(100, 2, 3))
+scan({toCCi(53, toRRi(2, 3), toRRi(3, 4))}, x -> (
+	assert not liftable(x, CC);
+	lift(x, CC, Verify => false)))
+
+x = toCCi(53, toRRi(2, 3), toRRi(3, 4))
+assert(lift(x, CCi) === x)
+assert(lift(x, CCi_100) === toCCi(toRRi(100, 2, 3), toRRi(100, 3, 4)))
+
 end
 -- Local Variables:
 -- compile-command: "make -C $M2BUILDDIR/Macaulay2/packages/Macaulay2Doc/test lift.out"

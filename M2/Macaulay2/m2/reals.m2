@@ -148,17 +148,42 @@ promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should 
 lift(Number,InexactNumber) := opts -> (x,RR) -> lift(x,default RR,opts)
 
 liftable(Number,InexactNumber) := (x,RR) -> liftable(x,default RR)
-liftable(CC,RR'):= (z,RR) -> imaginaryPart z == 0
-lift(CC,RR'):= opts -> (z,RR) -> (
-     if imaginaryPart z == 0 then realPart z
-     else if opts.Verify then error "lift: complex number is not real"
-     )
+liftable(CC,  RR')  :=
+liftable(CC,  RRi') :=
+liftable(CCi, RRi') := (x, K) -> imaginaryPart x == 0
+liftable(RRi, RR')  :=
+liftable(CCi, CC')  := (x, K) -> diameter x == 0
+liftable(CCi, RR') := (z, K) -> (
+    imaginaryPart z == 0 and diameter realPart z == 0)
 
-liftable(RRi,RR) := (z,RR) -> diameter(z) == 0
-lift(RRi,RR') := opts -> (r,RR) -> (
-     if diameter(r) == 0 then lift(midpoint(r),RR)
-     else if opts.Verify then error "lift: interval has positive diameter"
-)
+lift(RR, RR') := opts -> (x, K) -> numeric(precision K, x)
+lift(RRi, RR') := opts -> (x, K) -> (
+    if liftable(x, K) then lift(midpoint x, K)
+    else if opts.Verify then error "lift: interval has positive diameter")
+lift(CC, RR') := opts -> (x, K) -> (
+    if liftable(x, K) then lift(realPart x, K)
+    else if opts.Verify then error "lift: complex number is not real")
+lift(CCi,RR') := opts -> (x, K) -> (
+    if liftable(x, K) then lift(midpoint realPart x, K)
+    else if opts.Verify then error "lift: complex interval not a real number")
+
+lift(CC, CC') := opts -> (x, K) -> (
+    toCC(precision K, realPart x, imaginaryPart x))
+lift(CCi, CC') := opts -> (x, K) -> (
+    if liftable(x, K)
+    then toCC(precision K, midpoint realPart x, midpoint imaginaryPart x)
+    else if opts.Verify then error "lift: interval has positive diameter")
+
+lift(RRi, RRi') := opts -> (x, K) -> toRRi(precision K, left x, right x)
+lift(CC, RRi') := opts -> (x, K) -> (
+    if liftable(x, K) then toRRi(precision K, realPart x, realPart x)
+    else if opts.Verify then error "lift: complex number is not real")
+lift(CCi, RRi') := opts -> (x, K) -> (
+    if liftable(x, K) then toRRi(precision K, left realPart x, right realPart x)
+    else if opts.Verify then error "lift: complex interval is not real")
+
+lift(CCi, CCi') := opts -> (x, K) -> (
+    toCCi(precision K, realPart x, imaginaryPart x))
 
 -- lift and promote to and from other rings
 
@@ -222,19 +247,31 @@ lift(RR,ZZ) := opts -> (r,ZZ) -> (
      if r == i then i 
      else if opts.Verify then error "lift: real number is not integer")
 lift(CC,QQ) := lift(CC,ZZ) := opts -> (z,R) -> (
-     if imaginaryPart z == 0 then lift(realPart z, R) 
+     if imaginaryPart z == 0 then lift(realPart z, R, opts)
      else if opts.Verify then error "lift: complex number not real"
      )
 liftable(RRi,QQ) := (z,RR) -> diameter(z) == 0
-liftable(RRi,ZZ) := (z,RR) -> diameter(z) == 0
 lift(RRi,QQ) := opts -> (r,QQ) -> (
      if diameter(r) == 0 then lift(midpoint(r),QQ)
      else if opts.Verify then error "lift: interval has positive diameter"
 )
 lift(RRi,ZZ) := opts -> (r,ZZ) -> (
-     if diameter(r) == 0 then lift(midpoint(r),ZZ)
+     if diameter(r) == 0 then lift(midpoint(r),ZZ, opts)
      else if opts.Verify then error "lift: interval has positive diameter"
 )
+
+liftable(CCi, QQ) := (x, K) -> imaginaryPart x == 0 and diameter x == 0
+lift(CCi, QQ) := opts -> (x, K) -> (
+    if liftable(x, K) then lift(realPart x, K)
+    else if opts.Verify then error "lift: complex interval not rational number")
+lift(CCi, ZZ) := opts -> (x, R) -> (
+    if liftable(x, QQ) then lift(midpoint realPart x, ZZ, opts)
+    else if opts.Verify then error "lift: complex interval not an integer")
+
+lift(Constant, Number) := opts -> (x, R) -> (
+    lift(numeric(precision R, x), R, opts))
+lift(Constant, InexactNumber) := opts -> (x, R) -> (
+    lift(numeric(precision default R, x), default R, opts))
 
 ring RR := x -> new RealField of RR' from precision x
 ring RRi := x -> new RealIntervalField of RRi' from precision x
