@@ -137,6 +137,7 @@ partition(ZZ, Function) := HashTable => (n, f) -> partition(f, toList(0..n-1), {
 
 scan' = method()
 scan'(VisibleList, VisibleList, Function) := (B, C, f) -> for b in B do for c in C do f(b,c)
+scan'(ZZ, ZZ, Function) := (b, c, f) -> scan'(toList(0..b-1), toList(0..c-1), f)
 
 char SheafOfRings := O -> char variety O
 
