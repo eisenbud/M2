@@ -328,17 +328,19 @@ generalEndomorphism Module := Matrix => o -> M0 -> (
 generalEndomorphism CoherentSheaf := SheafMap => o -> F -> (
     sheaf generalEndomorphism(module prune F, o))
 
+selectOptions = (opts1, opts2) -> new OptionTable from select(pairs opts2, (k,v) -> opts1#?k)
+
 -- left inverse of a split injection
 -- TODO: figure out if we can ever do this without computing End source g
 leftInverse = inverse' = method(Options => options Hom)
-leftInverse Matrix := opts -> g -> g.cache.leftInverse ??= quotient'(id_(source g), g, opts)
+leftInverse Matrix := opts -> g -> g.cache.leftInverse ??= quotient'(id_(source g), g, selectOptions(options quotient', opts))
 
 -- right inverse of a split surjection
 -- FIXME: inverse may fail for a general split surjection:
 -- c.f. https://github.com/Macaulay2/M2/issues/3738
 -- TODO: figure out if we can ever do this without computing End target g
 rightInverse = method(Options => options Hom)
-rightInverse Matrix := opts -> g -> g.cache.rightInverse ??= quotient(id_(target g), g, opts)
+rightInverse Matrix := opts -> g -> g.cache.rightInverse ??= quotient(id_(target g), g, selectOptions(options quotient, opts))
 
 -- given N and a split injection inc:N -> M,
 -- we use precomputed endomorphisms of M
