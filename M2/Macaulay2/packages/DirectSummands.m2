@@ -41,6 +41,7 @@ newPackage(
 
 export {
     -- methods
+    "isDirectSummand", "isSummand" => "isDirectSummand",
     "isIndecomposable",
     "directSummands", "summands" => "directSummands",
     "findProjectors",
@@ -571,6 +572,42 @@ directSummands(List, CoherentSheaf) :=
 directSummands(List, Module) := List => opts -> (Ls, M) -> sort (
     if 1 < #cachedSummands M then flatten apply(cachedSummands M, N -> directSummands(Ls, N, opts))
     else fold(Ls, {M}, (L, LL) -> splitComponents(M, LL, directSummands_(opts, L))))
+
+-----------------------------------------------------------------------------
+-- isSummand
+-----------------------------------------------------------------------------
+
+isDirectSummand = method(Options => options directSummands)
+isDirectSummand(Module, Module) := Boolean => opts -> (L, M) -> (
+    checkRecursionDepth();
+    if ring L =!= ring M then error "expected objects over the same ring";
+    if rank L  >  rank M then return false;
+    if rank L  == rank M then return isIsomorphic(L, M);
+    tries := opts.Tries ?? defaultNumTries char ring M;
+    zdeg := degree 0_M;
+    gensHom0 := (N, M) -> (
+	H := Hom(N, M,
+	    DegreeLimit => zdeg,
+	    MinimalGenerators => false);
+	smartBasis(zdeg, H));
+    if isFreeModule L then (
+	C := gensHom0(M, L); if numcols C == 0 then return false;
+	for i to tries - 1 do (
+	    c := homomorphism(C * random source C);
+	    if isSurjective c then return true))
+    else (
+	-- we look for a composition L -> M -> L which is the identity
+	B := gensHom0(L, M); if numcols B == 0 then return false;
+	C  = gensHom0(M, L); if numcols C == 0 then return false;
+	-- attempt to find a random isomorphism
+	for i to tries - 1 do (
+	    b := homomorphism(B * random source B);
+	    c := homomorphism(C * random source C);
+	    --TODO: change isIsomorphism to isSurjective?
+	    if isIsomorphism(c * b)
+	    then return true)
+	);
+    false)
 
 -----------------------------------------------------------------------------
 -- isIndecomposable
