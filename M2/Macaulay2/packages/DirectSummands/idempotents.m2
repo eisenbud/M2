@@ -94,7 +94,7 @@ residueMap' Ring      := R -> map(quotient ideal vars R, R, vars R % ideal vars 
 -- TODO: findIdem right now will fail if K is not L[a]/f(a);
 -- in general, will need to find a primitive element first
 findIdempotents = method(Options => DirectSummandsOptions)
-findIdempotents CoherentSheaf := opts -> M -> findIdempotents(module M, opts)
+findIdempotents CoherentSheaf := opts -> M -> sheaf \ findIdempotents(module M, opts)
 findIdempotents Module        := opts -> M -> (
     R := ring M;
     p := char R;

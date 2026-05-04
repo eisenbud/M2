@@ -1,7 +1,8 @@
 needsPackage "RationalPoints2"
 
 findProjectors = method(Options => DirectSummandsOptions)
-findProjectors Module := opts -> M -> (
+findProjectors CoherentSheaf := opts -> M -> sheaf \ findProjectors(module M, opts)
+findProjectors Module        := opts -> M -> (
     R := ring M;
     p := char R;
     F := groundField R;
