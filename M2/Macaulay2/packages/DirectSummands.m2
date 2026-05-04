@@ -572,7 +572,7 @@ directSummands(CoherentSheaf, CoherentSheaf) := List => opts -> (L, G) -> apply(
 
 -- attempt to peel off summands from a given list of modules
 directSummands(List, CoherentSheaf) :=
-directSummands(List, Module) := List => opts -> (Ls, M) -> sort (
+directSummands(List, Module) := List => opts -> (Ls, M) -> (
     if 1 < #cachedSummands M then flatten apply(cachedSummands M, N -> directSummands(Ls, N, opts))
     else fold(Ls, {M}, (L, LL) -> splitComponents(M, LL, directSummands_(opts, L))))
 
