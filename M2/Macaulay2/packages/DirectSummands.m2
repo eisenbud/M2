@@ -496,7 +496,7 @@ directSummands(Module, Module) := List => opts -> (L, M) -> (
     checkRecursionDepth();
     if ring L =!= ring M then error "expected objects over the same ring";
     if rank L  >  rank M
-    or rank L  >= rank M and isFreeModule M then return {M};
+    or rank L  == rank M and isFreeModule M then return {M};
     limit := opts.Limit ?? numgens M;
     tries := opts.Tries ?? defaultNumTries char ring M;
     if 1 < #cachedSummands M then return flatten apply(cachedSummands M, N -> directSummands(L, N, opts));
