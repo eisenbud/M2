@@ -145,7 +145,8 @@ promote(RR,CCi') := (i,K) -> toCCi(toRRi(precision i,i,i),toRRi(precision i, 0,0
 promote(RRi,CCi') := (i,K) -> toCCi(i, interval 0)
 promote(CC,CCi') := (i,K) -> toCCi(toRRi(precision i,realPart i,realPart i),toRRi(precision i, imaginaryPart i, imaginaryPart i))
 promote(CCi,CCi') := (i,K) -> toCCi(realPart i, imaginaryPart i) -- this should be fixed
-lift(Number,InexactNumber) := opts -> (x,RR) -> lift(x,default RR,opts)
+lift(RingElement, InexactNumber) :=
+lift(Number,      InexactNumber) := opts -> (x, K) -> lift(x, default K, opts)
 
 liftable(Number,InexactNumber) := (x,RR) -> liftable(x,default RR)
 liftable(CC,  RR')  :=

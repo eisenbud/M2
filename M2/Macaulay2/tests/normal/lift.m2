@@ -114,6 +114,14 @@ x = toCCi(53, toRRi(2, 3), toRRi(3, 4))
 assert(lift(x, CCi) === x)
 assert(lift(x, CCi_100) === toCCi(toRRi(100, 2, 3), toRRi(100, 3, 4)))
 
+x = symbol x
+assert(lift(1_(ZZ[x]), ZZ) === 1)
+assert(lift(1_(QQ[x]), QQ) === 1/1)
+assert(lift(1_(RR[x]), RR) === 1.0)
+assert(lift(1_(RRi[x]), RRi) === toRRi 1)
+assert(lift(1_(CC[x]), CC) === toCC 1)
+assert(lift(1_(CCi[x]), CCi) === toCCi 1)
+
 end
 -- Local Variables:
 -- compile-command: "make -C $M2BUILDDIR/Macaulay2/packages/Macaulay2Doc/test lift.out"
