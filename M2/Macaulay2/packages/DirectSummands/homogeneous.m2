@@ -3,6 +3,7 @@ needsPackage "RationalPoints2"
 findProjectors = method(Options => DirectSummandsOptions)
 findProjectors CoherentSheaf := opts -> M -> sheaf \ findProjectors(module M, opts)
 findProjectors Module        := opts -> M -> (
+    if not isHomogeneous M then error "expected a homogeneous module";
     R := ring M;
     p := char R;
     F := groundField R;

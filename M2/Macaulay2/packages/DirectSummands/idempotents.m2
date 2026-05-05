@@ -96,6 +96,7 @@ residueMap' Ring      := R -> map(quotient ideal vars R, R, vars R % ideal vars 
 findIdempotents = method(Options => DirectSummandsOptions)
 findIdempotents CoherentSheaf := opts -> M -> sheaf \ findIdempotents(module M, opts)
 findIdempotents Module        := opts -> M -> (
+    if not isHomogeneous M then error "expected a homogeneous module";
     R := ring M;
     p := char R;
     F := groundField R;
@@ -175,8 +176,11 @@ findBasicIdempotents = options findIdempotents >> opts -> M -> (
     -- TODO: parallelized this and break on first success
     idemp := scan(numcols B, c -> (
 	    h := homomorphism B_{c};
-	    if zero h or h == id_M
-	    or zero(hm := K ** cover h) then return;
+	    if zero h or h == id_M then return;
+	    if not isHomogeneous M then
+	    if isIdempotent h then break h else return;
+	    -- if M is graded, we can test mod the maximal ideal
+	    if zero(hm := K ** cover h) then return;
 	    -- TODO: sadly can't just check that the generators are
 	    -- nilpotent, but if generators of a sufficiently high
 	    -- truncation of End(M)_0 are nilpotent, that would work
