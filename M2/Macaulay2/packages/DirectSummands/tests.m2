@@ -227,8 +227,7 @@ TEST /// -- testing inhomogeneous examples
   assert(3 == #summandsFromProjectors M)
   assert isIsomorphic(directSum summands M, M, Tries => 10)
   --
-  -- TODO: this is locally zero, but can we diagonalize it?
-  M = coker matrix matrix"1,y,z;y,1,x;z,x,1"
+  M = coker matrix matrix"1,y,z;y,1,x;z,x,1" -- locally zero
   assert(summands M == {M})
   assert(summandsFromIdempotents M == {M})
   --
@@ -243,10 +242,10 @@ TEST /// -- testing inhomogeneous examples
   assert(2 == #summands M)
   assert(2 == #summandsFromProjectors M)
   assert isIsomorphic(directSum summands M, M)
-  -- TODO: this is locally zero, but can we diagonalize it?
-  M = coker matrix matrix"1,y,z;y,1,x;z,x,1"
-  assert(summands M == { prune M })
-  assert(summandsFromIdempotents M == { prune M })
+  --
+  M = coker matrix matrix"1,y,z;y,1,x;z,x,1" -- locally zero
+  assert(summands M == {M})
+  assert(summandsFromIdempotents M == {M})
 ///
 
 TEST ///
