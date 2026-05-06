@@ -105,7 +105,10 @@ frobeniusPushforward(ZZ, SheafOfRings)  := (e, O) -> (
     X := variety O;
     X.cache.FrobeniusPushforward   ??= new MutableHashTable;
     X.cache.FrobeniusPushforward#e ??= frobeniusPushforward(e, O^1))
-frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> N.cache#(FrobeniusPushforward, e) ??= if e == 1 then (
+frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> N.cache#(FrobeniusPushforward, e) ??= (
+    if e < 0 then error "expected a nonnegative integer";
+    if e > 1 then return N.cache#(FrobeniusPushforward, e) = (
+	frobeniusPushforward(1, frobeniusPushforward(e-1, N)));
     R := ring variety N;
     p := char R;
     FN := first components frobeniusPushforward(e, module N);
@@ -115,8 +118,8 @@ frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> N.cache#(FrobeniusPushforwa
     Fmatrix := sub(presentation FN, R);
     (tardegs, srcdegs) := toSequence(-degrees Fmatrix // p^e);
     -- TODO: how long does this take? is it worth caching?
-    sheaf prune coker map(R^tardegs, R^srcdegs, Fmatrix)) else (
-    frobeniusPushforward(1, frobeniusPushforward(e-1, N)))
+    sheaf prune coker map(R^tardegs, R^srcdegs, Fmatrix))
+
 frobeniusPushforward(ZZ, SheafMap)  := (e, f) -> f.cache#(FrobeniusPushforward, e) ??= (
     --if not(isFreeModule module source f and isFreeModule module target f) then error "expected a map between free modules";
     g := myPushForward(
