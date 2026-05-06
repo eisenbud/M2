@@ -542,8 +542,7 @@ directSummands(Module, Module) := List => opts -> (L, M) -> (
 	    c := homomorphism(C * random source C);
             --TODO: change isIsomorphism to isSurjective?
 	    if isIsomorphism(c * b) then throw (c, b));
-	-- TODO: is it worth doing the following lines? when does the random strategy above fail?
-	printerr "summands got to this part, it's probably useful!";
+	-- TODO: find an example where the following lines get used
 	if opts.Strategy & 8 == 8 then (
 	    -- precomputing the Homs can sometimes be a good strategy
 	    -- TODO: confirm that this injectivity check is worthwhile and not slow
