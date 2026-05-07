@@ -302,7 +302,12 @@ gensEnd0 = M -> M.cache#"End0" ??= (
     if 0 < debugLevel then stderr << "done!" << endl;
     if isHomogeneous M
     then smartBasis(zdeg, A)
-    else inducedMap(A, , gens A))
+    else(
+        --inducedMap(A, , gens A)
+        nonZero := select(numgens A, i-> homomorphism(A_i)**quotient ideal gens ring M != 0);
+        A_nonZero
+    )
+)
 
 generalEndomorphism = method(Options => options random)
 generalEndomorphism Module := Matrix => o -> M0 -> (
