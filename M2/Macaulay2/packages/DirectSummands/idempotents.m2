@@ -93,7 +93,7 @@ residueMap' LocalRing := R -> map(quotient ideal R.maxIdeal, R, vars baseRing R 
 
 -- TODO: give these better names?
 isUsable := gm -> isWeakIdempotent gm and not isSurjective gm and gm != 0
-largePow := (p, j, g) -> largePower'(p, j+1, largePower(p, l, g))
+largePow := (p, j, l, g) -> largePower'(p, j+1, largePower(p, l, g))
 
 -- TODO: findIdem right now will fail if K is not L[a]/f(a);
 -- in general, will need to find a primitive element first
@@ -136,13 +136,13 @@ findIdempotents Module        := opts -> M -> (
         idems := nonnull flatten for y in eigen list (
 	    if p > 0 then for j from 0 to e do (
 		-- TODO: need to go to e' with e' the splitting field of chi(fm)
-		if isUsable largePow(p, j, fm - y*id_V) then break (j, f - y*id_M))
+		if isUsable largePow(p, j, l, fm - y*id_V) then break (j, f - y*id_M))
 	    else if isUsable(fm - y*id_V) then (1, f - y*id_M));
-	idems = select(idems, (j, f) ->
-	    prune' image f != 0 and prune' coker f != 0 and prune' image f != M);
+	--idems = select(idems, (j, f) ->
+	    --prune' image f != 0 and prune' coker f != 0);
 	if #idems == 0 then continue;
 	return apply(idems, (j, g) -> (
-		idem := if p == 0 then g else largePow(p, j, g);
+		idem := if p == 0 then g else largePow(p, j, l, g);
 		-- for inexact fields, we compose the idempotent until the determinant is zero
 		if inexactFlag then idem = idem ^ (findErrorMargin idem);
 		idem)));
