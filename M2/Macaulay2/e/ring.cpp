@@ -261,6 +261,12 @@ bool Ring::from_Interval(gmp_RRi z, ring_elem &result) const
   return false;
 }
 
+bool Ring::from_ComplexInterval(gmp_CCi z, ring_elem &result) const
+{
+  result = from_long(0);
+  return false;
+}
+
 bool Ring::from_double(double a, ring_elem &result) const
 {
   (void) a;

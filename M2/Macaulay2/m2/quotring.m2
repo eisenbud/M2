@@ -360,6 +360,11 @@ getPrimeWithRootOfUnity(ZZ,ZZ) := opt-> (n,r1) -> (
      (p,r2)
      );
 
+-- the "midpoint" of a polynomial in a quotient ring isn't well-defined
+-- what if it's R/I, but I has generators with intervals as coefficients?
+midpoint QuotientRing := R -> (
+    if isFinitePrimeField R then R else error "not well-defined")
+
 -- Local Variables:
 -- compile-command: "make -C $M2BUILDDIR/Macaulay2/m2 "
 -- End:

@@ -1,21 +1,21 @@
-#include "aring-RRi.hpp"
+#include "aring-CCi.hpp"
 
 namespace M2 {
 
-void ARingRRi::text_out(buffer &o) const { o << "ARRi_" << mPrecision; }
-void ARingRRi::elem_text_out(buffer &o,
+void ARingCCi::text_out(buffer &o) const { o << "ACCi_" << mPrecision; }
+void ARingCCi::elem_text_out(buffer &o,
                              const ElementType &ap,
                              bool p_one,
                              bool p_plus,
                              bool p_parens) const
 {
-  (void) p_parens;
 
-  if(p_plus)
-    o << "+";
+  if (p_plus)
+     o << "+";
 
-  // TODO: how do we want to handle -1?  intervals w/ matching endpoints?
-  if (p_one || mpfr_cmp_si(&ap.left, 1) != 0 || mpfr_cmp_si(&ap.right, 1) != 0)
+  if (p_parens && !mpfi_is_zero(&ap.re) && !mpfi_is_zero(&ap.im))
+    o << "(" << &ap << ")";
+  else if (p_one || mpfi_cmp_si(&ap.re, 1) != 0 || !mpfi_is_zero(&ap.im))
     o << &ap;
 }
 
