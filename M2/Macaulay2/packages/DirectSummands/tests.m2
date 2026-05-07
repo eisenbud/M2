@@ -456,22 +456,13 @@ TEST ///
   -- assert isIsomorphic(prune E, prune E', Tries => 100)
 ///
 
-///
+TEST ///
   restart
   debug needsPackage "DirectSummands"
   S = ZZ/2[x,y,z]
   R = quotient ideal(x^2*y+x*y*z+y^2*z+z^2)
-  M = cokernel matrix {
-      {z, 0, z, y*z, 0, x*y, 0, 0, 0},
-      {0, 0, z, 0, y*z, 0, x*y, 0, 0},
-      {0, z, 0, x*y+y*z, 0, y^2, 0, z^2, y*z},
-      {x, z, 0, 0, 0, z, z, 0, 0},
-      {z, 0, x+z, 0, 0, 0, z, z^2, y*z},
-      {0, 0, 0, z, x, x, x+y, x^2+x*z+y*z, z},
-      {y, x+z, 0, z, z, z, z, 0, 0},
-      {0, z, y, 0, z, z, z, x*z, x*y}}
-  -- TODO: why does it take a long time
-  assert(#summands M == 2)
+  M = prune' frobeniusPushforward(1,first sort(summands frobeniusPushforward(1, R), i-> numgens i))
+  assert(#summands M == 3)
 ///
 
 load "./large-tests.m2"

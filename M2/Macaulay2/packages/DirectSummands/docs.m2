@@ -137,7 +137,7 @@ Node
       tallySummands summands frobeniusPushforward(1, OO_X)
       rank \ keys oo
     Text
-      In non-homogeneous situations, decompositions indicate the local singularities of the ring.
+      In non-homogeneous situations, decompositions indicate the local singularities of the ring. For example, the following ring is an example of a D51 singularity in characteristic 2, for which we can compute the Frobenius pushforward of the ring and observe that it is F-split; further pushforwards would reveal that it is not F-regular.
     Example
       R = ZZ/2[x,y,z]/(x^2*y + x*y^2 + x*y*z + z^2);
       F = frobeniusPushforward(1, R)
@@ -215,19 +215,31 @@ Node
     compute the direct summands of a graded module or coherent sheaf
   Usage
     summands M
+    summands(L, M)
   Inputs
     M:{Module,CoherentSheaf}
+    L:{List,Module,CoherentSheaf}
   Outputs
     :List
       containing modules or coherent sheaves which are direct summands of $M$
   Description
     Text
-      This function attempts to find the indecomposable summands of a module or coherent sheaf $M$.
+      This function attempts to find the indecomposable summands of a module or coherent sheaf $M$. The output is a list of modules or sheaves that are direct summands of $M$. The algorithm is probabilistic, and so the output may not consist of indecomposable summands; the user can query the indecomposability of the summands using isIndecomposable.
     Example
       S = QQ[x,y]
       M = coker matrix{{x,y},{x,x}}
       L = summands M
+      apply(L, i -> isIndecomposable i)
       assert isIsomorphic(M, directSum L)
+    Text
+      If a candidates summand, or list of candidates, is provided as the first argument, the algorithm will split off only summands isomorphic to these modules. This can often be much faster than a full decomposition when the user has some guess for the summands, and the remaining summands can then be found by applying summands again to the leftover pieces.
+    Example
+      R = (ZZ/3)[x,y,z]/(y^2-x*z)
+      M = frobeniusPushforward(1, R)
+      R1 = ring M
+      L = summands(R1^1, M) -- check for free summands only
+      summands \ select(L, i-> not isFreeModule i) -- decompose remaining pieces
+
   SeeAlso
     isIndecomposable
     findProjectors
