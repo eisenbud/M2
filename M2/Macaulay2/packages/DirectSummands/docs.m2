@@ -18,7 +18,7 @@ Node
       This package implements algorithms for computing indecomposable summands of finitely generated
       $R$-module $M$ over a $k$-algebra when $M$ is either a homogeneous module over a (multi)graded ring
       with $k$ a field of arbitrary characteristic, or when $R$ is local and $k$ a field of positive
-      characteristic contained in $\bar\FF_p$.
+      characteristic contained in $\overline{\mathbb F_p}$.
 
       Further, in the graded case, this package enables the computation of indecomposable summands of
       coherent sheaves on subvarieties of the projective space $\PP^n$ as well as other complete toric
@@ -137,7 +137,10 @@ Node
       tallySummands summands frobeniusPushforward(1, OO_X)
       rank \ keys oo
     Text
-      In non-homogeneous situations, decompositions indicate the local singularities of the ring. For example, the following ring is an example of a D51 singularity in characteristic 2, for which we can compute the Frobenius pushforward of the ring and observe that it is F-split; further pushforwards would reveal that it is not F-regular.
+      In non-homogeneous situations, decompositions indicate the local singularities of the ring.
+      For example, the following ring is an example of a D51 rational double point singularity in characteristic 2,
+      for which we can compute the Frobenius pushforward of the ring and observe that it is $F$-split;
+      further pushforwards would reveal that it is not F-regular. (Note that this ring is not quasihomogeneous.)
     Example
       R = ZZ/2[x,y,z]/(x^2*y + x*y^2 + x*y*z + z^2);
       F = frobeniusPushforward(1, R)
@@ -206,40 +209,64 @@ Node
      directSummands
     (directSummands, Module)
     (directSummands, CoherentSheaf)
-    -- TODO: should these be documented separately?
     (directSummands, Module, Module)
     (directSummands, CoherentSheaf, CoherentSheaf)
     (directSummands, List, Module)
     (directSummands, List, CoherentSheaf)
   Headline
-    compute the direct summands of a graded module or coherent sheaf
-  Usage
-    summands M
-    summands(L, M)
-  Inputs
-    M:{Module,CoherentSheaf}
-    L:{List,Module,CoherentSheaf}
-  Outputs
-    :List
-      containing modules or coherent sheaves which are direct summands of $M$
-  Description
-    Text
-      This function attempts to find the indecomposable summands of a module or coherent sheaf $M$. The output is a list of modules or sheaves that are direct summands of $M$. The algorithm is probabilistic, and so the output may not consist of indecomposable summands; the user can query the indecomposability of the summands using isIndecomposable.
-    Example
-      S = QQ[x,y]
-      M = coker matrix{{x,y},{x,x}}
-      L = summands M
-      apply(L, i -> isIndecomposable i)
-      assert isIsomorphic(M, directSum L)
-    Text
-      If a candidates summand, or list of candidates, is provided as the first argument, the algorithm will split off only summands isomorphic to these modules. This can often be much faster than a full decomposition when the user has some guess for the summands, and the remaining summands can then be found by applying summands again to the leftover pieces.
-    Example
-      R = (ZZ/3)[x,y,z]/(y^2-x*z)
-      M = frobeniusPushforward(1, R)
-      R1 = ring M
-      L = summands(R1^1, M) -- check for free summands only
-      summands \ select(L, i-> not isFreeModule i) -- decompose remaining pieces
+    compute the direct summands of a module or coherent sheaf
+  Synopsis
+    Heading
+       split a module or coherent sheaf
+    Usage
+      summands M
+    Inputs
+      M:{Module,CoherentSheaf}
+    Outputs
+      :List
+        containing modules or coherent sheaves which are direct summands of $M$
+    Description
+      Text
+        This function attempts to find the indecomposable summands of a module or coherent sheaf $M$.
+	The output is a list of modules or sheaves that are direct summands of $M$. The algorithm is probabilistic,
+	and so the output may not necessarily consist of indecomposable summands, particularly in small characteristics.
+	The user can query whether a summand is certifiably indecomposable using @TO isIndecomposable@.
+      Example
+        S = QQ[x,y]
+        M = coker matrix{{x,y},{x,x}}
+        L = summands M
+        apply(L, isIndecomposable)
+        assert isIsomorphic(M, directSum L)
+      Text
+        Note that when the input module is not homogeneous, the calculation is treated as occurring over
+	the local ring at the origin. That is, the resulting modules will have direct summand isomorphic
+	to M after localizing at the origin.
 
+  Synopsis
+    Heading
+      split prescribed summands from a module or coherent sheaf with
+    Usage
+      summands(L, M)
+      summands(N, M)
+    Inputs
+      L:{List}
+      N:{Module,CoherentSheaf}
+      M:{Module,CoherentSheaf}
+    Outputs
+      :List
+        containing modules or coherent sheaves which are direct summands of $M$
+    Description
+      Text
+        If a candidates summand, or list of candidates, is provided as the first argument, the algorithm
+	will split off only summands isomorphic to these modules. This can often be much faster than a
+	full decomposition when the user has some guess for the summands, and the remaining summands
+	can then be found by applying summands again to the final leftover piece.
+      Example
+        R = ZZ/3[x,y,z]/(y^2-x*z)
+        M = frobeniusPushforward(1, R)
+        R1 = ring M
+        L = summands(R1^1, M) -- check for free summands only
+        summands \ select(L, not isFreeModule) -- decompose remaining pieces
   SeeAlso
     isIndecomposable
     findProjectors
@@ -646,7 +673,6 @@ Node
   Description
     Text
       This function changes the coefficient field or base ring of the input while reusing cached decompositions when possible.
-      The alias @TT "extendGroundField"@ is provided for compatibility.
   SeeAlso
     potentialExtension
     directSummands
