@@ -289,6 +289,10 @@ smartBasis = (deg, M) -> (
     M'.cache.homomorphism = M.cache.homomorphism;
     basis(deg, M')) -- caching this globally causes issues!
 
+-- TODO: generalize to nonlocal also?
+nontrivialLocalEndomorphisms = A -> inducedMap(A, ,
+    matrix select(A_*, h -> 0 != (residueMap' ring M) ** homomorphism h))
+
 -- matrix of (degree zero) generators of End M
 -- TODO: rename this
 -- also see gensHom0
@@ -302,12 +306,7 @@ gensEnd0 = M -> M.cache#"End0" ??= (
     if 0 < debugLevel then stderr << "done!" << endl;
     if isHomogeneous M
     then smartBasis(zdeg, A)
-    else(
-        --inducedMap(A, , gens A)
-        nonZero := select(numgens A, i-> homomorphism(A_i)**quotient ideal gens ring M != 0);
-        A_nonZero
-    )
-)
+    else nontrivialLocalEndomorphisms A)
 
 generalEndomorphism = method(Options => options random)
 generalEndomorphism Module := Matrix => o -> M0 -> (

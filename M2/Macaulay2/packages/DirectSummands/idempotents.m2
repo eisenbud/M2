@@ -84,8 +84,8 @@ residueField Ring      := R -> quotient ideal vars R
 residueField LocalRing := R -> target R.residueMap
 
 residueMap' = method()
-residueMap' Ring      := R -> map(quotient ideal vars R, R, vars R % ideal vars R)
-residueMap' LocalRing := R -> map(quotient ideal R.maxIdeal, R, vars baseRing R % R.maxIdeal)
+residueMap' Ring      := R -> R.cache.residueMap' ??= map(quotient ideal vars R, R, vars R % ideal vars R)
+residueMap' LocalRing := R -> R.cache.residueMap' ??= map(quotient ideal R.maxIdeal, R, vars baseRing R % R.maxIdeal)
 
 -----------------------------------------------------------------------------
 -- findIdempotents
