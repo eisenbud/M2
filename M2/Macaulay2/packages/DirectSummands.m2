@@ -291,7 +291,7 @@ smartBasis = (deg, M) -> (
 
 -- TODO: generalize to nonlocal also?
 nontrivialLocalEndomorphisms = A -> inducedMap(A, ,
-    matrix select(A_*, h -> 0 != (residueMap' ring M) ** homomorphism h))
+    matrix select(A_*, h -> 0 != (residueMap' ring A) ** homomorphism h))
 
 -- matrix of (degree zero) generators of End M
 -- TODO: rename this
