@@ -457,12 +457,12 @@ TEST ///
 ///
 
 TEST ///
-  restart
   debug needsPackage "DirectSummands"
   S = ZZ/2[x,y,z]
   R = quotient ideal(x^2*y+x*y*z+y^2*z+z^2)
-  M = prune' frobeniusPushforward(1,first sort(summands frobeniusPushforward(1, R), i-> numgens i))
-  assert(#summands M == 3)
+  M1 = last sort(summands frobeniusPushforward(1, R), numgens)
+  M2 = prune' frobeniusPushforward(1, M1)
+  assert(#summands M2 == 4)
 ///
 
 load "./large-tests.m2"
