@@ -70,6 +70,11 @@ changesHelper List := opt -> pkgnames -> (
 document {
     Key => "changes, 1.26.05",
         UL {
+	LI { "new packages:",
+	    UL {
+		LI { TO "DirectSummands::DirectSummands", ", a package by Devlin Mallory and Mahrud Sayrafi for computing direct sum decompositions of modules and coherent sheaves, has been added." },
+		}
+	    },
 	LI { "improved packages:",
 	    UL {
 		LI { TO "BettiCharacters::BettiCharacters", " has been updated to version 2.6. Changes include significant optimizations of the core algorithm, a new option for semidirect products of finite groups acting on tori, and methods for hyperoctahedral groups. This version introduces breaking changes to the ", TT "Character", " type, making it incompatible with previous versions." },
