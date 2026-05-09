@@ -16,8 +16,8 @@
 ---------------------------------------------------------------------------
 newPackage(
     "DirectSummands",
-    Version => "0.3",
-    Date => "April 20th 2025",
+    Version => "0.4",
+    Date => "May 8th 2026",
     Headline => "decompositions of modules and coherent sheaves",
     Authors => {
 	{ Name => "Devlin Mallory", Email => "malloryd@math.utah.edu", HomePage => "https://math.utah.edu/~malloryd/"},
