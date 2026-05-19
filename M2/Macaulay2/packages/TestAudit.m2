@@ -12,13 +12,15 @@ newPackage(
       export {
           "testAudit",
           "CommentReport",
-          "SpeedReport"
+          "SpeedReport",
+          "TestScore"
       }
 
 CommentReport = symbol CommentReport
 SpeedReport = symbol SpeedReport
+TestScore = symbol TestScore
 
-testAudit = method(Options => {CommentReport => false, SpeedReport => false})
+testAudit = method(Options => {CommentReport => false, SpeedReport => false, TestScore => false})
 
 --------------------------------------------------------------------------------
 -- Helpers
@@ -29,6 +31,7 @@ testInputs Package := pkg -> tests pkg
 testInputs String := pkgname -> testInputs needsPackage(pkgname, LoadDocumentation => true)
 
 
+-- The coverage checks below are textual heuristics, not dispatch tracing.
 testCodeString = method()
 testCodeStringFromInputs := inputs -> (
     demark(newline, apply(toList(0..#inputs-1), i -> inputs#i#"code"))
@@ -48,6 +51,8 @@ exportedSymbols Package := pkg -> sort toList pkg#"exported symbols"
 exportedSymbols String := pkgname -> exportedSymbols needsPackage(pkgname, LoadDocumentation => true)
 
 
+-- These helpers classify exported symbols by the class of their current value.
+-- Anything not recognized as function-like or a Type is reported as "other".
 exportedValue := s -> try value s else null
 className := x -> toString class x
 
@@ -66,11 +71,6 @@ optionNamesForSymbol := s -> (
     try sort apply(toList keys options v, toString) else {}
 )
 
-methodStringsForSymbol := s -> (
-    v := exportedValue s;
-    try sort apply(toList methods v, toString) else {}
-)
-
 wordMatch := (name, code) -> match("\\b" | toString name | "\\b", code)
 
 countLinesMatching := (pat, code) -> #select(lines code, line -> match(pat, line))
@@ -81,6 +81,7 @@ shortList := (L, n) -> (
     else demark(", ", take(L, n)) | ", ..."
 )
 
+-- Avoid constructing the invalid range 0..-1 when a list is empty.
 lineNumbers := n -> if n === 0 then {} else toList(0..n-1)
 
 snippet := (s, n) -> (
@@ -98,6 +99,7 @@ printAuditList := (label, L) -> (
     scan(auditListLines(label, L), print);
 )
 
+-- Ignore development scratch code after a literal "end" line in package files.
 sourceLinesBeforeEnd := filename -> (
     srcLines := lines get filename;
     endLines := select(lineNumbers(#srcLines), i -> match("^ *end *$", srcLines#i));
@@ -110,6 +112,18 @@ sourceLineMatches := (pkg, pat) -> (
     else (
         srcLines := sourceLinesBeforeEnd filename;
         apply(select(lineNumbers(#srcLines), i -> match(pat, srcLines#i)), i ->
+            snippet(srcLines#i, 72) | " (source: " | filename | ":" | toString(i + 1) | ")")
+    )
+)
+
+-- Only comment lines count for FIXME/TODO markers; otherwise this package
+-- reports its own implementation strings as TODOs.
+commentLineMatches := (pkg, pat) -> (
+    filename := try pkg#"source file" else "";
+    if filename === "" or not fileExists filename then {}
+    else (
+        srcLines := sourceLinesBeforeEnd filename;
+        apply(select(lineNumbers(#srcLines), i -> match("^ *--", srcLines#i) and match(pat, srcLines#i)), i ->
             snippet(srcLines#i, 72) | " (source: " | filename | ":" | toString(i + 1) | ")")
     )
 )
@@ -153,6 +167,7 @@ actualCodeBetweenTests := (filename, firstLoc, secondLoc) -> (
     )
 )
 
+-- Sort FilePositions indirectly; FilePosition itself has no useful ordering.
 interspersedTests := locs -> (
     files := unique apply(locs, loc -> loc#0);
     any(files, filename -> (
@@ -163,6 +178,8 @@ interspersedTests := locs -> (
     ))
 )
 
+-- "auxiliary" means tests come from more than one file; "together" means tests
+-- exist and are not interspersed with code.
 styleOfTests := inputs -> (
     if #inputs === 0 then {"no tests"}
     else (
@@ -176,35 +193,25 @@ styleOfTests := inputs -> (
 )
 
 testSourceLines := inputs -> (
-    files := unique apply(toList(0..#inputs-1), i -> (locate inputs#i)#0);
+    locs := apply(lineNumbers(#inputs), i -> locate inputs#i);
+    files := unique apply(locs, loc -> loc#0);
     {"test sources:"} |
     (if #files === 0
      then {"    none"}
-     else apply(files, file -> "    - " | file))
-)
-
-containsAll := (code, names) -> all(names, name -> wordMatch(name, code))
-
-typeNamesInMethodString := meth -> (
-    parts := separate(",", replace("^\\([^,]*,?|\\)$", "", meth));
-    select(apply(parts, s -> replace("^ *| *$", "", s)), s -> s =!= "")
-)
-
-isMethodTested := (meth, code) -> (
-    pieces := separate(",", replace("^\\(|\\)$", "", meth));
-    if #pieces === 0 then false
-    else (
-        functionName := replace("^ *| *$", "", first pieces);
-        wordMatch(functionName, code) and containsAll(code, typeNamesInMethodString meth)
-    )
+     else apply(files, file -> (
+         firstLine := first sort apply(select(locs, loc -> loc#0 === file), loc -> loc#1);
+         "    - " | file | ":" | toString firstLine
+     )))
 )
 
 --------------------------------------------------------------------------------
 -- Comment report
 --------------------------------------------------------------------------------
 
+-- Exclude the synthetic "-- test source:" line Macaulay2 adds to TestInput code.
 commentLinesIn := code -> select(lines code, line -> match("^ *--", line) and not match("^ *-- test source:", line))
 
+-- Look immediately above a TEST block for a contiguous run of -- comments.
 headerCommentLinesBefore := testInput -> (
     loc := locate testInput;
     filename := loc#0;
@@ -223,12 +230,12 @@ headerCommentLinesBefore := testInput -> (
 )
 
 commentSectionLines := (label, comments) -> (
-    if #comments === 0 then {}
-    else {label | ":"} | apply(comments, c -> "    " | c)
+    {label | ":"} | apply(comments, c -> "    " | c)
 )
 
+-- Tests with no comments are skipped; a package with none gets "(no comments)".
 commentReportLines := inputs -> (
-    {"", "Comments:"} | flatten apply(toList(0..#inputs-1), i -> (
+    blocks := flatten apply(toList(0..#inputs-1), i -> (
         code := inputs#i#"code";
         headerComments := headerCommentLinesBefore inputs#i;
         inTestComments := commentLinesIn code;
@@ -238,7 +245,8 @@ commentReportLines := inputs -> (
             commentSectionLines("Header comments", headerComments) |
             commentSectionLines("In-test comments", inTestComments)
         else {}
-    ))
+    ));
+    {"", "Comments:"} | if #blocks === 0 then {"(no comments)"} else blocks
 )
 
 printCommentReport := inputs -> (
@@ -251,6 +259,7 @@ printCommentReport := inputs -> (
 
 timeString := seconds -> toString seconds | "s"
 
+-- Timing failures are reported per test rather than aborting the audit.
 speedReportLines := (pkg, inputs) -> (
     timings := apply(toList(0..#inputs-1), i -> (
         result := try (
@@ -270,6 +279,34 @@ speedReportLines := (pkg, inputs) -> (
     )) |
     {"", "    total timed tests: " | toString(#successful) | "/" | toString(#timings),
      "    total time: " | timeString totalTime}
+)
+
+--------------------------------------------------------------------------------
+-- TestScore report
+--------------------------------------------------------------------------------
+
+-- Empty categories count as satisfied rather than penalizing small packages.
+scoreFraction := (covered, total) -> if total === 0 then 1 else covered / total
+
+-- Compute a deliberately simple heuristic score.  It is meant to guide human
+-- review, not certify test quality.
+scoreReportLines := (inputs, funcs, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
+    testedFunctions := #funcs - #untestedFunctions;
+    testedOptions := #optionPairs - #untestedOptions;
+    testsScore := if #inputs > 0 then 1 else 0;
+    functionScore := scoreFraction(testedFunctions, #funcs);
+    optionScore := scoreFraction(testedOptions, #optionPairs);
+    silencedScore := if #silencedTests === 0 then 1 else 0;
+    todoScore := if #fixmeTodos === 0 then 1 else 0;
+    totalScore := testsScore + functionScore + optionScore + silencedScore + todoScore;
+    percentScore := toRR(20 * totalScore);
+
+    {"", "TestScore: " | toString percentScore | " out of 100",
+     "    tests present: " | toString(#inputs > 0),
+     "    functions covered: " | toString(testedFunctions) | "/" | toString(#funcs),
+     "    options covered: " | toString(testedOptions) | "/" | toString(#optionPairs),
+     "    no silenced tests: " | toString(#silencedTests === 0),
+     "    no FIXME/TODO markers: " | toString(#fixmeTodos === 0)}
 )
 
 --------------------------------------------------------------------------------
@@ -295,11 +332,8 @@ testAudit Package := opts -> pkg -> (
     ));
     untestedOptionLabels := apply(untestedOptions, pair -> pair#0 | ": " | pair#1);
 
-    methodPairs := flatten apply(funcs, f -> methodStringsForSymbol f);
-    untestedMethods := select(methodPairs, meth -> not isMethodTested(meth, code));
-
     silencedTests := silencedTestMatches pkg;
-    fixmeTodos := sourceLineMatches(pkg, "FIXME|TODO|fixme|todo");
+    fixmeTodos := commentLineMatches(pkg, "FIXME|TODO|fixme|todo");
 
     reportLines := {
         "exported: " | toString(#funcs) | " functions, " | toString(#types) | " types, " | toString(#others) | " other symbols",
@@ -313,17 +347,17 @@ testAudit Package := opts -> pkg -> (
         } |
         auditListLines("untested functions", untestedFunctions) |
         auditListLines("untested options", untestedOptionLabels) |
-        auditListLines("untested methods", untestedMethods) |
         auditListLines("silenced tests", silencedTests) |
         auditListLines("FIXME/TODO markers", fixmeTodos) |
+        (if opts.TestScore then scoreReportLines(inputs, funcs, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) else {}) |
         (if opts.SpeedReport then speedReportLines(pkg, inputs) else {}) |
         (if opts.CommentReport then commentReportLines inputs else {});
 
     report := demark(newline, reportLines);
-    print report;
     report
 )
 
+-- Load documentation so package TEST blocks are available.
 testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocumentation => true), opts)
 
 
@@ -336,8 +370,84 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
         TestAudit
       Headline
         Provides test audit functionality
+      Description
+        Text
+          The @TT "TestAudit"@ package provides a small report about the tests of a package.
+          The report lists the number and location of tests, classifies how tests are organized, and gives simple textual checks for exported functions, options, silenced tests, and FIXME or TODO comments.
       ///
 
+      doc ///
+      Key
+        testAudit
+        (testAudit, Package)
+        (testAudit, String)
+      Headline
+        produce a test audit report for a package
+      Usage
+        testAudit pkg
+      Inputs
+        pkg:{Package,String}
+      Outputs
+        :String
+          the audit report
+      Description
+        Text
+          This function returns a report about the tests of @TT "pkg"@.
+          The report includes the number of tests, the source files containing tests, a style classification, exported functions and options not mentioned in tests, silenced tests, and FIXME or TODO comments.
+        Text
+          The style line may include @TT "no tests"@, @TT "auxiliary"@, @TT "interspersed"@, or @TT "together"@.
+        Text
+          Optional sections can be included using the following Boolean options.
+        Tree
+          :Optional report sections
+            [testAudit, CommentReport]
+            [testAudit, SpeedReport]
+            [testAudit, TestScore]
+        Example
+          testAudit "TestAudit"
+      SeeAlso
+        CommentReport
+        SpeedReport
+        TestScore
+      ///
+
+      doc ///
+      Key
+        [testAudit, CommentReport]
+      Headline
+        include comments from tests in the audit report
+      Usage
+        testAudit(..., CommentReport => Boolean)
+      Description
+        Text
+          If @TT "CommentReport => true"@, then the report includes comments attached to or appearing inside tests.
+          Tests with no comments are omitted from this section.
+      ///
+
+      doc ///
+      Key
+        [testAudit, SpeedReport]
+      Headline
+        include timing information for tests
+      Usage
+        testAudit(..., SpeedReport => Boolean)
+      Description
+        Text
+          If @TT "SpeedReport => true"@, then each test is run with @TO check@ and the report includes elapsed timing information.
+      ///
+
+      doc ///
+      Key
+        [testAudit, TestScore]
+      Headline
+        include a heuristic score in the audit report
+      Usage
+        testAudit(..., TestScore => Boolean)
+      Description
+        Text
+          If @TT "TestScore => true"@, then the report includes a heuristic score out of 100.
+          The score is based on whether tests exist, the fraction of exported functions and options mentioned in tests, the absence of silenced tests, and the absence of FIXME or TODO comments.
+      ///
 
       --testAudit test
       TEST /// 
@@ -355,6 +465,13 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
       TEST /// 
         pkg = loadPackage("Depth", Reload=>true);
         testAudit(pkg, SpeedReport=>true)
+      ///
+
+      --TestScore option test
+      TEST ///
+        pkg = loadPackage("Depth", Reload=>true);
+        report = testAudit(pkg, TestScore=>true);
+        assert match("TestScore: .* out of 100", report)
       ///
 
       end--
