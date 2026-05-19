@@ -290,23 +290,28 @@ scoreFraction := (covered, total) -> if total === 0 then 1 else covered / total
 
 -- Compute a deliberately simple heuristic score.  It is meant to guide human
 -- review, not certify test quality.
-scoreReportLines := (inputs, funcs, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
+scoreReportLines := (inputs, syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
+    testedExports := #syms - #untestedExports;
     testedFunctions := #funcs - #untestedFunctions;
+    testedTypes := #types - #(select(apply(types, toString), name -> member(name, untestedExports)));
+    testedOthers := #others - #(select(apply(others, toString), name -> member(name, untestedExports)));
     testedOptions := #optionPairs - #untestedOptions;
-    testsScore := if #inputs > 0 then 1 else 0;
-    functionScore := scoreFraction(testedFunctions, #funcs);
-    optionScore := scoreFraction(testedOptions, #optionPairs);
-    silencedScore := if #silencedTests === 0 then 1 else 0;
-    todoScore := if #fixmeTodos === 0 then 1 else 0;
-    totalScore := testsScore + functionScore + optionScore + silencedScore + todoScore;
-    percentScore := toRR(20 * totalScore);
+    testedTotal := #syms + #optionPairs;
+    testedCovered := testedExports + testedOptions;
+    testedScore := 80 * scoreFraction(testedCovered, testedTotal);
+    silencedScore := if #silencedTests === 0 then 10 else 0;
+    todoScore := if #fixmeTodos >= 10 then 0 else 10 - #fixmeTodos;
+    percentScore := toRR(testedScore + silencedScore + todoScore);
 
     {"", "TestScore: " | toString percentScore | " out of 100",
-     "    tests present: " | toString(#inputs > 0),
-     "    functions covered: " | toString(testedFunctions) | "/" | toString(#funcs),
-     "    options covered: " | toString(testedOptions) | "/" | toString(#optionPairs),
-     "    no silenced tests: " | toString(#silencedTests === 0),
-     "    no FIXME/TODO markers: " | toString(#fixmeTodos === 0)}
+     "    tested: " | toString(toRR testedScore) | " out of 80",
+     "    exports covered: " | toString(toRR(100 * scoreFraction(testedExports, #syms))) | "% (" | toString(testedExports) | "/" | toString(#syms) | ")",
+     "    functions covered: " | toString(toRR(100 * scoreFraction(testedFunctions, #funcs))) | "% (" | toString(testedFunctions) | "/" | toString(#funcs) | ")",
+     "    types covered: " | toString(toRR(100 * scoreFraction(testedTypes, #types))) | "% (" | toString(testedTypes) | "/" | toString(#types) | ")",
+     "    other exports covered: " | toString(toRR(100 * scoreFraction(testedOthers, #others))) | "% (" | toString(testedOthers) | "/" | toString(#others) | ")",
+     "    options covered: " | toString(toRR(100 * scoreFraction(testedOptions, #optionPairs))) | "% (" | toString(testedOptions) | "/" | toString(#optionPairs) | ")",
+     "    no silenced tests: " | toString(silencedScore) | " out of 10",
+     "    FIXME/TODO markers: " | toString(todoScore) | " out of 10 (" | toString(#fixmeTodos) | " found)"}
 )
 
 --------------------------------------------------------------------------------
@@ -323,7 +328,8 @@ testAudit Package := opts -> pkg -> (
     types := select(syms, isExportedType);
     others := select(syms, s -> not isExportedFunction s and not isExportedType s);
 
-    untestedFunctions := select(apply(funcs, toString), name -> not wordMatch(name, code));
+    untestedExports := select(apply(syms, toString), name -> not wordMatch(name, code));
+    untestedFunctions := select(apply(funcs, toString), name -> member(name, untestedExports));
 
     optionPairs := flatten apply(funcs, f -> apply(optionNamesForSymbol f, opt -> {toString f, opt}));
     untestedOptions := select(optionPairs, pair -> (
@@ -349,7 +355,7 @@ testAudit Package := opts -> pkg -> (
         auditListLines("untested options", untestedOptionLabels) |
         auditListLines("silenced tests", silencedTests) |
         auditListLines("FIXME/TODO markers", fixmeTodos) |
-        (if opts.TestScore then scoreReportLines(inputs, funcs, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) else {}) |
+        (if opts.TestScore then scoreReportLines(inputs, syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) else {}) |
         (if opts.SpeedReport then speedReportLines(pkg, inputs) else {}) |
         (if opts.CommentReport then commentReportLines inputs else {});
 
@@ -446,7 +452,14 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
       Description
         Text
           If @TT "TestScore => true"@, then the report includes a heuristic score out of 100.
-          The score is based on whether tests exist, the fraction of exported functions and options mentioned in tests, the absence of silenced tests, and the absence of FIXME or TODO comments.
+          The tested coverage component is worth 80 points and is based on exported symbols and exported function options mentioned in tests.
+          The remaining 20 points are split between having no silenced tests and having few FIXME or TODO comments.
+        Text
+          More explicitly, the tested component counts exported symbols and exported options together, and awards up to 80 points according to the fraction that appear in the package tests.
+          The report also breaks this out as percentages for all exports, functions, types, other exports, and options.
+        Text
+          The package receives 10 points if no silenced tests are found.
+          It also receives up to 10 points for FIXME or TODO comments: one point is subtracted for each marker found in a comment line, with a minimum score of 0 for this part.
       ///
 
       --testAudit test
