@@ -309,10 +309,22 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
       ///
 
 
-      -* Test section *-
-      TEST /// -* [insert short title for this test] *-
-      -- test code and assertions here
-      -- may have as many TEST sections as needed
+      --testAudit test
+      TEST /// 
+        pkg = loadPackage("Complexes", Reload=>true);
+        testAudit(pkg)
+      ///
+      
+      --CommentReport option test
+      TEST /// 
+        pkg = loadPackage("Complexes", Reload=>true);
+        testAudit(pkg, CommentReport=>true)
+      ///
+
+      --SpeedReport option test
+      TEST /// 
+        pkg = loadPackage("Depth", Reload=>true);
+        testAudit(pkg, SpeedReport=>true)
       ///
 
       end--
