@@ -419,6 +419,7 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
 
       doc ///
       Key
+        CommentReport
         [testAudit, CommentReport]
       Headline
         include comments from tests in the audit report
@@ -432,6 +433,7 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
 
       doc ///
       Key
+        SpeedReport
         [testAudit, SpeedReport]
       Headline
         include timing information for tests
@@ -444,6 +446,7 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
 
       doc ///
       Key
+        TestScore
         [testAudit, TestScore]
       Headline
         include a heuristic score in the audit report
@@ -452,14 +455,12 @@ testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocum
       Description
         Text
           If @TT "TestScore => true"@, then the report includes a heuristic score out of 100.
-          The tested coverage component is worth 80 points and is based on exported symbols and exported function options mentioned in tests.
-          The remaining 20 points are split between having no silenced tests and having few FIXME or TODO comments.
         Text
-          More explicitly, the tested component counts exported symbols and exported options together, and awards up to 80 points according to the fraction that appear in the package tests.
-          The report also breaks this out as percentages for all exports, functions, types, other exports, and options.
+          Test Coverage: 80 points. 
         Text
-          The package receives 10 points if no silenced tests are found.
-          It also receives up to 10 points for FIXME or TODO comments: one point is subtracted for each marker found in a comment line, with a minimum score of 0 for this part.
+          No Silenced Tests: 10 points.
+        Text
+          No FIXME/TODO: 10 points.
       ///
 
       --testAudit test
