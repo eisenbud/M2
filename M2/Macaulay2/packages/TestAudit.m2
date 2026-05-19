@@ -139,10 +139,40 @@ blockCommentLineMatches := (pkg, pat) -> (
 
 silencedTestMatches := pkg -> unique(sourceLineMatches(pkg, "^ *--+ *TEST *///") | blockCommentLineMatches(pkg, "TEST *///"))
 
+actualCodeLine := line -> not match("^\\s*$", line) and not match("^\\s*--", line)
+
+actualCodeBetweenTests := (filename, firstLoc, secondLoc) -> (
+    if not fileExists filename then false
+    else (
+        srcLines := lines get filename;
+        firstLine := firstLoc#3 + 1;
+        lastLine := secondLoc#1 - 1;
+        codeLines := if firstLine <= lastLine then select(toList(firstLine..lastLine), n ->
+            n >= 1 and n <= #srcLines and actualCodeLine srcLines#(n - 1)) else {};
+        #codeLines > 0
+    )
+)
+
+interspersedTests := locs -> (
+    files := unique apply(locs, loc -> loc#0);
+    any(files, filename -> (
+        fileLocs := last \ sort apply(select(toList(0..#locs-1), i -> (locs#i)#0 === filename),
+            i -> ((locs#i)#1, i, locs#i));
+        #fileLocs > 1 and any(toList(0..#fileLocs-2), i ->
+            actualCodeBetweenTests(filename, fileLocs#i, fileLocs#(i + 1)))
+    ))
+)
+
 styleOfTests := inputs -> (
-    locs := apply(toList(0..#inputs-1), i -> toString locate inputs#i);
-    if any(locs, loc -> match("/tests/", loc)) then "auxiliary file(s)"
-    else "interspersed"
+    if #inputs === 0 then {"no tests"}
+    else (
+        locs := apply(toList(0..#inputs-1), i -> locate inputs#i);
+        styles := {};
+        interspersed := interspersedTests locs;
+        if #(unique apply(locs, loc -> loc#0)) > 1 then styles = append(styles, "auxiliary");
+        styles = append(styles, if interspersed then "interspersed" else "together");
+        styles
+    )
 )
 
 testSourceLines := inputs -> (
@@ -274,7 +304,7 @@ testAudit Package := opts -> pkg -> (
     reportLines := {
         "exported: " | toString(#funcs) | " functions, " | toString(#types) | " types, " | toString(#others) | " other symbols",
         "n_tests: " | toString(#inputs),
-        "style: " | styleOfTests inputs,
+        "style: " | demark(", ", styleOfTests inputs),
         ""} |
         testSourceLines inputs |
         {"",
