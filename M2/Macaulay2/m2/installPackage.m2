@@ -661,6 +661,9 @@ installPackage = method(
 	Verbose                => false
 	})
 
+--TODO: implement option TestAudit=>true so testAudit can make use of the fact
+-- that tests are run on installPackage (otherwise testAudit(pkg, SpeedTest=>true)
+-- would have to run them a second time)
 installPackage String := opts -> pkg -> (
     -- if pkg =!= "Macaulay2Doc" then needsPackage "Macaulay2Doc";  -- load the core documentation
     -- -- we load the package even if it's already been loaded, because even if it was loaded with
