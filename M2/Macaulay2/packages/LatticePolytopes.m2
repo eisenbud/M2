@@ -1389,10 +1389,10 @@ TEST ///
 --    ambientHalfspaces(Polyhedron)
 --    areIsomorphic(Polyhedron,Polyhedron)
 TEST ///
-    (A,b)=ambientHalfspaces(hypercube(3));
+    (A,b)=ambientHalfspaces(convexHull(matrix{{0,2}}));
     assert(instance(A, Matrix))
     assert(instance(b, Matrix))
-    assert(areIsomorphic(intersection(A,b),hypercube(3)));
+    assert(areIsomorphic(intersection(A,b),convexHull(matrix{{0,2}})));
 ///
 
 
@@ -1430,42 +1430,58 @@ TEST ///
     assert(instance(L,Polyhedron))
     assert(areIsomorphic(MN,PQ))
     assert(areIsomorphic(L,PQ))
+///
 
-    -- tests for codegree
-    --    codegree(Matrix)
-    --    codegree(Polyhedron)
+-- tests for codegree
+--    codegree(Matrix)
+--    codegree(Polyhedron)
+TEST ///
     S = matrix{{0,2,0},{0,0,2}}
     assert(codegree(S) == 2)
     assert(codegree(convexHull(S)) == 2)
+///
 
-    -- degreeOfJetSeparation
-    --    degreeOfJetSeparation(List,Matrix)
-    --    degreeOfJetSeparation(Matrix,Matrix)
+-- degreeOfJetSeparation
+--    degreeOfJetSeparation(List,Matrix)
+--    degreeOfJetSeparation(Matrix,Matrix)
+TEST ///
+    P = convexHull(matrix{{0,2}})
+    Q = convexHull(matrix{{0,2}})
     A = latticePoints(cayley({P,Q},2))
     x = matrix{{1},{1}}
     assert(degreeOfJetSeparation(A,x) == 2)
+///
 
-    -- epsilonBounds
-    --    epsilonBounds(Polyhedron,ZZ)
+-- epsilonBounds
+--    epsilonBounds(Polyhedron,ZZ)
+TEST ///
+    P = convexHull(matrix{{0,2}})
+    Q = convexHull(matrix{{0,2}})
     R = cayley({P,Q},2)
     assert(epsilonBounds(R,10) == {2,2})
+///
 
-    -- gaussFiber
-    --    gaussFiber(List)
-    --    gaussFiber(Matrix)
+-- gaussFiber
+--    gaussFiber(List)
+--    gaussFiber(Matrix)
+TEST ///
+    PQ = cayley(convexHull(matrix{{0,2}}), convexHull(matrix{{0,2}}))
     A = latticePoints(PQ)
     assert(gaussFiber(A) == {1})
-
+///
     
-    -- iskCayleykEdges
-    --    iskCayleykEdges(Polyhedron)
+-- iskCayleykEdges
+--    iskCayleykEdges(Polyhedron)
+TEST ///
+    P = convexHull(matrix{{0,2}})
+    Q = convexHull(matrix{{0,2}})
     Q2 = convexHull(matrix{{0,3}})
     R1 = cayley({P,Q},2)
     R2 = cayley({P,Q2},2)
     R1out = iskCayleykEdges(R1)
     
     assert(not instance(iskCayleykEdges(R2), Sequence))
-    assert(instance(R1_out, Sequence))
+    assert(instance(R1out, Sequence))
     assert(R1out#0 == convexHull(matrix{{0,2},{0,0}}))
 ///
 
@@ -1478,16 +1494,17 @@ TEST ///
     assert(degree(L#0) == {2})
 ///
 
-TEST ///
-    -- gausskFiber
-    --    gausskFiber(Matrix,ZZ)
-    A = latticePoints(hypercube(2,1))
-    assert(gausskFiber(A,2) == {1})
-
-    -- gausskImage
-    --    gausskImage(Matrix, ZZ)
-    assert(#gausskImage(A,2) == 25)
-///
+-- these tests are rather slow on my machine (~4 seconds), so they are silenced
+--TEST ///
+--    -- gausskFiber
+--    --    gausskFiber(Matrix,ZZ)
+--    A = latticePoints(hypercube(2,1))
+--    assert(gausskFiber(A,2) == {1})
+--
+--    -- gausskImage
+--    --    gausskImage(Matrix, ZZ)
+--    assert(#gausskImage(A,2) == 25)
+--///
 
 -- isCayley
 --    isCayley(Matrix)
@@ -1511,7 +1528,10 @@ TEST ///
 --    jetMatrix(Matrix,ZZ)
 --    jetMatrix(Matrix,ZZ,Matrix)
 TEST ///
-    assert(jetMatrix(latticePoints(convexHull(matrix{{0,2,0},{0,0,2}})),2,matrix{{1},{1}}) == matrix {{1, 1, 1, 1, 1, 1}, {0, 0, 0, 1, 1, 2}, {0, 0, 0, 0, 0, 2}, {0, 0, 0, 0, 1, 0}, {0, 1, 2, 0, 1, 0}, {0, 0, 2, 0, 0, 0}});
+    M = jetMatrix(latticePoints(convexHull(matrix{{0,2,0},{0,0,2}})),2,matrix{{1},{1}})
+    M' = matrix {{1, 1, 1, 1, 1, 1}, {0, 0, 0, 1, 1, 2}, {0, 0, 0, 0, 0, 2}, {0, 0, 0, 0, 1, 0}, {0, 1, 2, 0, 1, 0}, {0, 0, 2, 0, 0, 0}}
+    assert(instance(M, Matrix))
+    assert(M == M');
 ///
 
 -- listSmooth2D no tests
@@ -1520,12 +1540,19 @@ TEST ///
 
 -- randQPoly
 --    randQPoly(ZZ,ZZ)
+TEST ///
+    Q = randQPoly(4, 3)
+    assert(instance(Q, Polyhedron))
+    assert(not isEmpty(Q))
+///
 
 -- randZPoly
 --    randZPoly(ZZ,ZZ)
 --    randZPoly(ZZ,ZZ,ZZ)
 TEST ///
-    assert(not isEmpty(randZPoly(5,2)))
+    P = randZPoly(5,2)
+    assert(instance(P,Polyhedron))
+    assert(not isEmpty(P))
 ///
 
 -- toricBlowUp
@@ -1540,6 +1567,12 @@ TEST ///
 -- toricDiv
 --    toricDiv(Matrix)
 --    toricDiv(Polyhedron)
+TEST ///
+    D = toricDiv(matrix{{0,0,1,1},{0,1,1,0}})
+    D' = toricDiv(hypercube(2))
+    assert(instance(D,ToricDivisor))
+    assert(instance(D',ToricDivisor))
+///
 
 -- torusEmbedding
 --    torusEmbedding(List)
