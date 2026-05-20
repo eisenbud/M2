@@ -419,77 +419,77 @@ testScore String := pkgname -> testScore needsPackage(pkgname, LoadDocumentation
 
 
 
-      -* Documentation section *-
-      beginDocumentation()
-      doc ///
-      Key
-        TestAudit
-      Headline
-        Provides test audit functionality
-      Description
-        Text
-          The @TT "TestAudit"@ package provides a small report about the tests of a package.
-          The report lists the number and location of tests, classifies how tests are organized, and gives simple textual checks for exported functions, options, silenced tests, and FIXME or TODO comments.
-      ///
-      doc ///
-      Key
-        testAudit
-        (testAudit, Package)
-        (testAudit, String)
-        CommentReport
-        [testAudit, CommentReport]
-        SpeedReport
-        [testAudit, SpeedReport]
-        ScoreReport
-        [testAudit, ScoreReport]
-      Headline
-        produce a test audit report for a package
-      Usage
-        testAudit pkg
-        testAudit(pkg, CommentReport => true, SpeedReport => true, ScoreReport => true)
-      Inputs
-        pkg:{Package,String}
-        CommentReport => Boolean
-        SpeedReport => Boolean
-        ScoreReport => Boolean
-      Outputs
-        :String
-          the audit report
-      Description
-        Text
-          Returns a string report about the tests of @TT "pkg"@.
-          The default report summarizes test sources, test organization, untested exported functions and options, silenced tests, and FIXME or TODO markers around test blocks.
-        Text
-          Optional Boolean arguments add sections: @TT "CommentReport"@ includes comments attached to tests, @TT "SpeedReport"@ times tests with @TO check@, and @TT "ScoreReport"@ includes the heuristic score returned by @TO testScore@.
-        Example
-          testAudit "TestAudit"
-      SeeAlso
-        testAudit
-      ///
+-* Documentation section *-
+beginDocumentation()
+doc ///
+Key
+  TestAudit
+Headline
+  Provides test audit functionality
+Description
+  Text
+    The @TT "TestAudit"@ package provides a small report about the tests of a package.
+    The report lists the number and location of tests, classifies how tests are organized, and gives simple textual checks for exported functions, options, silenced tests, and FIXME or TODO comments.
+///
+doc ///
+Key
+  testAudit
+  (testAudit, Package)
+  (testAudit, String)
+  CommentReport
+  [testAudit, CommentReport]
+  SpeedReport
+  [testAudit, SpeedReport]
+  ScoreReport
+  [testAudit, ScoreReport]
+Headline
+  produce a test audit report for a package
+Usage
+  testAudit pkg
+  testAudit(pkg, CommentReport => true, SpeedReport => true, ScoreReport => true)
+Inputs
+  pkg:{Package,String}
+  CommentReport => Boolean
+  SpeedReport => Boolean
+  ScoreReport => Boolean
+Outputs
+  :String
+    the audit report
+Description
+  Text
+    Returns a string report about the tests of @TT "pkg"@.
+    The default report summarizes test sources, test organization, untested exported functions and options, silenced tests, and FIXME or TODO markers around test blocks.
+  Text
+    Optional Boolean arguments add sections: @TT "CommentReport"@ includes comments attached to tests, @TT "SpeedReport"@ times tests with @TO check@, and @TT "ScoreReport"@ includes the heuristic score returned by @TO testScore@.
+  Example
+    testAudit "TestAudit"
+SeeAlso
+  testAudit
+///
 
-      doc ///
-      Key
-        testScore
-        (testScore, Package)
-        (testScore, String)
-      Headline
-        compute the heuristic test score for a package
-      Usage
-        testScore pkg
-      Inputs
-        pkg:{Package,String}
-      Outputs
-        :RR
-          the heuristic test score
-      Description
-        Text
-          This function returns only the numerical score that appears in the @TT "ScoreReport"@ section of @TO testAudit@.
-          The score is out of 100.
-        Example
-          testScore "TestAudit"
-      SeeAlso
-        testAudit
-      ///
+doc ///
+Key
+  testScore
+  (testScore, Package)
+  (testScore, String)
+Headline
+  compute the heuristic test score for a package
+Usage
+  testScore pkg
+Inputs
+  pkg:{Package,String}
+Outputs
+  :RR
+    the heuristic test score
+Description
+  Text
+    This function returns only the numerical score that appears in the @TT "ScoreReport"@ section of @TO testAudit@.
+    The score is out of 100.
+  Example
+    testScore "TestAudit"
+SeeAlso
+  testAudit
+///
 
 --testAudit test
 TEST /// 
