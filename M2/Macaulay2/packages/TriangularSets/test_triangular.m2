@@ -2,15 +2,16 @@
 --###################################
 -- Binomial triangularize
 --###################################
-
+TEST ///
 checkTriangularize "Binomial"
+///
 
 --###################################
 -- Triangular sets
 --###################################
 
 -- regular chains
-
+TEST ///
 R = QQ[x,y,t,s, MonomialOrder=>Lex];
 F = {x + y^2 - t, t^2 -s};
 T = triaSystem(R,F,{});
@@ -20,29 +21,113 @@ f = x*y*t;
 assert(resultant(f,T)==y^2*s^2-y^6*s)
 assert(codim T == 2)
 assert(dim T == 2)
+///
 
+TEST ///
 R = QQ[x,y,z, MonomialOrder=>Lex];
 F = {x*y - y*z, y^2 - z^2};
 T = triaSystem(R,F,{y});
 assert(isRegularChain T)
 assert(not isStronglyNormalized T)
+///
 
 -- prem
-
+TEST ///
 R = QQ[a,b,c,d,e, MonomialOrder=>Lex];
 T = triaSystem (R,{a*b-c,b^2-c},{b})
 assert(isRegularChain T)
 assert(not isStronglyNormalized T)
 assert((a-b) % T == 0)
+///
 
 --###################################
 -- Others
 --###################################
 
 -- minimalObjects
-
+TEST ///
 L = 2..50
 cmp = (i,j) -> if i%j==0 then 1 else if j%i==0 then -1 else 0;
 minl = minimalObjects (L,cmp);
 primes = (2,3,5,7,11,13,17,19,23,29,31,37,41,43,47)
 assert( select(L,i ->minl#i) == primes )
+///
+
+-- checkInterface
+--    checkInterface()
+
+-- checkTriangularize
+--    checkTriangularize()
+
+-- codim
+--    codim(TriaSystem)
+
+-- degree
+--    degree(TriaSystem)
+
+-- dim
+--    dim(TriaSystem)
+
+-- freeVariables
+--    freeVariables(TriaSystem)
+
+-- gbList
+--    gbList()
+
+-- generators
+--    generators(TriaSystem)
+
+-- ineqs
+--    ineqs(TriaSystem)
+
+-- initial
+--    initial(RingElement)
+--    initial(TriaSystem)
+--    initial(List)
+--    initial(RingElement,RingElement)
+
+-- isPrimeSimple
+--    isPrimeSimple(TriaSystem)
+
+-- isRegularChain
+--    isRegularChain(TriaSystem)
+
+-- isStronglyNormalized
+--    isStronglyNormalized(TriaSystem)
+
+-- minimalObjects
+--    minimalObjects()
+
+-- mvar
+--    mvar(RingElement)
+
+-- pseudoRemainder
+--    pseudoRemainder(RingElement,RingElement,RingElement)
+--    pseudoRemainder(RingElement,TriaSystem)
+
+-- resultant
+--    resultant(RingElement,TriaSystem)
+
+-- RingElement % TriaSystem
+
+-- RingMap
+--    RingMap TriaSystem
+
+-- saturate
+--    saturate(TriaSystem)
+
+-- triangularize
+--    triangularize(Ideal)
+--    triangularize(MonomialIdeal)
+--    triangularize(Ring,List)
+--    triangularize(Ring,List,List)
+
+-- triangularizeBatch
+--    triangularizeBatch()
+
+-- net
+--    net(TriaSystem)
+
+-- triaSystem
+--    triaSystem(Ring,List)
+--    triaSystem(Ring,List,List)
