@@ -40,17 +40,17 @@ testCodeStringFromInputs := inputs -> (
 )
 
 testCodeString Package := pkg -> testCodeStringFromInputs testInputs pkg
-testCodeString String := pkgname -> testCodeString needsPackage(pkgname, LoadDocumentation => true)
+testCodeString String := pkgname -> testCodeString needsPackage(pkgname, LoadDocumentation => false)
 
 
 packageSourceString = method()
 packageSourceString Package := pkg -> try get pkg#"source file" else ""
-packageSourceString String := pkgname -> packageSourceString needsPackage(pkgname, LoadDocumentation => true)
+packageSourceString String := pkgname -> packageSourceString needsPackage(pkgname, LoadDocumentation => false)
 
 
 exportedSymbols = method()
 exportedSymbols Package := pkg -> sort toList pkg#"exported symbols"
-exportedSymbols String := pkgname -> exportedSymbols needsPackage(pkgname, LoadDocumentation => true)
+exportedSymbols String := pkgname -> exportedSymbols needsPackage(pkgname, LoadDocumentation => false)
 
 
 -- These helpers classify exported symbols by the class of their current value.
@@ -393,7 +393,7 @@ testAudit Package := opts -> pkg -> (
 )
 
 -- Load documentation so package TEST blocks are available.
-testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocumentation => true), opts)
+testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocumentation => false), opts)
 
 testScore Package := pkg -> (
     inputs := testInputs pkg;
@@ -415,7 +415,7 @@ testScore Package := pkg -> (
 )
 
 -- Load documentation so package TEST blocks are available.
-testScore String := pkgname -> testScore needsPackage(pkgname, LoadDocumentation => true)
+testScore String := pkgname -> testScore needsPackage(pkgname, LoadDocumentation => false)
 
 
 
