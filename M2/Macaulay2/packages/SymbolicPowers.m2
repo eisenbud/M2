@@ -1960,11 +1960,6 @@ I=intersect(ideal(x_1,x_2),ideal(x_2,x_3),ideal(x_3,x_1),ideal(x_3,x_4),ideal(x_
 assert(noPackedAllSubs I=={{"x_1=>0", "x_2=>1", "x_3=>1"}, {"x_2=>0", "x_1=>1", "x_3=>1"}, {"x_5=>0", "x_4=>1", "x_6=>1"}, {"x_6=>0", "x_4=>1", "x_5=>1"}})
 ///
 
-------testing CIPRimes
-loadPackage "Points"
-I=randomPoints(2,10);
-time symbolicPower(I,6,CIPrimes=>true);
-time symbolicPower(I,6);
 
 
 --asymptoticRegularity
