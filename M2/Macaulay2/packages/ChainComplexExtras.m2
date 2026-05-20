@@ -16,15 +16,33 @@ newPackage(
 	  },
      Headline => "some additional ChainComplex Functions",
      PackageExports => {"OldChainComplexes"},
+     -- Complexes is imported (not re-exported) so EKResolution / AHHResolution
+     -- can return the modern Complex type and isQuasiIsomorphism can share
+     -- the symbol declared in Complexes (we add a ChainComplexMap dispatch).
+     -- OldChainComplexes is the dictionary that wins for users (so existing
+     -- `res`, `chainComplex`, etc. semantics are preserved in test code).
+     -- SimplicialComplexes is intentionally NOT imported: doing so would
+     -- shadow taylorResolution (which SimplicialComplexes also declares),
+     -- forcing a choice between (a) re-exporting + redeclaring (= method)
+     -- which hits "assignment to protected", or (b) skipping the export
+     -- but then `taylorResolution` is invisible to test code that's run
+     -- via `check`.  The merged-in simplicialResolution / scarf / isAcyclic
+     -- functions from MIR are therefore not included here.
+     PackageImports => {"Complexes"},
      Keywords => {"Homological Algebra"},
      DebuggingMode =>false
      )
 
 export "isChainComplex"
 export "isChainComplexMap"
-export "isQuasiIsomorphism"
+-- isQuasiIsomorphism is now owned by the Complexes package (imported above).
+-- ChainComplexExtras adds a (ChainComplexMap) dispatch on it; we do not
+-- re-export the symbol here.
+--export "isQuasiIsomorphism"
 --export "isQuism"
-export "koszulComplex"
+-- koszulComplex is owned by Complexes (different signature); we add an
+-- (Ideal) dispatch and do not re-export.
+--export "koszulComplex"
 export "taylor"
 export "taylorResolution"
 export "chainComplexMap"
@@ -324,6 +342,13 @@ isChainComplex=method()
 isChainComplex(ChainComplex):=(inputComplex)->(
    if (inputComplex.dd^2 == 0) then true else false
 )
+-- Complex (from the Complexes package) is a chain complex by construction
+-- (the constructor enforces dd^2 = 0).  Provide a Complex dispatch so that
+-- legacy callers that test  isChainComplex C  on the modern type continue
+-- to work after the migration to Complex.
+isChainComplex(Complex):=(inputComplex)->(
+   if (inputComplex.dd^2 == 0) then true else false
+)
 
 -*
 isChainComplexMap=method()
@@ -372,10 +397,17 @@ restart
 
 ///
 
-isQuasiIsomorphism=method(Options => {LengthLimit => infinity})
-isQuasiIsomorphism(ChainComplexMap):= o -> (phi)-> (
-   isExact(cone phi, LengthLimit => o.LengthLimit)
-)
+-- isQuasiIsomorphism is owned by the Complexes package (imported above).
+-- We add a (ChainComplexMap) dispatch on top of it.  The previous
+-- ChainComplexExtras declaration used a `LengthLimit => infinity` option;
+-- it has been retired in favour of the `Concentration => (lo, hi)` option
+-- inherited from Complexes.  Callers that used  LengthLimit => N  should
+-- migrate to  Concentration => (-infinity, N) , which has the same effect
+-- (only the upper bound participates in the cone-exactness check below).
+isQuasiIsomorphism(ChainComplexMap) := o -> phi -> (
+    (lo, hi) := toSequence o.Concentration;
+    isExact(cone phi, LengthLimit => if hi === infinity then infinity else hi)
+    )
 
 --isQuism = isQuasiIsomorphism
 
@@ -407,20 +439,21 @@ ChainComplexMap || ChainComplexMap := (f,g) -> (
    retVal
 )
 
-koszulComplex=method(
-    Options => {LengthLimit => 0}
-)
-
-koszulComplex(Ideal):= o -> (I)->(
+-- koszulComplex is owned by the Complexes package (imported above).
+-- We add an (Ideal) dispatch that returns a (legacy) ChainComplex, preserving
+-- the ChainComplexExtras 1.1 behaviour.  Since Complexes declares
+-- koszulComplex with Options => true (accepts any options), we provide our
+-- own LengthLimit default via the {Option => default} >> opts pattern.
+koszulComplex(Ideal) := {LengthLimit => 0} >> opts -> I -> (
     --- this function just returns the Koszul complex
     --- where I represents the first differential.
-    if not instance(o.LengthLimit, ZZ)
+    if not instance(opts.LengthLimit, ZZ)
     then error "The optional LengthLimit must be an integer.";
     lengthLimit := 0;
-    if (o.LengthLimit == 0) then
+    if (opts.LengthLimit == 0) then
        lengthLimit = numgens I
     else
-       lengthLimit = o.LengthLimit;
+       lengthLimit = opts.LengthLimit;
     chainComplex(apply(toList (1 .. lengthLimit), i -> koszul(i, gens I)))
 )
 
@@ -459,8 +492,6 @@ taylorResolution=method(
     Options => {LengthLimit => 0}
 )
 taylorResolution(MonomialIdeal):= o -> (I)->(
-    --- this function just returns the Koszul complex
-    --- where I represents the first differential.
     if not instance(o.LengthLimit, ZZ)
     then error "The optional LengthLimit must be an integer.";
     lengthLimit := 0;
@@ -933,14 +964,15 @@ EK(ZZ, MonomialIdeal) := Matrix => (n, I) -> (
     )
 
 EKResolution = method()
-EKResolution MonomialIdeal := ChainComplex => I -> (
+EKResolution MonomialIdeal := Complex => I -> (
     n := numgens ring I;
     -- Build the list of differentials; drop trailing zero maps so the
-    -- length matches the actual projective dimension and chainComplex()
-    -- doesn't choke on an all-zero tail.
-    diffs := apply(0 ..< n, i -> EK(i, I));
+    -- length matches the actual projective dimension.  toList is essential:
+    -- `complex` accepts a List but, on a Sequence, splats the args (no
+    -- (Matrix, Matrix, ...) dispatch exists).
+    diffs := toList apply(0 ..< n, i -> EK(i, I));
     while #diffs > 1 and (last diffs == 0) do diffs = drop(diffs, -1);
-    chainComplex diffs
+    complex diffs
     )
 
 -- ---- Aramova-Herzog-Hibi resolution (squarefree stable case) ----
@@ -977,21 +1009,26 @@ AHH(ZZ, MonomialIdeal) := Matrix => (n, I) -> (
     )
 
 AHHResolution = method()
-AHHResolution MonomialIdeal := ChainComplex => I -> (
+AHHResolution MonomialIdeal := Complex => I -> (
     R := ring I;
     maxlevel := length(R_*) - max apply(I_*, g -> maxVarMIR g + 1 - first degree g) - 1;
     if maxlevel < 0 then maxlevel = 0;
-    diffs := apply(0 .. maxlevel, i -> AHH(i, I));
+    diffs := toList apply(0 .. maxlevel, i -> AHH(i, I));
     while #diffs > 1 and (last diffs == 0) do diffs = drop(diffs, -1);
-    chainComplex diffs
+    complex diffs
     )
 
 -- ---- isResolution predicate ----
 -- isResolution: HH_0(C) ≅ S/I and HH_i(C) = 0 for i > 0.
 -- Bug-fix: the 2012 source used  all((min C+1, max C), ...)  which iterates
 -- the literal 2-tuple and silently misses every interior homology degree.
--- Replaced with the .. range below.
+-- Replaced with the .. range below.  Two dispatches, one for each of the
+-- ChainComplex (legacy) and Complex (modern) types.
 isResolution = method()
+isResolution(Complex, MonomialIdeal) := Boolean => (C, I) -> (
+    (cokernel gens I == prune HH_0 C)
+    and all(min C + 1 .. max C, i -> prune HH_i C == 0)
+    )
 isResolution(ChainComplex, MonomialIdeal) := Boolean => (C, I) -> (
     (cokernel gens I == prune HH_0 C)
     and all(min C + 1 .. max C, i -> prune HH_i C == 0)
@@ -1214,11 +1251,11 @@ document {
 *-
 doc ///
    Key
-    [isQuasiIsomorphism,LengthLimit]
+    [isQuasiIsomorphism,Concentration]
    Headline
-    Option to check quasi-isomorphism only up to a certain point
+    Option to check quasi-isomorphism only up to a certain homological degree
    Usage
-    t = isQuasiIsomorphism(F, LengthLimit => n)
+    t = isQuasiIsomorphism(F, Concentration => (-infinity, n))
    Inputs
     F:ChainComplexMap
     n:ZZ
@@ -1227,7 +1264,12 @@ doc ///
    Description
     Text
      Useful, for example, when checking whether a map is a resolution of a complex
-     in cases where the actual resolution is infinite
+     in cases where the actual resolution is infinite.  Only the upper bound of
+     the Concentration tuple participates in the cone-exactness check on the
+     ChainComplexMap overload.  This option is inherited from the @TO Complexes@
+     package's @TT "isQuasiIsomorphism"@; the legacy LengthLimit option of this
+     package has been retired in favour of it.  Migration:  the previous
+     @TT "LengthLimit => n"@ is now @TT "Concentration => (-infinity, n)"@.
     Example
      kk= ZZ/101
      S = kk[a,b,c]
@@ -1235,8 +1277,8 @@ doc ///
      M = R^1/ideal(a)
      C = chainComplex{map(M,R^0,0)}
      m=cartanEilenbergResolution (C, LengthLimit => 10)
-     isQuasiIsomorphism(m, LengthLimit=> 10)
-     isQuasiIsomorphism(m, LengthLimit => 12)
+     isQuasiIsomorphism(m, Concentration => (-infinity, 10))
+     isQuasiIsomorphism(m, Concentration => (-infinity, 12))
    SeeAlso
     (isExact, ChainComplex)
 ///
@@ -1557,27 +1599,15 @@ doc ///
     Text
      Computes LengthLimit steps
 ///
-doc ///
-   Key
-    [koszulComplex, LengthLimit]
-   Headline
-    How many steps to compute
-   Usage
-    m = koszulComplex(C,LengthLimit => n)
-   Inputs
-    C:ChainComplex
-    n:ZZ
-     non-negative integer or infinity
-   Outputs
-    m:ChainComplex
-   Description
-    Text
-     Computes LengthLimit steps
-///
+-- doc node for [koszulComplex, LengthLimit] dropped: koszulComplex is now
+-- owned by the Complexes package (declared with Options => true), and the
+-- M2 doc system rejects a per-option doc tag in that case.  The
+-- ChainComplexExtras (Ideal) dispatch still accepts LengthLimit at call
+-- time; we just don't document the option separately.
 
 doc ///
   Key
-    nonzeroMax  
+    nonzeroMax
     (nonzeroMax,ChainComplex)
   Headline
     computes the homological position of the last non-zero module in a ChainComplex 
@@ -2219,9 +2249,9 @@ M = R^1/ideal(a)
 C = chainComplex{map(M,R^0,0)}
 source (m=cartanEilenbergResolution (C, LengthLimit => 10))
 source (n =resolutionOfChainComplex (C, LengthLimit => 10))
-assert (isQuasiIsomorphism(m, LengthLimit=> 10))
-assert(not isQuasiIsomorphism(m, LengthLimit => 12))
-assert(isQuasiIsomorphism(n, LengthLimit=> 10))
+assert (isQuasiIsomorphism(m, Concentration => (-infinity, 10)))
+assert(not isQuasiIsomorphism(m, Concentration => (-infinity, 12)))
+assert(isQuasiIsomorphism(n, Concentration => (-infinity, 10)))
 m = resolutionOfChainComplex (C[3])
 assert(target m == C[3])
 
@@ -2288,9 +2318,9 @@ M = R^1/ideal(a)
 C = chainComplex{map(M,R^0,0)}
 m=cartanEilenbergResolution (C, LengthLimit => 10)
 n =resolutionOfChainComplex (C, LengthLimit => 10)
-assert (isQuasiIsomorphism(m, LengthLimit=> 10))
-assert(not isQuasiIsomorphism(m, LengthLimit => 12))
-assert(isQuasiIsomorphism(n, LengthLimit=> 10))
+assert (isQuasiIsomorphism(m, Concentration => (-infinity, 10)))
+assert(not isQuasiIsomorphism(m, Concentration => (-infinity, 12)))
+assert(isQuasiIsomorphism(n, Concentration => (-infinity, 10)))
 m = resolutionOfChainComplex (C[3])
 assert(target m == C[3])
 assert(isChainComplexMap m)
@@ -2644,7 +2674,7 @@ TEST ///
   R = QQ[x,y,z]
   I = monomialIdeal(x^2, x*y, y^2, y*z)
   EKR = EKResolution I
-  assert(class EKR === ChainComplex)
+  assert(class EKR === Complex)
   assert(betti EKR == betti res I)
   assert(isResolution(EKR, I))
 ///
@@ -2665,7 +2695,7 @@ TEST ///
   R = QQ[x,y,z]
   I = monomialIdeal(x*y, x*z, y*z)
   AHHR = AHHResolution I
-  assert(class AHHR === ChainComplex)
+  assert(class AHHR === Complex)
   assert(betti AHHR == betti res I)
   assert(isResolution(AHHR, I))
 ///
