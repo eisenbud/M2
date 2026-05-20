@@ -1494,16 +1494,19 @@ TEST ///
     assert(degree(L#0) == {2})
 ///
 
--- these tests are rather slow on my machine (~4 seconds), so they are silenced
+-- these tests are rather slow on my machine (~2 seconds), so they are silenced
 --TEST ///
 --    -- gausskFiber
 --    --    gausskFiber(Matrix,ZZ)
 --    A = latticePoints(hypercube(2,1))
 --    assert(gausskFiber(A,2) == {1})
---
---    -- gausskImage
---    --    gausskImage(Matrix, ZZ)
---    assert(#gausskImage(A,2) == 25)
+--///
+
+TEST ///
+    -- gausskImage
+    --    gausskImage(Matrix, ZZ)
+    A = latticePoints(hypercube(2,1))
+    assert(#gausskImage(A,2) == 25)
 --///
 
 -- isCayley
