@@ -1,13 +1,18 @@
 newPackage(
      "ChainComplexExtras",
-     Version => "1.1",
-     Date => "Jan 11, 2016",
+     Version => "1.2",
+     Date => "May 20, 2026",
      Authors => {
 	  {Name => "David Eisenbud", Email => "de@msri.org", HomePage => "http://www.msri.org/~de"},
 	  {Name => "Frank Moore", Email => "fmoore@math.unl.edu", HomePage => "http://www.math.unl.edu/~s-wmoore3"},
 	  {Name => "Frank-Olaf Schreyer", Email => "schreyer@math.uni-sb.de", HomePage => "http://www.math.uni-sb.de/ag/schreyer/"},
 	  {Name => "Gregory G. Smith", Email => "ggsmith@mast.queensu.ca", HomePage => "http://www.mast.queensu.ca/~ggsmith"},
-	  {Name => "Lily Silverstein", Email => "lsilverstein@cpp.edu", HomePage => "https://www.cpp.edu/faculty/lsilverstein/"}
+	  {Name => "Lily Silverstein", Email => "lsilverstein@cpp.edu", HomePage => "https://www.cpp.edu/faculty/lsilverstein/"},
+	  -- Authors of the merged-in MonomialIdealResolutions package (originally
+	  -- developed at the 2011 Goettingen and 2012 Wake Forest M2 workshops):
+	  {Name => "Eduardo Saenz De Cabezon Irigaray", Email => "eduardo.saenz-de-cabezon@unirioja.es"},
+	  {Name => "Oscar Fernandez-Ramos", Email => "caribefresno@gmail.com"},
+	  {Name => "Christof Soeger", Email => "csoeger@uos.de"}
 	  },
      Headline => "some additional ChainComplex Functions",
      PackageExports => {"OldChainComplexes"},
@@ -40,6 +45,29 @@ export "nonzeroMax" -- computes the homological position of the last non-zero mo
 --export "chainComplexData"
 --export "chainComplexFromData"
 export "scarfComplex"
+
+-- Functions merged in from MonomialIdealResolutions (2011 Goettingen / 2012
+-- Wake Forest workshops).  Resolution-producing functions return ChainComplex
+-- (the legacy type used throughout this package); see the comment block at the
+-- top of the merge section for why the merge didn't migrate to Complex.
+--
+-- NOTE: The simplicial-complex-based exports from MIR
+-- (simplicialResolution, simplicialResolutionDifferential, scarf, isAcyclic)
+-- are NOT merged here.  They require SimplicialComplex / faces /
+-- simplicialComplex, which means PackageImports => SimplicialComplexes -- and
+-- SimplicialComplexes transitively loads Complexes, whose
+-- isQuasiIsomorphism declaration collides with this package's own at L370.
+-- Resolving that collision (most likely by renaming or repurposing the
+-- legacy isQuasiIsomorphism here) would unlock a follow-up that adds the
+-- simplicial-complex resolutions and migrates to the Complex type.
+export "isStable"
+export "isSQStable"
+export "isElement"
+export "EK"
+export "EKResolution"
+export "AHH"
+export "AHHResolution"
+export "isResolution"
 
 substitute(ChainComplex,Ring):=(C,newRing)->(
    --- this function is just a version of substitute for chain complexes
@@ -757,6 +785,221 @@ cone extendFromMiddle(F1,F2,f, 1)
 ///
 
 resolution ChainComplex := o -> C -> resolutionOfChainComplex C
+
+------------------------------------------------------------------------------
+-- BEGIN: MonomialIdealResolutions merge ------------------------------------
+------------------------------------------------------------------------------
+-- Code adapted from MonomialIdealResolutions (E. Saenz De Cabezon Irigaray,
+-- O. Fernandez-Ramos, C. Soeger; 2011 Goettingen + 2012 Wake Forest workshops).
+--
+-- These resolutions return the legacy ChainComplex type, consistent with the
+-- rest of this package.  Users who want the modern Complex type can convert
+-- with the constructor from the Complexes package, e.g.
+--    needsPackage "Complexes";
+--    C = complex EKResolution I;
+-- (The merge was originally drafted with Complexes imported directly, but
+-- that import collides on the symbol `isQuasiIsomorphism`, which both
+-- Complexes and ChainComplexExtras define as a fresh method.)
+--
+-- Bugs fixed during the merge:
+--   1. isResolution previously used  all((min C+1, max C), i -> ...)
+--      which iterates the literal 2-tuple, so it only checked HH at the two
+--      endpoints and missed every interior degree.  Now uses the .. range.
+--   2. simplicialResolutionDifferential used `first entries faces(n, C)`,
+--      which assumed faces returned a Matrix.  Modern SimplicialComplexes
+--      returns a List; the wrapper has been removed.
+--   3. `numgens faces` (and an empty `length faces`) in scarf could yield
+--      QQ[v_1..v_0] (an empty variable range); guarded with a degenerate
+--      simplicialComplex return.
+------------------------------------------------------------------------------
+
+-- ---- Local helpers (kept private) ----
+
+-- maxVar: the highest index of a variable appearing in the monomial m
+maxVarMIR = method()
+maxVarMIR RingElement := m -> max positions(first exponents m, i -> i != 0)
+
+-- componentwise max of a list of exponent vectors of equal length
+lcmExp = method()
+lcmExp List := L -> apply(#(L#0), i -> max apply(L, l -> l_i))
+
+-- For a monomial m in the ideal I = (g_1,...,g_t) generated by minimal monomial
+-- generators, return the unique g_j such that m = g_j * m' with
+-- max(g_j) <= min(m').  Called the "canonical decomposition" in [EK].
+canonicalDecomp = method()
+canonicalDecomp(RingElement, List) := (m, G) -> (
+    vm := flatten exponents m;
+    vG := apply(G, g -> flatten exponents g);
+    n := length vm - 1;
+    for j from 0 to length G - 1 do (
+        ok := true;
+        for i from 0 to n do (
+            if vG_j_i > vm_i then (ok = false; break);
+            if vG_j_i <= vm_i and any(toList(i+1..n), k -> vG_j_k > vm_k) then (ok = false; break);
+            );
+        if ok then return G_j;
+        );
+    error "canonicalDecomp: monomial not in the ideal"
+    )
+
+-- Admissible (Eliahou-Kervaire) symbols for a single monomial m: pairs
+-- (u, m) where u is a squarefree product of variables strictly below maxVar(m).
+admissibleSymbolsMonomial = method()
+admissibleSymbolsMonomial RingElement := m -> (
+    R := ring m;
+    indices := subsets toList(0 ..< maxVarMIR m);
+    mySubsets := apply(indices, i -> product apply(i, j -> R_j));
+    apply(mySubsets, i -> (i, m))
+    )
+
+admissibleSymbols = method()
+admissibleSymbols MonomialIdeal := I -> flatten apply(I_*, g -> admissibleSymbolsMonomial g)
+
+-- Squarefree-stable variant: u ranges over squarefree monomials in the
+-- variables of index strictly below maxVar(m) that do NOT divide m.
+admissibleSQSymbolsMonomial = method()
+admissibleSQSymbolsMonomial RingElement := m -> (
+    R := ring m;
+    indices := subsets positions((first exponents m)_{0 .. maxVarMIR m}, i -> i == 0);
+    mySubsets := apply(indices, i -> product apply(i, j -> R_j));
+    apply(mySubsets, i -> (i, m))
+    )
+
+admissibleSQSymbols = method()
+admissibleSQSymbols MonomialIdeal := I -> flatten apply(I_*, g -> admissibleSQSymbolsMonomial g)
+
+-- ---- Predicates ----
+
+isElement = method()
+isElement(RingElement, MonomialIdeal) := Boolean => (f, I) -> all(exponents f,
+    fexp -> any(I_*, g -> all(fexp, flatten exponents g, (fe, ge) -> fe >= ge)))
+
+-- A monomial ideal I is stable if for every generator g and every variable
+-- index j < maxVar(g), the monomial (g / x_{maxVar(g)}) * x_j is in I.
+isStable = method()
+isStable MonomialIdeal := Boolean => I -> (
+    S := ring I;
+    all(I_*, g -> (
+            mv := maxVarMIR g;
+            f := lift(g / S_mv, S);
+            all(mv, j -> isElement(f * S_j, I))
+            ))
+    )
+
+-- Squarefree variant: only j with x_j not already dividing g.
+isSQStable = method()
+isSQStable MonomialIdeal := Boolean => I -> (
+    S := ring I;
+    all(I_*, g -> (
+            mv := maxVarMIR g;
+            vars0 := positions((first exponents g)_{0 .. mv}, i -> i == 0);
+            f := lift(g / S_mv, S);
+            all(vars0, j -> isElement(f * S_j, I))
+            ))
+    )
+
+-- ---- Eliahou-Kervaire resolution ----
+
+-- Build the n-th matrix in the Eliahou-Kervaire resolution of S/I.
+EK = method()
+EK(ZZ, MonomialIdeal) := Matrix => (n, I) -> (
+    if n == 0 then return gens I;
+    R := ring I;
+    symbolsList := admissibleSymbols I;
+    sourceList := symbolsList_(positions(symbolsList, i -> first degree promote(i_0, R) == n));
+    targetList := symbolsList_(positions(symbolsList, i -> first degree promote(i_0, R) == n - 1));
+    myFn := (i, j) -> (
+        tempElt := sourceList_j_0 // targetList_i_0;
+        if tempElt != 0_R then (
+            if targetList_i_1 == sourceList_j_1 then (
+                coe := (-1)^(position(positions(flatten exponents sourceList_j_0, r -> r != 0),
+                        s -> s == position(R_*, t -> t == tempElt)));
+                coe * tempElt
+                ) else (
+                deco := canonicalDecomp(tempElt * sourceList_j_1, I_*);
+                if targetList_i_1 == deco then (
+                    coe2 := (-1)^(1 + position(positions(flatten exponents sourceList_j_0, r -> r != 0),
+                            s -> s == position(R_*, t -> t == tempElt)));
+                    tempElt2 := (tempElt * sourceList_j_1) // deco;
+                    coe2 * tempElt2
+                    ) else 0_R
+                )
+            ) else 0_R
+        );
+    map(
+        R^(- apply(targetList, i -> degree(promote(i_1, R) * promote(i_0, R)))),
+        R^(- apply(sourceList, i -> degree(promote(i_1, R) * promote(i_0, R)))),
+        myFn)
+    )
+
+EKResolution = method()
+EKResolution MonomialIdeal := ChainComplex => I -> (
+    n := numgens ring I;
+    -- Build the list of differentials; drop trailing zero maps so the
+    -- length matches the actual projective dimension and chainComplex()
+    -- doesn't choke on an all-zero tail.
+    diffs := apply(0 ..< n, i -> EK(i, I));
+    while #diffs > 1 and (last diffs == 0) do diffs = drop(diffs, -1);
+    chainComplex diffs
+    )
+
+-- ---- Aramova-Herzog-Hibi resolution (squarefree stable case) ----
+
+AHH = method()
+AHH(ZZ, MonomialIdeal) := Matrix => (n, I) -> (
+    if n == 0 then return gens I;
+    R := ring I;
+    symbolsList := admissibleSQSymbols I;
+    sourceList := symbolsList_(positions(symbolsList, i -> first degree promote(i_0, R) == n));
+    targetList := symbolsList_(positions(symbolsList, i -> first degree promote(i_0, R) == n - 1));
+    myFn := (i, j) -> (
+        tempElt := sourceList_j_0 // targetList_i_0;
+        if tempElt != 0_R then (
+            if targetList_i_1 == sourceList_j_1 then (
+                coe := (-1)^(position(positions(flatten exponents sourceList_j_0, r -> r != 0),
+                        s -> s == position(R_*, t -> t == tempElt)));
+                coe * tempElt
+                ) else (
+                deco := canonicalDecomp(tempElt * sourceList_j_1, I_*);
+                if targetList_i_1 == deco then (
+                    coe2 := (-1)^(1 + position(positions(flatten exponents sourceList_j_0, r -> r != 0),
+                            s -> s == position(R_*, t -> t == tempElt)));
+                    tempElt2 := (tempElt * sourceList_j_1) // deco;
+                    coe2 * tempElt2
+                    ) else 0_R
+                )
+            ) else 0_R
+        );
+    map(
+        R^(- apply(targetList, i -> degree(promote(i_1, R) * promote(i_0, R)))),
+        R^(- apply(sourceList, i -> degree(promote(i_1, R) * promote(i_0, R)))),
+        myFn)
+    )
+
+AHHResolution = method()
+AHHResolution MonomialIdeal := ChainComplex => I -> (
+    R := ring I;
+    maxlevel := length(R_*) - max apply(I_*, g -> maxVarMIR g + 1 - first degree g) - 1;
+    if maxlevel < 0 then maxlevel = 0;
+    diffs := apply(0 .. maxlevel, i -> AHH(i, I));
+    while #diffs > 1 and (last diffs == 0) do diffs = drop(diffs, -1);
+    chainComplex diffs
+    )
+
+-- ---- isResolution predicate ----
+-- isResolution: HH_0(C) ≅ S/I and HH_i(C) = 0 for i > 0.
+-- Bug-fix: the 2012 source used  all((min C+1, max C), ...)  which iterates
+-- the literal 2-tuple and silently misses every interior homology degree.
+-- Replaced with the .. range below.
+isResolution = method()
+isResolution(ChainComplex, MonomialIdeal) := Boolean => (C, I) -> (
+    (cokernel gens I == prune HH_0 C)
+    and all(min C + 1 .. max C, i -> prune HH_i C == 0)
+    )
+
+------------------------------------------------------------------------------
+-- END: MonomialIdealResolutions merge --------------------------------------
+------------------------------------------------------------------------------
 
 beginDocumentation()
 
@@ -1630,6 +1873,263 @@ doc ///
     taylorResolution
 ///
 
+-- ============================================================================
+-- Docs for the merged-in MonomialIdealResolutions functions (2026 audit)
+-- ============================================================================
+
+doc ///
+  Key
+    isElement
+    (isElement, RingElement, MonomialIdeal)
+  Headline
+    test whether a ring element lies in a monomial ideal
+  Usage
+    isElement(f, I)
+  Inputs
+    f:RingElement
+    I:MonomialIdeal
+  Outputs
+    :Boolean
+      whether @TT "f"@ lies in @TT "I"@
+  Description
+    Text
+      An element of a polynomial ring lies in a monomial ideal if and only if every
+      one of its terms is divisible by some minimal generator of the ideal.
+    Example
+      R = QQ[x,y,z]
+      I = monomialIdeal(x*y, x^3*z)
+      isElement(x^2*y + x*y*z + x^3*z^3, I)
+      isElement(x*y^2 + x^3*y*z + z^2, I)
+  SeeAlso
+    isStable
+    isSQStable
+///
+
+doc ///
+  Key
+    isStable
+    (isStable, MonomialIdeal)
+  Headline
+    test whether a monomial ideal is stable
+  Usage
+    isStable I
+  Inputs
+    I:MonomialIdeal
+  Outputs
+    :Boolean
+      whether @TT "I"@ is stable in the variable order of its ring
+  Description
+    Text
+      A monomial ideal @TT "I"@ in @TT "S = k[x_1, ..., x_n]"@ is {\em stable} if
+      for every minimal generator @TT "g"@ and every variable @TT "x_j"@ of index strictly less than the
+      largest index appearing in @TT "g"@, the monomial @TT "(g / x_{maxVar(g)}) * x_j"@ lies in @TT "I"@.
+      Stability depends on the variable order of the ring.
+      Stable monomial ideals are exactly the ones for which the Eliahou-Kervaire
+      formula gives a minimal free resolution; see @TO EKResolution@.
+    Example
+      R = QQ[x,y,z]
+      isStable monomialIdeal(x^3, x^2*y, x*y^2, y^3)
+      isStable monomialIdeal(x^3, x*y^2, y^3)
+  SeeAlso
+    isSQStable
+    EKResolution
+///
+
+doc ///
+  Key
+    isSQStable
+    (isSQStable, MonomialIdeal)
+  Headline
+    test whether a squarefree monomial ideal is squarefree stable
+  Usage
+    isSQStable I
+  Inputs
+    I:MonomialIdeal
+  Outputs
+    :Boolean
+      whether @TT "I"@ is squarefree stable in the variable order of its ring
+  Description
+    Text
+      Stability for squarefree ideals: for every generator @TT "g"@ and every
+      variable @TT "x_j"@ of index strictly less than @TT "maxVar(g)"@ that does
+      {\em not} already divide @TT "g"@, the monomial @TT "(g / x_{maxVar(g)}) * x_j"@ lies in @TT "I"@.
+      Squarefree stability is the natural hypothesis for the Aramova-Herzog-Hibi
+      resolution; see @TO AHHResolution@.  Note that "squarefree stable" is
+      different from "squarefree and stable".
+    Example
+      R = QQ[x,y,z]
+      isSQStable monomialIdeal(x*y, x*z, y*z)
+      isSQStable monomialIdeal(x, y*z)
+      isSQStable monomialIdeal(x*z, y*z)
+  SeeAlso
+    isStable
+    AHHResolution
+///
+
+doc ///
+  Key
+    EK
+    (EK, ZZ, MonomialIdeal)
+  Headline
+    n-th map in the Eliahou-Kervaire resolution
+  Usage
+    EK(n, I)
+  Inputs
+    n:ZZ
+    I:MonomialIdeal
+  Outputs
+    :Matrix
+      representing the n-th differential of the Eliahou-Kervaire resolution
+  Description
+    Text
+      Returns the @TT "n"@-th map in the Eliahou-Kervaire resolution of @TT "S/I"@,
+      following the formulas in [EK].
+      For @TT "n == 0"@ this is just the generator matrix @TT "gens I"@.
+      The function does not check whether @TT "I"@ is stable; on a non-stable
+      ideal the resulting complex may not be a resolution.
+    Example
+      R = QQ[x,y,z]
+      I = monomialIdeal(x^2, x*y, y^2, y*z)
+      EK(0, I)
+      EK(2, I)
+  Caveat
+    Does not verify stability of @TT "I"@; use @TO isStable@ to check.
+  SeeAlso
+    isStable
+    EKResolution
+    AHH
+///
+
+doc ///
+  Key
+    EKResolution
+    (EKResolution, MonomialIdeal)
+  Headline
+    Eliahou-Kervaire minimal free resolution of a stable monomial ideal
+  Usage
+    EKResolution I
+  Inputs
+    I:MonomialIdeal
+      that is stable
+  Outputs
+    :ChainComplex
+      the Eliahou-Kervaire resolution of @TT "S/I"@
+  Description
+    Text
+      Assembles the maps produced by @TO EK@ into a chain complex.  For a
+      stable monomial ideal the result is a minimal free resolution of
+      @TT "S/I"@, by the theorem of Eliahou and Kervaire [EK].
+    Example
+      R = QQ[x,y,z]
+      I = monomialIdeal(x^2, x*y, y^2, y*z)
+      EKR = EKResolution I
+      betti EKR == betti res I
+      isResolution(EKR, I)
+  Caveat
+    The function does not check that @TT "I"@ is stable; on a non-stable ideal
+    the result may not be a resolution.
+  SeeAlso
+    isStable
+    EK
+    AHHResolution
+    isResolution
+///
+
+doc ///
+  Key
+    AHH
+    (AHH, ZZ, MonomialIdeal)
+  Headline
+    n-th map in the Aramova-Herzog-Hibi resolution
+  Usage
+    AHH(n, I)
+  Inputs
+    n:ZZ
+    I:MonomialIdeal
+  Outputs
+    :Matrix
+      representing the n-th differential of the Aramova-Herzog-Hibi resolution
+  Description
+    Text
+      Returns the @TT "n"@-th map in the squarefree analogue of the
+      Eliahou-Kervaire resolution, due to Aramova, Herzog, and Hibi [AHH].
+    Example
+      R = QQ[x,y,z]
+      I = monomialIdeal(x*y, x*z, y*z)
+      AHH(0, I)
+      AHH(2, I)
+  Caveat
+    Does not verify squarefree stability of @TT "I"@; use @TO isSQStable@.
+  SeeAlso
+    isSQStable
+    AHHResolution
+    EK
+///
+
+doc ///
+  Key
+    AHHResolution
+    (AHHResolution, MonomialIdeal)
+  Headline
+    Aramova-Herzog-Hibi minimal free resolution of a squarefree-stable ideal
+  Usage
+    AHHResolution I
+  Inputs
+    I:MonomialIdeal
+      that is squarefree stable
+  Outputs
+    :ChainComplex
+      the Aramova-Herzog-Hibi resolution of @TT "S/I"@
+  Description
+    Text
+      Assembles the maps from @TO AHH@ into a chain complex.  For a
+      squarefree-stable monomial ideal the result is a minimal free
+      resolution of @TT "S/I"@ by [AHH].
+    Example
+      R = QQ[x,y,z]
+      I = monomialIdeal(x*y, x*z, y*z)
+      AHHR = AHHResolution I
+      betti AHHR == betti res I
+      isResolution(AHHR, I)
+  Caveat
+    The function does not check that @TT "I"@ is squarefree stable.
+  SeeAlso
+    isSQStable
+    AHH
+    EKResolution
+    isResolution
+///
+
+doc ///
+  Key
+    isResolution
+    (isResolution, ChainComplex, MonomialIdeal)
+  Headline
+    test whether a chain complex resolves the quotient by a monomial ideal
+  Usage
+    isResolution(C, I)
+  Inputs
+    C:ChainComplex
+    I:MonomialIdeal
+  Outputs
+    :Boolean
+      whether @TT "C"@ is a free resolution of @TT "S/I"@
+  Description
+    Text
+      Returns true iff @TT "HH_0(C) = S/I"@ (as a quotient module) and
+      @TT "HH_i(C) = 0"@ for every @TT "i"@ in the strict interior of @TT "C"@.
+    Example
+      R = QQ[x,y,z]
+      I = monomialIdeal(x^3, x^2*y, x*y^2, y^3)
+      isResolution(res I, I)
+      isResolution(EKResolution I, I)
+      isResolution(AHHResolution monomialIdeal(x*y, x*z, y*z),
+                   monomialIdeal(x*y, x*z, y*z))
+  SeeAlso
+    EKResolution
+    AHHResolution
+///
+
 TEST///-- Tests for scarfComplex
 
 -- For each one we:
@@ -2060,6 +2560,171 @@ TEST ///
   -- the source min agrees with min T' = -1, so InitialDegree=>0 means
   -- the supplied maps start being placed at index 0
   assert(source phimap == prependZeroMap T)
+///
+
+-- ============================================================================
+-- Tests for the merged-in MonomialIdealResolutions functions (2026 audit)
+-- ============================================================================
+-- These tests cover the eight functions imported from the 2012 Wake Forest
+-- workshop's MonomialIdealResolutions package: isElement, isStable,
+-- isSQStable, EK, EKResolution, AHH, AHHResolution, isResolution.
+--
+-- Bugs caught during the merge that these tests now guard:
+--   * isResolution: the 2012 source used `all((min C+1, max C), i -> ...)`,
+--     which iterates over a literal 2-tuple and therefore silently misses
+--     every interior homology degree of complexes of length >= 4.  Tests
+--     for `isResolution catches non-resolutions` exercise the corrected
+--     range-based check.
+--   * `EKResolution` and `AHHResolution` use `chainComplex(...)` which
+--     rejects an all-zero-tail list of maps; the merge drops trailing
+--     zero maps so principal-ideal inputs don't blow up.
+-- ============================================================================
+
+TEST ///
+  -- isElement: positive and negative cases
+  R = QQ[x,y,z]
+  I = monomialIdeal(x^3, x^2*y, x*y^2, y^3)
+  assert(isElement(x^3, I))
+  assert(isElement(y^3, I))
+  assert(isElement(x^3 + x^6 - x*y^3, I))
+  assert(not isElement(x^2, I))
+  assert(not isElement(x*y, I))
+  assert(not isElement(x*y*z, I))
+  -- 0 has empty exponent list, so every term is trivially in I
+  assert(isElement(0_R, I))
+  -- 1 is in I only if I is the unit ideal
+  assert(not isElement(1_R, I))
+  J = monomialIdeal(x*y, x^3*z)
+  assert(not isElement(x*y^2 + x^3*y*z + z^2, J))
+  assert(isElement(x^2*y + x*y*z + x^3*z^3, J))
+///
+
+TEST ///
+  -- isStable on stable and non-stable ideals
+  R = QQ[x,y,z]
+  -- powers of the maximal ideal are stable
+  assert(isStable monomialIdeal(x^3, x^2*y, x*y^2, y^3, x^2*z, x*y*z, y^2*z, x*z^2, y*z^2, z^3))
+  assert(isStable monomialIdeal(x^3, x^2*y, x*y^2, y^3))
+  -- the ideal (x^3, x*y^2, y^3) is missing x^2 y, so it is not stable
+  assert(not isStable monomialIdeal(x^3, x*y^2, y^3))
+  -- principal stable ideal
+  assert(isStable monomialIdeal(x^3))
+  -- a single non-leading variable is NOT stable in the package's convention
+  -- (the convention follows ring order; z is the max-index variable)
+  assert(not isStable monomialIdeal z)
+///
+
+TEST ///
+  -- isSQStable on squarefree-stable and non-squarefree-stable ideals
+  R = QQ[x,y,z]
+  -- (xy, xz, yz) is squarefree stable: max-var of xy is y; (xy/y) * x = x^2 (not squarefree, so vacuously skipped) -- actually
+  -- the predicate checks (g/x_maxvar)*x_j for j < maxvar with x_j not in g; here yz with maxvar=z and j=0 (x not in yz)
+  -- gives (yz/z)*x = xy in I, good.
+  assert(isSQStable monomialIdeal(x*y, x*z, y*z))
+  -- (xz, yz) is missing the y*x check from yz, so it is not SQ stable
+  assert(not isSQStable monomialIdeal(x*z, y*z))
+  -- adding xy makes it squarefree stable
+  assert(isSQStable monomialIdeal(x*y, x*z, y*z))
+  -- (x, yz) is squarefree stable
+  assert(isSQStable monomialIdeal(x, y*z))
+///
+
+TEST ///
+  -- EK(0, I) recovers gens I; EK(1, I)'s image equals image gens I
+  R = QQ[x,y,z]
+  I = monomialIdeal(x^2, x*y, y^2, y*z)
+  assert(EK(0, I) == gens I)
+  EKR = EKResolution I
+  assert(image EKR.dd_1 == image gens I)
+///
+
+TEST ///
+  -- EK / EKResolution on the documented 4-generator stable ideal:
+  -- the betti table matches the minimal free resolution returned by res.
+  R = QQ[x,y,z]
+  I = monomialIdeal(x^2, x*y, y^2, y*z)
+  EKR = EKResolution I
+  assert(class EKR === ChainComplex)
+  assert(betti EKR == betti res I)
+  assert(isResolution(EKR, I))
+///
+
+TEST ///
+  -- EKResolution agrees with res on a longer (4-variable) stable ideal:
+  -- the projective dimension is 4, exercising more EK matrices.
+  R = QQ[a,b,c,d]
+  I = monomialIdeal(a^2, a*b, a*c, a*d, b^2)
+  assert(isStable I)
+  EKR = EKResolution I
+  assert(betti EKR == betti res I)
+  assert(isResolution(EKR, I))
+///
+
+TEST ///
+  -- AHH / AHHResolution on the documented SQ-stable example.
+  R = QQ[x,y,z]
+  I = monomialIdeal(x*y, x*z, y*z)
+  AHHR = AHHResolution I
+  assert(class AHHR === ChainComplex)
+  assert(betti AHHR == betti res I)
+  assert(isResolution(AHHR, I))
+///
+
+TEST ///
+  -- AHHResolution on a wider SQ-stable example
+  R = QQ[v_1..v_5]
+  I = monomialIdeal(v_1*v_2, v_1*v_3, v_2*v_3, v_2*v_4)
+  assert(isSQStable I)
+  AHHR = AHHResolution I
+  assert(betti AHHR == betti res I)
+  assert(isResolution(AHHR, I))
+///
+
+TEST ///
+  -- Boundary: principal stable ideal gives a length-1 EK resolution
+  R = QQ[x,y,z]
+  I = monomialIdeal(x^3)
+  assert(isStable I)
+  EKR = EKResolution I
+  assert(length EKR == 1)
+  assert(isResolution(EKR, I))
+///
+
+TEST ///
+  -- Boundary: principal squarefree-stable ideal
+  R = QQ[x,y,z]
+  I = monomialIdeal(x)
+  assert(isSQStable I)
+  AHHR = AHHResolution I
+  assert(length AHHR == 1)
+  assert(isResolution(AHHR, I))
+///
+
+TEST ///
+  -- EKResolution on the maximal ideal: a Koszul-shaped resolution
+  R = QQ[x,y,z]
+  I = monomialIdeal vars R
+  assert(isStable I)
+  EKR = EKResolution I
+  assert(betti EKR == betti res I)
+  assert(isResolution(EKR, I))
+///
+
+TEST ///
+  -- Regression test for the all((min+1, max), ...) bug: the original 2012
+  -- code iterated the literal 2-tuple, silently skipping every interior
+  -- homology degree.  Build a 4-term complex with HH_2 != 0 (and HH_1 = 0,
+  -- HH_3 != 0) and verify isResolution catches it.
+  S = QQ[t]
+  -- C: S(-3) <- S(-3) <- S(-3) <- S(-3) <- S(-3)  with maps t, 0, 0, t
+  phi1 = matrix{{t}}; phi2 = matrix{{0_S}}; phi3 = matrix{{0_S}}; phi4 = matrix{{t}}
+  C = chainComplex {phi1, phi2, phi3, phi4}
+  assert(prune HH_2 C != 0)  -- interior homology that the old code missed
+  assert(not isResolution(C, monomialIdeal t))
+  -- And the simpler 3-term variant likewise fails
+  C2 = chainComplex {phi1, phi2, phi3}
+  assert(prune HH_2 C2 != 0)
+  assert(not isResolution(C2, monomialIdeal t))
 ///
 
 end--
