@@ -263,7 +263,7 @@ k = ZZ/5
 S = k[a,b]
 M = S^1/ideal(a^3)++S^{-1}/(ideal b^2)++S^1/(ideal b^2)++ S^{-1,1}
 L = analyze M
-L_1 == { -2*a^3 , b^2 , b^2}
+L_1 == { -2*a^3 , b^2 , b^2} --- This is not true
 assert(doubleDualMap M ==
     map(Hom(Hom(M,S^1),S^1), M, matrix {{0, 0, 0, 1_S, 0}, {0, 0, 0, 0, 1_S}}))
 ///
