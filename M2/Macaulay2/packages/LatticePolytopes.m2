@@ -1453,21 +1453,41 @@ TEST ///
     -- gaussFiber
     --    gaussFiber(List)
     --    gaussFiber(Matrix)
-    -- A = latticePoints(PQ)
-    -- assert(gaussFiber(A) == {1}) this test takes too long to run
+    A = latticePoints(PQ)
+    assert(gaussFiber(A) == {1})
+
+    
+    -- iskCayleykEdges
+    --    iskCayleykEdges(Polyhedron)
+    Q2 = convexHull(matrix{{0,3}})
+    R1 = cayley({P,Q},2)
+    R2 = cayley({P,Q2},2)
+    R1out = iskCayleykEdges(R1)
+    
+    assert(not instance(iskCayleykEdges(R2), Sequence))
+    assert(instance(R1_out, Sequence))
+    assert(R1out#0 == convexHull(matrix{{0,2},{0,0}}))
 ///
 
 -- gaussImage
 --    gaussImage(List)
 --    gaussImage(Matrix)
+TEST ///
+    A = latticePoints(cayley(convexHull(matrix{{0,1}}),convexHull(matrix{{0}})))
+    L = gaussImage(A)
+    assert(degree(L#0) == {2})
+///
 
--- gausskFiber
---    gausskFiber(List,ZZ)
---    gausskFiber(Matrix,ZZ)
+TEST ///
+    -- gausskFiber
+    --    gausskFiber(Matrix,ZZ)
+    A = latticePoints(hypercube(2,1))
+    assert(gausskFiber(A,2) == {1})
 
--- gausskImage
---    gausskImage(List)
---    gausskImage(Matrix)
+    -- gausskImage
+    --    gausskImage(Matrix, ZZ)
+    assert(#gausskImage(A,2) == 25)
+///
 
 -- isCayley
 --    isCayley(Matrix)
@@ -1485,9 +1505,6 @@ TEST ///
     assert(isJetSpanned(latticePoints(convexHull(matrix{{0,2,0},{0,0,2}})),2,matrix{{1},{1}}));
 ///
 
--- iskCayleykEdges
---    iskCayleykEdges(Polyhedron)
-
 -- jetMatrix
 --    jetMatrix(List,ZZ)
 --    jetMatrix(List,ZZ,Matrix)
@@ -1497,9 +1514,9 @@ TEST ///
     assert(jetMatrix(latticePoints(convexHull(matrix{{0,2,0},{0,0,2}})),2,matrix{{1},{1}}) == matrix {{1, 1, 1, 1, 1, 1}, {0, 0, 0, 1, 1, 2}, {0, 0, 0, 0, 0, 2}, {0, 0, 0, 0, 1, 0}, {0, 1, 2, 0, 1, 0}, {0, 0, 2, 0, 0, 0}});
 ///
 
--- listSmooth2D
+-- listSmooth2D no tests
 
--- listSmooth3D
+-- listSmooth3D no tests
 
 -- randQPoly
 --    randQPoly(ZZ,ZZ)
