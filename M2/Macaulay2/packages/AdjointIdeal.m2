@@ -10,11 +10,15 @@ newPackage(
 	Keywords => {"Commutative Algebra"},
     	DebuggingMode => false,
 	CacheExampleOutput => true,
-	-- CacheExampleOutput => true is correct because the doc Examples invoke
-	-- MapleInterface (Maple is needed to *compute* the integral basis).  But
-	-- the TEST blocks all pre-supply the integral basis explicitly, so they
-	-- never call into Maple themselves; declare OptionalComponentsPresent
-	-- => true to override the M2 default that would otherwise skip them.
+	-- The doc Examples invoke MapleInterface (Maple is needed to *compute*
+	-- the integral basis), so CacheExampleOutput => true ships pre-recorded
+	-- output and UseCachedExampleOutput => true forces installPackage to
+	-- reuse it on machines without Maple (e.g. CI runners) instead of
+	-- regenerating.  The TEST blocks all pre-supply the integral basis
+	-- explicitly and never call into Maple themselves, so we declare
+	-- OptionalComponentsPresent => true to override the M2 default that
+	-- would otherwise skip them under `check`.
+	UseCachedExampleOutput => true,
 	OptionalComponentsPresent => true,
 	PackageImports => {"IntegralClosure","MapleInterface"},
 	AuxiliaryFiles => true
