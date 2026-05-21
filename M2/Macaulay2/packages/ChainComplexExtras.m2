@@ -43,6 +43,10 @@ export "isChainComplexMap"
 -- koszulComplex is owned by Complexes (different signature); we add an
 -- (Ideal) dispatch and do not re-export.
 --export "koszulComplex"
+-- Concentration (also owned by Complexes) IS re-exported here because the
+-- [isQuasiIsomorphism, Concentration] doc node needs the symbol in this
+-- package's user-facing dict for the doc renderer to serialize it.
+exportFrom_Complexes { "Concentration" }
 export "taylor"
 export "taylorResolution"
 export "chainComplexMap"
