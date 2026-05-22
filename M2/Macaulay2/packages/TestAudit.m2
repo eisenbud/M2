@@ -14,14 +14,15 @@ newPackage(
           "testScore",
           "CommentReport",
           "SpeedReport",
-          "ScoreReport"
+          "ScoreReport",
+	  "Experimental"
       }
 
 CommentReport = symbol CommentReport
 SpeedReport = symbol SpeedReport
 ScoreReport = symbol ScoreReport
 
-testAudit = method(Options => {CommentReport => false, SpeedReport => false, ScoreReport => false})
+testAudit = method(Options => {CommentReport => false, SpeedReport => false, ScoreReport => false, Experimental => false})
 testScore = method()
 
 --------------------------------------------------------------------------------
@@ -344,18 +345,110 @@ scoreReportLines := (inputs, syms, funcs, types, others, untestedExports, untest
 )
 
 --------------------------------------------------------------------------------
+-- (EXPERIMENTAL) testAudit hashtable rewrite (EXPERIMENTAL)
+--------------------------------------------------------------------------------
+
+-- i should come back and think about the pros/cons of having the (some of) keys/values below be their actual
+-- Things as opposed to the strings
+checkTestedExports := (exportsList, testsTable) -> (
+    -- i wish i wasnt constructing this hashtable just to construct the other, but i'm not sure how to check
+    -- testedness otherwise at the moment
+    testedExportsTable := new HashTable from apply(exportsList, k -> (k => select(testsTable, t -> wordMatch(k, t#"code"))));
+    exportsTable := new HashTable from apply(
+	exportsList, e -> (
+	    e => new HashTable from {
+		"exportClass" => class value e,
+		"isTested" => (#(testedExportsTable#e) =!= 0),
+		"testsContaining" => testedExportsTable#e
+		}
+	    )
+	);
+    return exportsTable;
+    )
+
+testAuditHashTable := pkg -> (
+    testsTable := tests pkg; -- tests of the form TEST /// ... ///
+    -- brokenTable = brokenTests pkg; -- tests of the form BROKENTEST /// ... /// (not implemented)
+    exportsList := pkg#"exported symbols"; -- do we also want the "exported mutable symbols?"
+
+    print "Made it past mark 1";
+    
+    -- returns a hashtable that reports the type of an export, whether it is tested, and what tests contain it
+    exportsTable := checkTestedExports(exportsList,testsTable);
+
+    print "Made it past mark 2";
+
+    -- returns a hashtable that reports how long a test took to run
+    -- if opts.SpeedReport then speedReportTable := speedReport(testsTable) else null;
+
+    -- returns a hashtable that reports on comments "attached" to tests
+    -- if opts.CommentReport then commentReportTable := commentReport(testsTable) else null;
+
+    -- returns a hashtable that reports on the score of the test collection
+    -- if opts.ScoreReport then score := scoreReport(testsTable) else null;
+
+    -- testAuditTable = new HashTable from {
+    --	    "testsTable" => testsTable,
+    --	    "exportsTable" => exportsTable,
+    --	    "speedReport" => speedReportTable,
+    --	    "commentReport" => commentReportTable,
+    --	    "scoreReport" => scoreReportTable
+    --	};
+
+    -- if opts.returnHashTable then return testAuditTable;
+
+    -- printing content (should we package all of this information in the testAuditTable? most of it is easy to compute)
+    exportedFuncs := select(exportsTable, e -> member(toString (e#"exportClass"), {"MethodFunction", "MethodFunctionWithOptions", "FunctionClosure", "Function"}));
+    numExportedFuncs := #exportedFuncs; -- "warning: local declaration of numExportedFuncs shields variable with same name" ????
+    numExportedTypes := #select(exportsTable, e -> toString (e#"exportClass") === "Type");
+    numExportedOther := #exportsTable - numExportedFuncs - numExportedTypes;
+
+    print "Made it past mark 3";
+
+    untestedExports := select(exportsTable, e -> e#"isTested" == false);
+    untestedFuncs := select(exportedFuncs, e -> e#"isTested" == false);
+
+    silencedTests := silencedTestMatches pkg;
+    fixmeTodos := taskMarkerMatches testsTable;
+
+    print "Mark 4";
+        
+    reportLines := {
+	"exported: " | toString(numExportedFuncs) | " functions, " | toString(numExportedTypes) | " types, " | toString(numExportedOther) | "other symbols",
+	"n_tests: " | toString(#testsTable),
+	"style: " | demark(", ", styleOfTests testsTable),
+	""} |
+        testSourceLines testsTable |
+	{"",
+        "Report:",
+	""
+	} |
+	auditListLines("untested functions", apply(keys untestedFuncs, f -> toString f)) |
+--        auditListLines("untested options", untestedOptionLabels) |
+        auditListLines("silenced tests", silencedTests) |
+        auditListLines("FIXME/TODO markers", fixmeTodos);
+
+    report := demark(newline, reportLines);
+    report
+    )
+--------------------------------------------------------------------------------
+-- End of experimental hashtables section
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
 -- Main audit
 --------------------------------------------------------------------------------
 
 testAudit Package := opts -> pkg -> (
-    inputs := testInputs pkg;
-    code := testCodeStringFromInputs inputs;
-    sourceCode := packageSourceString pkg;
-    syms := exportedSymbols pkg;
+    if opts.Experimental then return testAuditHashTable(pkg);
+    inputs := testInputs pkg; -- returns the tests as a hashtable
+    code := testCodeStringFromInputs inputs; -- concats all test code with newlines between
+    sourceCode := packageSourceString pkg; -- returns string of all source code
+    syms := exportedSymbols pkg; -- returns exported symbols using pkg#"exported symbols"
 
-    funcs := select(syms, isExportedFunction);
-    types := select(syms, isExportedType);
-    others := select(syms, s -> not isExportedFunction s and not isExportedType s);
+    funcs := select(syms, isExportedFunction); -- returns symbols with class "MethodFunc", "MethodFuncWithOptions", "FuncClosure", or "Func" (I've abbreviated the types)
+    types := select(syms, isExportedType); -- returns symbols that satisfy 'class s === "Type"'
+    others := select(syms, s -> not isExportedFunction s and not isExportedType s); -- is there a smarter way to do this?
 
     untestedExports := select(apply(syms, toString), name -> not wordMatch(name, code));
     untestedFunctions := select(apply(funcs, toString), name -> member(name, untestedExports));
@@ -521,3 +614,26 @@ TEST ///
 end
 
 restart
+
+-- thoughts about rewrite with hashtables
+
+-- each test already has an object associated with it that captures:
+--     - location
+--     - code
+--     - index
+--     - package
+
+-- what does it mean for a function to be tested? it means that, within
+-- a test block, the function is called at least once.
+--
+-- a test may be more, however. maybe the most common type of test is a test
+-- that takes the output of a file and checks it using some assert call.
+--
+-- it would be nice if we could distinguish between these, but this is an issue for later.
+
+-- a run of testAudit(pkg) should first call this `tests pkg` function to grab the existing
+-- test hash table, and then do our postprocessing. we want the return type to also be a
+-- hashtable for parsing reasons.
+
+-- what is happening when we run testAudit("blah", SpeedReport=>true) and we get all
+-- those package reloads and warnings?
