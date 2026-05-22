@@ -1635,9 +1635,15 @@ TEST /// -- Example 3.9 of [Johnson, 2003] (thesis)
   R = QQ[x_1..x_12];
   X = genericMatrix(R,3,4);
   assert(I(X) == J(X));
-  R = QQ[x_1..x_15];
-  X = genericMatrix(R,3,5);
-  assert(I(X) == J(X));
+  -- The (3,5) case below is disabled: it passes in ~12s on Linux CI but
+  -- exceeds the macOS GitHub runner's memory budget and crashes the M2
+  -- process with an out-of-memory error.  Earlier comment claimed this
+  -- was a time-budget issue and re-enabled it; the actual constraint is
+  -- memory, not time.  Re-enable only when either macOS runners get more
+  -- RAM or the underlying algorithm is made more memory-efficient.
+  -- R = QQ[x_1..x_15];
+  -- X = genericMatrix(R,3,5);
+  -- assert(I(X) == J(X));
 ///
 
 TEST /// -- Example 5.7 of [Johnson, 2003] (thesis)
