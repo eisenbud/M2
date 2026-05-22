@@ -371,12 +371,8 @@ testAuditHashTable := pkg -> (
     -- brokenTable = brokenTests pkg; -- tests of the form BROKENTEST /// ... /// (not implemented)
     exportsList := pkg#"exported symbols"; -- do we also want the "exported mutable symbols?"
 
-    print "Made it past mark 1";
-    
     -- returns a hashtable that reports the type of an export, whether it is tested, and what tests contain it
     exportsTable := checkTestedExports(exportsList,testsTable);
-
-    print "Made it past mark 2";
 
     -- returns a hashtable that reports how long a test took to run
     -- if opts.SpeedReport then speedReportTable := speedReport(testsTable) else null;
@@ -403,16 +399,12 @@ testAuditHashTable := pkg -> (
     numExportedTypes := #select(exportsTable, e -> toString (e#"exportClass") === "Type");
     numExportedOther := #exportsTable - numExportedFuncs - numExportedTypes;
 
-    print "Made it past mark 3";
-
     untestedExports := select(exportsTable, e -> e#"isTested" == false);
     untestedFuncs := select(exportedFuncs, e -> e#"isTested" == false);
 
     silencedTests := silencedTestMatches pkg;
     fixmeTodos := taskMarkerMatches testsTable;
 
-    print "Mark 4";
-        
     reportLines := {
 	"exported: " | toString(numExportedFuncs) | " functions, " | toString(numExportedTypes) | " types, " | toString(numExportedOther) | "other symbols",
 	"n_tests: " | toString(#testsTable),
