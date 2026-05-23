@@ -336,7 +336,7 @@ scoreReportLines := (inputs, syms, funcs, types, others, untestedExports, untest
 -- i should come back and think about the pros/cons of having the (some of) keys/values below be their actual
 -- Things as opposed to the strings
 checkTestedExports := (exportsList, testsTable) -> (
-    -- i wish i wasnt constructing this hashtable just to construct the other, but i'm not sure how to check
+    -- i wish i wasn't constructing this hashtable just to construct the other, but i'm not sure how to check
     -- testedness otherwise at the moment
     testedExportsTable := new HashTable from apply(exportsList, k -> (k => select(testsTable, t -> wordMatch(k, t#"code"))));
     exportsTable := new HashTable from apply(
