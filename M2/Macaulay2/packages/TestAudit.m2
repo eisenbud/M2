@@ -1,22 +1,22 @@
 newPackage(
-          "TestAudit",
-          Version => "0.1",
-          Date => "May 19, 2026",
-          Headline => "Provides test audit functionality",
-          Authors => {{ Name => "Taylor Brysiewicz", Email => "tbrysiew@uwo.ca", HomePage => "https://sites.google.com/view/taylorbrysiewicz/home"}},
-          Keywords => {"Miscellaneous"},
-          AuxiliaryFiles => false,
-          DebuggingMode => false
-          )
+    "TestAudit",
+    Version => "0.1",
+    Date => "May 19, 2026",
+    Headline => "test audit functionality",
+    Authors => {{ Name => "Taylor Brysiewicz", Email => "tbrysiew@uwo.ca", HomePage => "https://sites.google.com/view/taylorbrysiewicz/home"}},
+    Keywords => {"Miscellaneous"},
+    AuxiliaryFiles => false,
+    DebuggingMode => false
+    )
 
-      export {
-          "testAudit",
-          "testScore",
-          "CommentReport",
-          "SpeedReport",
-          "ScoreReport",
-	  "Experimental"
-      }
+export {
+    "testAudit",
+    "testScore",
+    "CommentReport",
+    "SpeedReport",
+    "ScoreReport",
+    "Experimental"
+    }
 
 CommentReport = symbol CommentReport
 SpeedReport = symbol SpeedReport
@@ -29,49 +29,34 @@ testScore = method()
 -- Helpers
 --------------------------------------------------------------------------------
 
-testInputs = method()
-testInputs Package := pkg -> tests pkg
-testInputs String := pkgname -> testInputs needsPackage(pkgname, LoadDocumentation => false)
-
-
 -- The coverage checks below are textual heuristics, not dispatch tracing.
 testCodeString = method()
 testCodeStringFromInputs := inputs -> (
     demark(newline, apply(toList(0..#inputs-1), i -> inputs#i#"code"))
 )
 
-testCodeString Package := pkg -> testCodeStringFromInputs testInputs pkg
-testCodeString String := pkgname -> testCodeString needsPackage(pkgname, LoadDocumentation => false)
+testCodeString Package := pkg -> testCodeStringFromInputs tests pkg
+testCodeString String := pkgname -> testCodeString needsPackage pkgname
 
 
 packageSourceString = method()
 packageSourceString Package := pkg -> try get pkg#"source file" else ""
-packageSourceString String := pkgname -> packageSourceString needsPackage(pkgname, LoadDocumentation => false)
+packageSourceString String := pkgname -> packageSourceString needsPackage pkgname
 
 
 exportedSymbols = method()
 exportedSymbols Package := pkg -> sort toList pkg#"exported symbols"
-exportedSymbols String := pkgname -> exportedSymbols needsPackage(pkgname, LoadDocumentation => false)
+exportedSymbols String := pkgname -> exportedSymbols needsPackage pkgname
 
 
--- These helpers classify exported symbols by the class of their current value.
--- Anything not recognized as function-like or a Type is reported as "other".
-exportedValue := s -> try value s else null
-className := x -> toString class x
+-- These helpers classify exported symbols by the value attached to the symbol.
+-- Anything that is not a Function or a Type is reported as "other".
+isExportedFunction := s -> instance(value s, Function)
 
-isExportedFunction := s -> (
-    v := exportedValue s;
-    member(className v, {"MethodFunction", "MethodFunctionWithOptions", "FunctionClosure", "Function"})
-)
-
-isExportedType := s -> (
-    v := exportedValue s;
-    className v === "Type"
-)
+isExportedType := s -> instance(value s, Type)
 
 optionNamesForSymbol := s -> (
-    v := exportedValue s;
-    try sort apply(toList keys options v, toString) else {}
+    try sort apply(toList keys options value s, toString) else {}
 )
 
 wordMatch := (name, code) -> match("\\b" | toString name | "\\b", code)
@@ -433,7 +418,7 @@ testAuditHashTable := pkg -> (
 
 testAudit Package := opts -> pkg -> (
     if opts.Experimental then return testAuditHashTable(pkg);
-    inputs := testInputs pkg; -- returns the tests as a hashtable
+    inputs := tests pkg; -- returns the tests as a hashtable
     code := testCodeStringFromInputs inputs; -- concats all test code with newlines between
     sourceCode := packageSourceString pkg; -- returns string of all source code
     syms := exportedSymbols pkg; -- returns exported symbols using pkg#"exported symbols"
@@ -478,10 +463,10 @@ testAudit Package := opts -> pkg -> (
 )
 
 -- Load documentation so package TEST blocks are available.
-testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocumentation => false), opts)
+testAudit String := opts -> pkgname -> testAudit(needsPackage pkgname, opts)
 
 testScore Package := pkg -> (
-    inputs := testInputs pkg;
+    inputs := tests pkg;
     code := testCodeStringFromInputs inputs;
     syms := exportedSymbols pkg;
     funcs := select(syms, isExportedFunction);
@@ -500,7 +485,7 @@ testScore Package := pkg -> (
 )
 
 -- Load documentation so package TEST blocks are available.
-testScore String := pkgname -> testScore needsPackage(pkgname, LoadDocumentation => false)
+testScore String := pkgname -> testScore needsPackage pkgname
 
 
 
@@ -510,7 +495,7 @@ doc ///
 Key
   TestAudit
 Headline
-  Provides test audit functionality
+  test audit functionality
 Description
   Text
     The @TT "TestAudit"@ package provides a small report about the tests of a package.
