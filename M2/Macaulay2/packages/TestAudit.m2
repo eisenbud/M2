@@ -18,10 +18,6 @@ export {
     "Experimental"
     }
 
-CommentReport = symbol CommentReport
-SpeedReport = symbol SpeedReport
-ScoreReport = symbol ScoreReport
-
 testAudit = method(Options => {CommentReport => false, SpeedReport => false, ScoreReport => false, Experimental => false})
 testScore = method()
 
@@ -36,17 +32,17 @@ testCodeStringFromInputs := inputs -> (
 )
 
 testCodeString Package := pkg -> testCodeStringFromInputs tests pkg
-testCodeString String := pkgname -> testCodeString needsPackage pkgname
+testCodeString String := pkgname -> testCodeString needsPackage(pkgname, LoadDocumentation => true)
 
 
 packageSourceString = method()
 packageSourceString Package := pkg -> try get pkg#"source file" else ""
-packageSourceString String := pkgname -> packageSourceString needsPackage pkgname
+packageSourceString String := pkgname -> packageSourceString needsPackage(pkgname, LoadDocumentation => true)
 
 
 exportedSymbols = method()
 exportedSymbols Package := pkg -> sort toList pkg#"exported symbols"
-exportedSymbols String := pkgname -> exportedSymbols needsPackage pkgname
+exportedSymbols String := pkgname -> exportedSymbols needsPackage(pkgname, LoadDocumentation => true)
 
 
 -- These helpers classify exported symbols by the value attached to the symbol.
@@ -58,6 +54,17 @@ isExportedType := s -> instance(value s, Type)
 optionNamesForSymbol := s -> (
     try sort apply(toList keys options value s, toString) else {}
 )
+
+-- Like optionNamesForSymbol but takes a Function value directly.
+optionNamesForFunction := f -> (
+    try sort apply(toList keys options f, toString) else {}
+)
+
+-- Function values to which this package has added methods. Includes both
+-- exported and pre-existing (e.g. built-in) function symbols: a package can
+-- add `(pullback, RingMap, RingMap)` without exporting `pullback`, and the
+-- audit should still cover `pullback`.
+methodHeadFunctions := pkg -> unique apply(toList methods pkg, m -> m#0)
 
 wordMatch := (name, code) -> match("\\b" | toString name | "\\b", code)
 
@@ -298,14 +305,16 @@ speedReportLines := (pkg, inputs) -> (
 -- Empty categories count as satisfied rather than penalizing small packages.
 scoreFraction := (covered, total) -> if total === 0 then 1 else covered / total
 
-scoreValues := (syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
+scoreValues := (syms, funcs, types, others, extraMethodFuncNames, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
     testedExports := #syms - #untestedExports;
-    testedFunctions := #funcs - #untestedFunctions;
+    totalFunctions := #funcs + #extraMethodFuncNames;
+    testedFunctions := totalFunctions - #untestedFunctions;
+    extraMethodFuncsTested := #extraMethodFuncNames - #(select(extraMethodFuncNames, n -> member(n, untestedFunctions)));
     testedTypes := #types - #(select(apply(types, toString), name -> member(name, untestedExports)));
     testedOthers := #others - #(select(apply(others, toString), name -> member(name, untestedExports)));
     testedOptions := #optionPairs - #untestedOptions;
-    testedTotal := #syms + #optionPairs;
-    testedCovered := testedExports + testedOptions;
+    testedTotal := #syms + #extraMethodFuncNames + #optionPairs;
+    testedCovered := testedExports + extraMethodFuncsTested + testedOptions;
     testedScore := toRR(80 * scoreFraction(testedCovered, testedTotal));
     silencedScore := max(0, 10 - #silencedTests);
     todoScore := max(0, 10 - #fixmeTodos);
@@ -314,7 +323,7 @@ scoreValues := (syms, funcs, types, others, untestedExports, untestedFunctions, 
         "ScoreReport: " | toString totalScore | " out of 100",
         "    tested: " | toString(testedScore) | " out of 80",
         "    exports covered: " | toString(toRR(100 * scoreFraction(testedExports, #syms))) | "% (" | toString(testedExports) | "/" | toString(#syms) | ")",
-        "    functions covered: " | toString(toRR(100 * scoreFraction(testedFunctions, #funcs))) | "% (" | toString(testedFunctions) | "/" | toString(#funcs) | ")",
+        "    functions covered: " | toString(toRR(100 * scoreFraction(testedFunctions, totalFunctions))) | "% (" | toString(testedFunctions) | "/" | toString(totalFunctions) | ")",
         "    types covered: " | toString(toRR(100 * scoreFraction(testedTypes, #types))) | "% (" | toString(testedTypes) | "/" | toString(#types) | ")",
         "    other exports covered: " | toString(toRR(100 * scoreFraction(testedOthers, #others))) | "% (" | toString(testedOthers) | "/" | toString(#others) | ")",
         "    options covered: " | toString(toRR(100 * scoreFraction(testedOptions, #optionPairs))) | "% (" | toString(testedOptions) | "/" | toString(#optionPairs) | ")",
@@ -325,8 +334,8 @@ scoreValues := (syms, funcs, types, others, untestedExports, untestedFunctions, 
 
 -- Compute a deliberately simple heuristic score.  It is meant to guide human
 -- review, not certify test quality.
-scoreReportLines := (inputs, syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
-    {""} | (scoreValues(syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos))#1
+scoreReportLines := (inputs, syms, funcs, types, others, extraMethodFuncNames, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) -> (
+    {""} | (scoreValues(syms, funcs, types, others, extraMethodFuncNames, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos))#1
 )
 
 --------------------------------------------------------------------------------
@@ -418,6 +427,10 @@ testAuditHashTable := pkg -> (
 
 testAudit Package := opts -> pkg -> (
     if opts.Experimental then return testAuditHashTable(pkg);
+    -- Capture method-key info BEFORE calling `tests pkg`: `tests` reloads the
+    -- package with documentation, which silently replaces the global Package
+    -- and detaches methods registered on the original object.
+    methodHeads := methodHeadFunctions pkg;
     inputs := tests pkg; -- returns the tests as a hashtable
     code := testCodeStringFromInputs inputs; -- concats all test code with newlines between
     sourceCode := packageSourceString pkg; -- returns string of all source code
@@ -427,21 +440,36 @@ testAudit Package := opts -> pkg -> (
     types := select(syms, isExportedType); -- returns symbols that satisfy 'class s === "Type"'
     others := select(syms, s -> not isExportedFunction s and not isExportedType s); -- is there a smarter way to do this?
 
-    untestedExports := select(apply(syms, toString), name -> not wordMatch(name, code));
-    untestedFunctions := select(apply(funcs, toString), name -> member(name, untestedExports));
-
-    optionPairs := flatten apply(funcs, f -> apply(optionNamesForSymbol f, opt -> {toString f, opt}));
-    untestedOptions := select(optionPairs, pair -> (
-        opt := pair#1;
-        not wordMatch(opt, code)
+    -- Methods added by this package to functions whose symbols this package
+    -- does not export (e.g., a package can add (pullback, RingMap, RingMap)
+    -- to the built-in `pullback` without exporting `pullback`). Restrict to
+    -- identifier-style names so operator-valued method heads (++, **, _, ...)
+    -- don't trip up wordMatch's `\b` regex.
+    exportedFuncNames := apply(funcs, toString);
+    isIdentifierName := name -> match("^[A-Za-z][A-Za-z0-9]*$", name);
+    extraMethodFuncs := select(methodHeads, f -> (
+        n := toString f;
+        isIdentifierName n and not member(n, exportedFuncNames)
     ));
+    extraMethodFuncNames := apply(extraMethodFuncs, toString);
+
+    untestedExports := select(apply(syms, toString), name -> not wordMatch(name, code));
+    untestedFunctions := select(exportedFuncNames | extraMethodFuncNames, name -> not wordMatch(name, code));
+
+    optionPairs := flatten apply(funcs, f -> apply(optionNamesForSymbol f, opt -> {toString f, opt})) |
+        flatten apply(extraMethodFuncs, f -> apply(optionNamesForFunction f, opt -> {toString f, opt}));
+    untestedOptions := select(optionPairs, pair -> not wordMatch(pair#1, code));
     untestedOptionLabels := apply(untestedOptions, pair -> pair#0 | ": " | pair#1);
 
     silencedTests := silencedTestMatches pkg;
     fixmeTodos := taskMarkerMatches inputs;
 
+    exportHeader := "exported: " | toString(#funcs) | " functions, " | toString(#types) | " types, " | toString(#others) | " other symbols";
+    if #extraMethodFuncNames > 0 then
+        exportHeader = exportHeader | "; " | toString(#extraMethodFuncNames) | " methods on external functions";
+
     reportLines := {
-        "exported: " | toString(#funcs) | " functions, " | toString(#types) | " types, " | toString(#others) | " other symbols",
+        exportHeader,
         "n_tests: " | toString(#inputs),
         "style: " | demark(", ", styleOfTests inputs),
         ""} |
@@ -454,7 +482,7 @@ testAudit Package := opts -> pkg -> (
         auditListLines("untested options", untestedOptionLabels) |
         auditListLines("silenced tests", silencedTests) |
         auditListLines("FIXME/TODO markers", fixmeTodos) |
-        (if opts.ScoreReport then scoreReportLines(inputs, syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) else {}) |
+        (if opts.ScoreReport then scoreReportLines(inputs, syms, funcs, types, others, extraMethodFuncNames, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos) else {}) |
         (if opts.SpeedReport then speedReportLines(pkg, inputs) else {}) |
         (if opts.CommentReport then commentReportLines inputs else {});
 
@@ -462,10 +490,15 @@ testAudit Package := opts -> pkg -> (
     report
 )
 
--- Load documentation so package TEST blocks are available.
-testAudit String := opts -> pkgname -> testAudit(needsPackage pkgname, opts)
+-- Load documentation eagerly: the lazy reload that `tests` would otherwise
+-- trigger silently re-registers methods against a new Package object and
+-- detaches them from this one (so methods pkg drops method-key info after
+-- the first call to tests pkg).
+testAudit String := opts -> pkgname -> testAudit(needsPackage(pkgname, LoadDocumentation => true), opts)
 
 testScore Package := pkg -> (
+    -- Capture method-keys before tests pkg reloads the package; see testAudit.
+    methodHeads := methodHeadFunctions pkg;
     inputs := tests pkg;
     code := testCodeStringFromInputs inputs;
     syms := exportedSymbols pkg;
@@ -473,19 +506,28 @@ testScore Package := pkg -> (
     types := select(syms, isExportedType);
     others := select(syms, s -> not isExportedFunction s and not isExportedType s);
 
+    exportedFuncNames := apply(funcs, toString);
+    isIdentifierName := name -> match("^[A-Za-z][A-Za-z0-9]*$", name);
+    extraMethodFuncs := select(methodHeads, f -> (
+        n := toString f;
+        isIdentifierName n and not member(n, exportedFuncNames)
+    ));
+    extraMethodFuncNames := apply(extraMethodFuncs, toString);
+
     untestedExports := select(apply(syms, toString), name -> not wordMatch(name, code));
-    untestedFunctions := select(apply(funcs, toString), name -> member(name, untestedExports));
-    optionPairs := flatten apply(funcs, f -> apply(optionNamesForSymbol f, opt -> {toString f, opt}));
+    untestedFunctions := select(exportedFuncNames | extraMethodFuncNames, name -> not wordMatch(name, code));
+    optionPairs := flatten apply(funcs, f -> apply(optionNamesForSymbol f, opt -> {toString f, opt})) |
+        flatten apply(extraMethodFuncs, f -> apply(optionNamesForFunction f, opt -> {toString f, opt}));
     untestedOptions := select(optionPairs, pair -> not wordMatch(pair#1, code));
 
     silencedTests := silencedTestMatches pkg;
     fixmeTodos := taskMarkerMatches inputs;
 
-    (scoreValues(syms, funcs, types, others, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos))#0
+    (scoreValues(syms, funcs, types, others, extraMethodFuncNames, untestedExports, untestedFunctions, optionPairs, untestedOptions, silencedTests, fixmeTodos))#0
 )
 
--- Load documentation so package TEST blocks are available.
-testScore String := pkgname -> testScore needsPackage pkgname
+-- See note on testAudit String for why LoadDocumentation => true is explicit.
+testScore String := pkgname -> testScore needsPackage(pkgname, LoadDocumentation => true)
 
 
 
