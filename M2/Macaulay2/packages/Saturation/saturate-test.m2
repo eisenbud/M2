@@ -258,7 +258,7 @@ TEST ///
   -- isSupportedInZeroLocus boundary cases
   S = QQ[u,v]
   m = ideal vars S
-  assert(isSupportedInZeroLocus_m (S^0) == true)
-  assert(isSupportedInZeroLocus_m (S^1/m^2) == true)
-  assert(isSupportedInZeroLocus_m (S^1) == false)
+  assert isSupportedInZeroLocus_m (S^0)
+  assert isSupportedInZeroLocus_m (S^1/m^2)
+  assert not isSupportedInZeroLocus_m (S^1)
 ///
