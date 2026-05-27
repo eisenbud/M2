@@ -875,7 +875,7 @@ document{
     R=ZZ/2[x_1..x_3];
     L={x_1*(1-x_2),x_2*(1-x_3)};
     S=ZZ/2[x_1..x_3,y_1..y_3];
-    polarizeLisst(f,S)
+    polarizeList(f,S)
     ///
     }
 
