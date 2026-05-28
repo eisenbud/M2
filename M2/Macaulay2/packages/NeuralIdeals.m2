@@ -2,7 +2,7 @@ newPackage(
 "NeuralIdeals",
 Version => "1.0",
 Date => "July 22, 2025",
-Authors => {{Name => "Hugh Geller"},{Name => "Rebecca R.G."}},
+Authors => {{Name => "Hugh Geller", Email => "geller.hugh@gmail.com", HomePage => "hughgeller.com"},{Name => "Rebecca R.G.", Email => "rrebhuhn@gmu.edu", HomePage => "https://sites.google.com/site/rebeccargmath/"}},
 Headline => "canonical forms of neural ideals",
 Keywords => {"Coding Theory", "Combinatorial Commutative Algebra", "Commutative Algebra"},
 DebuggingMode => false,
@@ -875,7 +875,7 @@ document{
     R=ZZ/2[x_1..x_3];
     L={x_1*(1-x_2),x_2*(1-x_3)};
     S=ZZ/2[x_1..x_3,y_1..y_3];
-    polarizeList(f,S)
+    polarizeList(L,S)
     ///
     }
 
