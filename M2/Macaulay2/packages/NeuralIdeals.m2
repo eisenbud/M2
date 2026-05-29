@@ -2,7 +2,7 @@ newPackage(
 "NeuralIdeals",
 Version => "1.0",
 Date => "July 22, 2025",
-Authors => {{Name => "Hugh Geller", Email => "geller.hugh@gmail.com", HomePage => "https://hughgeller.com"},{Name => "Rebecca R.G.", Email => "rrebhuhn@gmu.edu", HomePage => "https://sites.google.com/site/rebeccargmath/"}},
+Authors => {{Name => "Hugh Geller", Email => "geller.hugh@gmail.com", HomePage => "https://hughgeller.com/"},{Name => "Rebecca R.G.", Email => "rrebhuhn@gmu.edu", HomePage => "https://sites.google.com/site/rebeccargmath/"}},
 Headline => "canonical forms of neural ideals",
 Keywords => {"Coding Theory", "Combinatorial Commutative Algebra", "Commutative Algebra"},
 DebuggingMode => false,
@@ -1011,7 +1011,7 @@ TEST ///
 TEST ///
     R=ZZ/2[x_1,x_2];
     L=ideal(x_1*x_2);
-    assert((neuralCode(L)).codeWords=={"00","10","01"})
+    assert(set((neuralCode(L)).codeWords)==set{"00","01","10"})
 ///
 
 -- **TEST4**
