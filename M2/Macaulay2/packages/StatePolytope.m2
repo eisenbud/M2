@@ -275,10 +275,10 @@ assert(#Lprin == 3)
 assert(all(Lprin, l -> #l == 1))
 -- the conic u^2 = v*w has two initial ideals
 U = QQ[u,v,w]
-assert(set initialIdeals ideal(u^2 - v*w) === set {{u^2}, {v*w}})
+assert(set(set \ initialIdeals ideal(u^2 - v*w)) === set(set \ {{u^2}, {v*w}}))
 -- the doc example for initialIdeals at L134-137 evaluates to two initial ideals
 T = QQ[a,b]
-assert(set initialIdeals ideal(a^2+b^2, a*b) === set {{a*b, a^2, b^3}, {a^3, a*b, b^2}})
+assert(set(set \ initialIdeals ideal(a^2+b^2, a*b)) === set(set \ {{a*b, a^2, b^3}, {a^3, a*b, b^2}}))
 -- ZZ/p coefficients work the same way
 P = ZZ/101[a,b,c]
 assert(class initialIdeals ideal(a*c - b^2) === List)
