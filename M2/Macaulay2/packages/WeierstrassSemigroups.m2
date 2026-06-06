@@ -1,7 +1,7 @@
 ///
 restart
 needsPackage "WeierstrassSemigroups"
-
+uninstallPackage "WeierstrassSemigroups"  -- 33.3846s elapsed
 elapsedTime installPackage "WeierstrassSemigroups"  -- 33.3846s elapsed
 viewHelp "WeierstrassSemigroups"
 check "WeierstrassSemigroups"
@@ -141,7 +141,7 @@ doneData="fam8.dbm"
 Js=getListOfIdeals(LL1,doneData,Verbose=>1);
 checkFlatnessOfOneParameterFamilies(LL,doneData,Verbose=>2)
 checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>2)
-(anser,toDoAgain)=checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>1,BaseField=>ZZ/5)
+(answer,toDoAgain)=checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>1,BaseField=>ZZ/5)
 checkSmoothnessOfOneParameterFamilies(toDoAgain,doneData,Verbose=>2,BaseField=>ZZ/7)
 checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>2,BaseField=>ZZ/5)
 ///
@@ -593,7 +593,7 @@ findPoint = method(Options => {Verbose => false})--,"IgnoreGrading" => true })
 -- this assumes that
 -- c == sub(ideal prune(ring c/c), ring c))
 findPoint(Ideal) := o -> (J) -> (
-    --need to be revisited, looks differnt than the corrected versions below
+    --need to be revisited, looks different than the corrected versions below
     c:= radical J;
     if degree c =!=degree J then
     <<"taking radicals makes a difference in findPoints"<<flush <<endl;
@@ -706,20 +706,20 @@ smoothnessWithReductions(Ideal) := o -> J -> (
     nL:=#L;
     assert(dim fiberFinite==1);
 
-colum := findCompleteIntersection(I,Strategy=>"front") ;
-fewMinors := minors(#L-1,jac_colum,Strategy=>Cofactor);
+column := findCompleteIntersection(I,Strategy=>"front") ;
+fewMinors := minors(#L-1,jac_column,Strategy=>Cofactor);
     singF := trim (fiberFinite +ideal(gens fewMinors %fiberFinite));
 if singF == ideal 1_Sfinite then return true;
 if o.Verbose>1 then <<"dim and degree singF = "<< (dim singF,degree singF) <<endl;
 
-colum = findCompleteIntersection(I,Strategy=>"back");
-    fewMinors = minors(#L-1,jac_colum,Strategy=>Cofactor);
+column = findCompleteIntersection(I,Strategy=>"back");
+    fewMinors = minors(#L-1,jac_column,Strategy=>Cofactor);
     singF = trim (singF +ideal(gens fewMinors %fiberFinite));
 if singF == ideal 1_Sfinite then return true;
 if o.Verbose>1 then  <<"dim and degree singF = "<< (dim singF,degree singF) <<endl;
    
-colum = findCompleteIntersection(I,Strategy=>"random");
-    fewMinors = minors(#L-1,jac_colum,Strategy=>Cofactor);
+column = findCompleteIntersection(I,Strategy=>"random");
+    fewMinors = minors(#L-1,jac_column,Strategy=>Cofactor);
     singF = trim (singF +ideal(gens fewMinors %fiberFinite));
 if singF == ideal 1_Sfinite then return true;
 if o.Verbose>0 then
@@ -747,8 +747,8 @@ findCompleteIntersection=method(Options=>{Strategy=>"front"})
 findCompleteIntersection(Ideal) := o -> I -> (
     ng:=numgens I;
     cd:=codim I;
-    colum := {};
-    ci:= ideal (gens I)_colum;ci1:=null;
+    column := {};
+    ci:= ideal (gens I)_column;ci1:=null;
    
     if o.Strategy=="front" then (
 	a:=0;
@@ -756,10 +756,10 @@ findCompleteIntersection(Ideal) := o -> I -> (
             while ( ci1=ci+ideal I_a;
                 not codim ci1==i and a <ng-1) do (
 		 a=a+1);
-	    if a<ng then (colum = append(colum,a);
-	    ci=ideal (gens I)_colum;
+	    if a<ng then (column = append(column,a);
+	    ci=ideal (gens I)_column;
 	    if a <ng-1 then a=a+1;
-	    --<<colum<<endl;
+	    --<<column<<endl;
 	    );
 	););
 
@@ -769,10 +769,10 @@ findCompleteIntersection(Ideal) := o -> I -> (
 	    while ( ci1=ci+ideal I_a;
                 not codim ci1==i and a>0) do (
 		 a=a-1);
-	    if a>-1 then ((colum = append(colum,a);
-	    ci=ideal (gens I)_colum;);
+	    if a>-1 then ((column = append(column,a);
+	    ci=ideal (gens I)_column;);
 	    if a>0 then a=a-1;
-	    --<<colum<<endl;
+	    --<<column<<endl;
 	    );
 	);
     );
@@ -786,12 +786,12 @@ findCompleteIntersection(Ideal) := o -> I -> (
 		testValues=delete(a,testValues);
 	        if #testValues>0 then a=testValues_(random( #testValues));
 	    testValues=delete(a,testValues));
-	    colum = append(colum,a);
-	    ci=ideal (gens I)_colum;
-	    --<<colum<<endl;	    
+	    column = append(column,a);
+	    ci=ideal (gens I)_column;
+	    --<<column<<endl;	    
 	    );
     );
-    colum
+    column
     )
 
 
@@ -815,7 +815,7 @@ improveFamily(Ideal) := o -> J -> (
     while (
       fams=for J2 in cJ1 list (
 	fib0=getOneParameterFamily(J,J2,family1,10);
-	--"p=20 means one out of 20 coefficients is choosen to be nonzero"
+	--"p=20 means one out of 20 coefficients is chosen to be nonzero"
 	if o.Verbose >1 then (elapsedTime smooth=smoothnessWithReductions(fib0);
 	     <<"smooth =" << smooth <<endl;) else (
 	     smooth=smoothnessWithReductions(fib0); );
@@ -1249,29 +1249,29 @@ checkSmoothness(Ideal) := o -> fib -> (
     nL:=numgens St-1;
     ng:=numgens fib;
     countMax:=min(2*floor(binomial(ng,nL-1)/3),400);
-    colum:=toList(0..nL-2);
-    mat:=relJac_colum;
+    column:=toList(0..nL-2);
+    mat:=relJac_column;
     fewMinors:=minors(nL-1,mat);
     singF:=ideal mingens (fib+fewMinors);
     if o.Verbose==1 then (
 	elapsedTime singF=saturate(singF,last gens St);
 	<<" numgens singF = " << numgens singF<<flush<<endl;
 	) else (singF=saturate(singF,last gens St));
-    columSets:={colum};
+    columnSets:={column};
     count:=0;
     if o.Verbose==1 then (<<"time to check smoothness:"<<endl;
     elapsedTime while (not singF==ideal 1_St) and count<countMax do (
 	count=count+1;
 	while (
 	    while (
-		colum=sort apply(nL-1,i->random(ng));
-		#(unique colum) < nL-1)
+		column=sort apply(nL-1,i->random(ng));
+		#(unique column) < nL-1)
 	    do ();
-            member(colum,columSets))
+            member(column,columnSets))
 	do ();
-	columSets=append(columSets,colum);
-	--if o.Verbose then (<<"size of columSets = " << #columSets <<flush<<endl);
-	mat=relJac_colum;
+	columnSets=append(columnSets,column);
+	--if o.Verbose then (<<"size of columnSets = " << #columnSets <<flush<<endl);
+	mat=relJac_column;
 	fewMinors=minors(nL-1,mat);
 	singF=ideal mingens (singF+fewMinors);
 	singF=saturate(singF,last gens St);
@@ -1283,14 +1283,14 @@ checkSmoothness(Ideal) := o -> fib -> (
 	count=count+1;
 	while (
 	    while (
-		colum=sort apply(nL-1,i->random(ng));
-		#(unique colum) < nL-1)
+		column=sort apply(nL-1,i->random(ng));
+		#(unique column) < nL-1)
 	    do ();
-            member(colum,columSets))
+            member(column,columnSets))
 	do ();
-	columSets=append(columSets,colum);
-	--if o.Verbose then (<<"size of columSets = " << #columSets <<flush<<endl);
-	mat=relJac_colum;
+	columnSets=append(columnSets,column);
+	--if o.Verbose then (<<"size of columnSets = " << #columnSets <<flush<<endl);
+	mat=relJac_column;
 	fewMinors=minors(nL-1,mat);
 	singF=ideal mingens (singF+fewMinors);
 	singF=saturate(singF,last gens St);
@@ -1350,7 +1350,7 @@ Headline => "Compute smoothing families for Weierstrass semigroups",
 	TO appendFamily,
 	TO HowToStartCollecting
         },
-    SUBSECTION "Checking flatness and smoothness of a datbase of families",
+    SUBSECTION "Checking flatness and smoothness of a database of families",
     UL{
         TO getListOfIdeals,
         TO checkFlatnessOfOneParameterFamilies,
@@ -1415,7 +1415,7 @@ To get these data we use:",
       "or with",PARA{},
       "collectWithVersalDeformations(LL,b,'doneLL','dataData.dbm' ",PARA{},
       "one can continue the collecting. One can interrupt the collecting any time, 
-       and continue later without loosing data." ,
+       and continue later without losing data." ,
  SUBSECTION "Replacing quotes",
      " In the above the simple quotes ' have to be replaced by the double quotes, 
        which indicate the begin and end of a string",
@@ -2023,7 +2023,7 @@ Outputs
 Description
   Text
     We compute the flat family of ideals which uses the same terms as J.
-    The ideal base contains the flatness relations for the coefficents of the family.        
+    The ideal base contains the flatness relations for the coefficients of the family.        
   CannedExample    
     i1 : R=QQ[x_0..x_1, x_3, x_5..x_6, z, Degrees => {7..8, 17, 19..20, 1}]
 
@@ -2194,7 +2194,7 @@ Inputs
    base:Ideal
       flattening relations
    p:ZZ
-    about 1 out of p free parameters are choosen nonzero
+    about 1 out of p free parameters are chosen nonzero
 Outputs
    fib:Ideal
       of a one-parameter smoothing family  
@@ -2340,7 +2340,7 @@ Outputs
      of component numbers which are smoothing families
 Description
   Text
-    We check whether there exists a smoothing component for the resticted unfolding with variables
+    We check whether there exists a smoothing component for the restricted unfolding with variables
     of degree >b (or degree congruent 0 mod d for some d in congruences
 	or variable with degree in the range).
     If the answer is yes, then we compute such smoothing family over QQ.
@@ -3408,12 +3408,12 @@ doc ///
     (hilbertBurchConditions,List)
     (depthCondition1,List)
   Headline
-   check the depth conditions for the exactness of the 1,4,4,1 subcomplex ofthe 1,6,8,3 subcomplex.
+   check the depth conditions for the exactness of the 1,4,4,1 subcomplex of the 1,6,8,3 subcomplex.
   Usage
    A = hilbertBurchMatrices L
    answer = hilbertBurchConditions L
    d = depthCondition1 L
-   anser = hasExactSubcomplex L
+   answer = hasExactSubcomplex L
   Inputs
    L:List
      generators of a semigroup with 4 generators
@@ -3461,7 +3461,7 @@ doc ///
    b: ZZ
    c: ZZ
    d:ZZ
-     test the semigrups genrated by {a,a+b,a+b+c,a+b+c+d}
+     test the semigrups generated by {a,a+b,a+b+c,a+b+c+d}
    r1: List
    r2: List
    r3: List
@@ -3503,10 +3503,10 @@ doc ///
     list of ideals
   Description
    Text
-    The datbase Y=openDatabase name contains an entries Y#(toString L|"ring") and
+    The database Y=openDatabase name contains an entries Y#(toString L|"ring") and
     Y#(toString L|"ideal") of a ring and an ideal over QQ for every L in LL;
     The function reads the corresponding list of ideals of one parameter smoothing families,
-    and checks their homogenity.
+    and checks their homogeneity.
   Caveat
    If for L there are no entries in Y an error occurs.
 ///
@@ -3530,7 +3530,7 @@ doc ///
     true if all 1-parameter family are flat families
   Description
    Text
-    The datbase Y=openDatabase name contains an entries Y#(toString L|"ring") and
+    The database Y=openDatabase name contains an entries Y#(toString L|"ring") and
     Y#(toString L|"ideal") of a ring and an ideal over QQ for every L in LL;
     The function reads  the corresponding list of ideals of one parameter smoothing families,
     and checks whether they areflat families.
@@ -3560,7 +3560,7 @@ doc ///
     list of elements L in LL where the smoothness check failed
   Description
    Text
-    The datbase Y=openDatabase name contains an entries Y#(toString L|"ring") and
+    The database Y=openDatabase name contains an entries Y#(toString L|"ring") and
     Y#(toString L|"ideal") of a ring and an ideal over QQ for every L in LL;
     The function reads the corresponding list of ideals of one parameter smoothing families,
     and checks whether they are indeed smoothing families.
@@ -3582,7 +3582,7 @@ keys Y
 Js=getListOfIdeals(LL1,doneData,Verbose=>1);
 checkFlatnessOfOneParameterFamilies(LL,doneData,Verbose=>2)
 checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>2)
-(anser,toDoAgain)=checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>1,BaseField=>ZZ/5)
+(answer,toDoAgain)=checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>1,BaseField=>ZZ/5)
 checkSmoothnessOfOneParameterFamilies(toDoAgain,doneData,Verbose=>2,BaseField=>ZZ/7)
 checkSmoothnessOfOneParameterFamilies(LL,doneData,Verbose=>2,BaseField=>ZZ/7)
 ///

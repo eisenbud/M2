@@ -1478,7 +1478,7 @@ Headline => "Invariants of numerical semigroups",
    "Numerical semigroups are cofinite subsets of the natural numbers that are closed under sums.
    We generally refer to these simply as semigroups.
    
-   A semigroup S thus includes the empy sum, 0, but we input semigroups by giving generators, all nonzero.
+   A semigroup S thus includes the empty sum, 0, but we input semigroups by giving generators, all nonzero.
    The smallest nonzero element of S is the multiplicity. The Apery set (really sequence) of a semigroup S is the
    the list {a_1..a_m-1} where a_i is the smallest element in S such that a_i = i mod m.
    The conductor is 1 plus the largest element not in S. We generally specify a semigroup by giving
@@ -2169,7 +2169,7 @@ Outputs
   of module generators of the cone 
 Description
   Text
-   Using Normaliz we compute the face of the Kunz cone containg L
+   Using Normaliz we compute the face of the Kunz cone containing L
    (or of the cone of semigroups of multiplicity m).
    
    Every semigroup of multiplicity m has Apery set of the form
@@ -3175,7 +3175,7 @@ Description
    Certain semigroups are known to be Weierstrass.
    For example L has 2  or 3 generators only, by work of Pinkham and Sally. 
    Eisenbud-Harris proved that semigroups L of @TO weight@(L)<@TO genus@(L) are smoothable, and
-   Pflueger exended this to show that semigroups L of @TO ewt@(L)<@TO genus@(L) are smoothable.
+   Pflueger extended this to show that semigroups L of @TO ewt@(L)<@TO genus@(L) are smoothable.
    Komeda proved that anysemigroup with min L < 6 is Weierstrass.
    In "A minimal non-Weierstrass Semigroup" by Eisenbud and Schreyer it is shown that all
    semigroups of genus <13 are Weierstrass but that the semigroup {6,9,13,16}, of genus 13,
