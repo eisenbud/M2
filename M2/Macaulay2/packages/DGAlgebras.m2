@@ -6,8 +6,8 @@ newPackage("DGAlgebras",
      Authors => {
 	  {Name => "Frank Moore",
 	   HomePage => "http://www.math.wfu.edu/Faculty/Moore.html",
-	   Email => "moorewf@wfu.edu"},
-       {Name => "Some documentation added by Daniel Rostamloo and David Eisenbud"}},
+	   Email => "moorewf@wfu.edu"}
+       },
      Keywords => {"Commutative Algebra"},
      DebuggingMode => false,
      PackageExports => {"IntegralClosure"}
@@ -203,7 +203,7 @@ getBasis (ZZ,DGAlgebra) := opts -> (homDegree,A) -> getBasis(homDegree,A.natural
 getBasis (ZZ,Ring) := opts -> (homDegree,R) -> (
    local retVal;
    myMap := map(R, R.cache.basisAlgebra);
-   tempList := (flatten entries basis(homDegree, R.cache.basisAlgebra, Limit => opts.Limit)) / myMap;
+   tempList := (flatten entries basis(homDegree, R.cache.basisAlgebra, Limit => opts.Limit, Variables => 0 .. numgens R-1)) / myMap;
    if tempList == {} then retVal = map((R)^1,(R)^0, 0) else
    (
       -- move this to an assert?
@@ -1475,6 +1475,8 @@ doc ///
   Description
     Text
       This package is used to define and manipulate DG algebras.
+  Contributors
+    Some documentation was added by Daniel Rostamloo and David Eisenbud.
   Subnodes
     "Basic operations on DG Algebras"
     "The Koszul complex as a DG Algebra"
@@ -3412,7 +3414,7 @@ doc///
    a list, array or sequence representing a (single) multi-index in the complex defined by A
  Description
   Text
-   For example, consder the first five steps in the resolution of the residue field
+   For example, consider the first five steps in the resolution of the residue field
    in the following example:
   Example
    R = QQ[x,y,z]/(ideal(x^3,y^3,z^3,x*y*z))

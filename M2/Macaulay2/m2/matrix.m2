@@ -85,6 +85,8 @@ Matrix * Number :=
 Matrix * RingElement := (m,r) -> (
     if ring r =!= ring m then try r = promote(r,ring m) else m = promote(m,ring r);
      map(target m, source m, reduce(target m, raw m * raw r)))
+Matrix / Number      :=
+Matrix / RingElement := (m,r) -> m * (1/r)
 
 toSameRing = (m,n) -> (
      if ring m =!= ring n then (
@@ -166,9 +168,9 @@ Matrix * Matrix := Matrix => (m,n) -> (
      else (
      	  R := ring m;
 	  S := ring target n;
-	  if R =!= S then (
-	       try m = m ** S else
-	       try n = n ** R else
+	  if R =!= S then ( -- use toSameRing?
+	       try m = promote(m,S) else
+	       try n = promote(n,R) else
 	       error "maps over incompatible rings";
 	       );
 	  M = target m;
@@ -515,8 +517,8 @@ contract'(Matrix, Matrix) := Matrix => ((m,n) -> ( flip(dual target n, target m)
 
 jacobian = method()
 jacobian Matrix := Matrix => (m) -> diff(transpose vars ring m, m)
-
 jacobian Ring := Matrix => (R) -> jacobian presentation R ** R
+jacobian RingElement := Matrix => f -> jacobian matrix {{f}}
 
 leadTerm(ZZ, Matrix) := Matrix => (i,m) -> (
      map(target m, source m, rawInitial(i,m.RawMatrix)))
