@@ -24,6 +24,7 @@ newPackage(
 	     "VersalDeformations"},
 	 AuxiliaryFiles => false,
          DebuggingMode => false,
+	 Keywords =>{"Algebraic Geometry"}
          )
 
      export {
