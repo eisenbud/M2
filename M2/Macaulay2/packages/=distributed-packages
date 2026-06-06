@@ -276,9 +276,7 @@ Msolve
 Permutations
 SCMAlgebras
 NumericalSemigroups
-<<<<<<< HEAD
 WeierstrassSemigroups
-=======
 ExteriorExtensions
 Oscillators
 IncidenceCorrespondenceCohomology
@@ -302,4 +300,4 @@ EuclideanDistanceDegree
 NeuralIdeals
 TestAudit
 LanguageServer
->>>>>>> 071b0a6719f15a5af7d636ad426ccd999d6d2f7d
+
