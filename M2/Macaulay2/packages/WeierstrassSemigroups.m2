@@ -1,7 +1,7 @@
 ///
 restart
 needsPackage "WeierstrassSemigroups"
-uninstallPackage "WeierstrassSemigroups"  -- 33.3846s elapsed
+uninstallPackage "WeierstrassSemigroups"  
 elapsedTime installPackage "WeierstrassSemigroups"  -- 33.3846s elapsed
 viewHelp "WeierstrassSemigroups"
 check "WeierstrassSemigroups"
@@ -1845,7 +1845,7 @@ Key
    (improveFamily,Ideal)
    [improveFamily,Verbose]
 Headline
-   Find a 1-parameter smoothing family with of perhaps smaller number of terms and coefficients
+   Find a 1-parameter smoothing family with perhaps smaller number of terms and coefficients
 Usage
    J1 = improveFamily J  
 Inputs
@@ -2849,7 +2849,7 @@ Key
    [collectByCongruences,CoeffSize]
    [collectByRange,CoeffSize]
 Headline
-   Collect 1-parameter family filtered by bound (or congruences or range)
+   Collect 1-parameter families filtered by bound (or congruences or range)
 Usage
    collectByBound(LL,b,done,doneData)
    collectByRange(LL,b,range,doneData)
@@ -3370,7 +3370,7 @@ doc ///
     (displaySyzygyMatrices,List)
     [displaySyzygyMatrices,Verbose]
   Headline
-   display the syzygy matrices
+   Display the syzygy matrices
   Usage
    A = displaySyzygyMatrices L
   Inputs
@@ -3409,7 +3409,7 @@ doc ///
     (hilbertBurchConditions,List)
     (depthCondition1,List)
   Headline
-   check the depth conditions for the exactness of the 1,4,4,1 subcomplex of the 1,6,8,3 subcomplex.
+   Check the depth conditions for the exactness of the 1,4,4,1 subcomplex of the 1,6,8,3 subcomplex
   Usage
    A = hilbertBurchMatrices L
    answer = hilbertBurchConditions L
@@ -3491,7 +3491,7 @@ doc ///
     (getListOfIdeals,List,String)
     [getListOfIdeals,Verbose]
   Headline
-   read a list of ideals from a dataBase
+   Read a list of ideals from a dataBase
   Usage
    Js = getListOfIdeals(LL,name)
   Inputs
@@ -3518,7 +3518,7 @@ doc ///
     (checkFlatnessOfOneParameterFamilies,List,String)
     [checkFlatnessOfOneParameterFamilies,Verbose]
   Headline
-   check flatness of 1-parameter famiiles
+   Check flatness of 1-parameter famiiles
   Usage
    answer=checkFlatnessOfOneParameterFamilies(LL,name)
   Inputs
@@ -3546,7 +3546,7 @@ doc ///
     [checkSmoothnessOfOneParameterFamilies,Verbose]
     [checkSmoothnessOfOneParameterFamilies,BaseField]
   Headline
-   check smoothness of 1-parameter families
+   Check smoothness of 1-parameter families
   Usage
    (answer,toDoAgain)=checkSmoothnessOfOneParameterFamilies(LL,name)
   Inputs
