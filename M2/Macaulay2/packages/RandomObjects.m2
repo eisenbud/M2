@@ -65,10 +65,10 @@ globalAssignment RandomObject
 -- to "true", the constructed object is tested using
 -- the method "randomObjectClass.Verification" that
 -- returns "true" or "false". "Attempts" specifies
--- the maximum number "randomObjectClass.Construction"
+-- the maximum number of times that "randomObjectClass.Construction"
 -- is carried out unless it returns a value other than
 -- "null". If "Verify" is set to "true" then "Attempts"
--- specifies the maximum number "randomObjectClass.Construction"
+-- specifies the maximum number of times that  "randomObjectClass.Construction"
 -- is carried out unless it returns a value other than null
 -- and that returns "true" under "randomClass.Verification".
 

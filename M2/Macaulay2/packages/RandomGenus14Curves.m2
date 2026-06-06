@@ -348,7 +348,7 @@ TEST ///
 ///
 
 
-end
+end--
 
 restart
 uninstallPackage("RandomGenus14Curves")

@@ -557,4 +557,9 @@ L = first entries gens J;
 assert((#L==1) and ((degree(L#0))#0 == 6))
 ///
 
-end
+end--
+restart
+load "SectionRing.m2"
+installPackage "SectionRing"
+check "SectionRing"
+viewHelp SectionRing

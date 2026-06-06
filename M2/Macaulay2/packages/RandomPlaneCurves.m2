@@ -335,7 +335,7 @@ L=basis(5,R)
 C=imageUnderRationalMap(I,L);
 assert(dim C == 2 and genus C==0 and degree C == 5)
 ///
-end
+end--
 
 restart
 uninstallPackage("RandomPlaneCurves")

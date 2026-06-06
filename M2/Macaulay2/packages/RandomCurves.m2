@@ -34,8 +34,9 @@ Description
  Text
   Selecting a random curve of genus g means selecting a random point in the moduli space M_g of smooth curves of genus g.
   For g<=14, this space is known to be unirational, and construction methods to find a random point are known.
+  Even though this is not known in genus 15, there is a reasonably quick method for finding a random curve there.
   In this package there are functions to create objects of type RandomObject that contain routines to choose
-  a random curve in this sense, always for genus <= 14, and certain other construction.
+  a random curve in this sense, always for genus <= 14, and certain other constructions.
 
   A RandomObject in this sense is a hashTable consisting of two functions, one that can construct a random point
   and the other that can certify that the thing constructed has the desired property, say being a smooth space

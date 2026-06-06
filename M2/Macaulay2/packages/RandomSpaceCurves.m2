@@ -495,16 +495,15 @@ beginDocumentation()
 doc ///
   Key
     "spaceCurve"
-    (spaceCurve, ZZ, ZZ, Ring)
   Headline
-    constructs a RandomObject that can be used to construct a space curve
+    constructs a RandomObject that can be used to construct a space curve.
   Usage
     (random spaceCurve)(d,g,R)
   Inputs
     d:ZZ
         the desired degree
     g:ZZ
-        the desired genus
+        the desired genus, 
     R:PolynomialRing
     	 homogeneous coordinate ring of $\PP^{ 3}$
   Outputs
