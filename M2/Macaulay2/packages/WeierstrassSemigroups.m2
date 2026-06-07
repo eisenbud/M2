@@ -21,7 +21,8 @@ newPackage(
 	     "Permutations",
 	     "PrimaryDecomposition",
 	     "NumericalSemigroups",
-	     "VersalDeformations"},
+	     "VersalDeformations",
+	     "RandomPoints"},
 	 AuxiliaryFiles => false,
          DebuggingMode => false,
 	 Keywords =>{"Algebraic Geometry"}
@@ -617,7 +618,7 @@ findPoint(Ideal) := o -> (J) -> (
     if o.Verbose then (
     
     elapsedTime while (count < 10 and (
-	p = first randomPoints(count,cR1,BruteForceAttempts => 0);
+	p = first randomPoints(count,cR1);
 	if p == {} then
             (<< "No point was found by randomPoints"<<endl; return null);
         product flatten p ==0)) do (count = count+1);
@@ -626,7 +627,7 @@ findPoint(Ideal) := o -> (J) -> (
     ) else (
 
     while (count < 10 and (
-	p = first randomPoints(count,cR1,BruteForceAttempts => 0); --maybe 20 should be replaced by count
+	p = first randomPoints(count,cR1);
 	product flatten p ==0)) do(count = count+1);
     if count == 10 then return null
     );
@@ -3683,3 +3684,39 @@ viewHelp "WeierstrassSemigroups"
 
 check("WeierstrassSemigroups")
 
+
+-* computation section*-
+-* starting search in genus 13 *-
+restart
+needsPackage "WeierstrassSemigroups"
+LL=toDoList(6,13)
+
+X="genus13Families.dbm"
+Y=openDatabase X
+tally keys Y
+krings=apply(#keys Y//2,i->(sort(keys Y))_(2*i+1))
+tally apply(krings,k->(S=value (Y#k);coefficientRing S))
+LL51= apply(krings,k->(S=value (Y#k);flatten drop(degrees S,-1)))
+elapsedTime answer=checkFlatnessOfOneParameterFamilies(LL51,"genus13Families.dbm")
+elapsedTime (answer,toDoAgain)=checkSmoothnessOfOneParameterFamilies(LL51,
+    "genus13Families.dbm",Verbose=>2)
+
+run "rm done13"
+W="done13"
+--Z=openOut W
+apply(LL51,L->(
+   openOutAppend W;
+    W<<L;
+    W << ", ";
+    W<<close;)
+)
+
+
+#getFromDisk W==51
+
+
+b=10
+elapsedTime collectWithVersalDeformations(LL,b,"done13","genus13Families.dbm",Verbose=>2)
+
+elapsedTime collectByBound(LL,b,"done13","genus13Families.dbm",Verbose=>2)
+elapsedTime collectWithVersalDeformations(LL,b,"done13","genus13Families.dbm",Verbose=>2)
