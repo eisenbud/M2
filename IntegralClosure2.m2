@@ -1082,7 +1082,7 @@ parametersInIdeal1 Ideal := List => I -> (
             print"inside the hard part";
             q' := apply (#Q, i -> (
                     i' := intersect drop(Q,{i,i});
-                    ei := elementsOutsideIdeal(i', Q_i);
+                    ei := elementsOutsideIdeal(intersect(I,i'), Q_i);
                     goodElement ei));
             P = append(P,sum q');
             )
@@ -1133,6 +1133,13 @@ w = canonicalIdeal R
 ideal(0_R):w_1
 primaryDecomposition ideal(0_R)
 decompose ideal(0_R)
+restart
+needsPackage "IntegralClosure2"
+S = ZZ/101[a..e]
+I = ideal (a*b, a*c, b*c, a*d, b*d, c*d, a*e, b*e, c*e, d*e)
+parametersInIdeal I
+parametersInIdeal1 I
+
 ----
 
 
